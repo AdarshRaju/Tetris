@@ -1,0 +1,28 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+#maingridcontainer{
+    display: grid;
+    width: 500px;
+    height: 500px;
+    /* grid-template: repeat(5, 100px) / repeat(5, 100px); */
+    border: black solid 5px;
+}
+
+.griditem{
+    border: black solid 1px;
+}
+
+.floatingbrick {
+    background-color: blue;
+}
+
+.flooredbrick {
+    background-color: grey;
+}

@@ -1,0 +1,9 @@
+startgame(); 
+generateTpiece();
+
+
+console.log(currentuserarray);
+
+console.log(getavailablecolumns("piece"));
+
+generateunblockedpiece();
