@@ -1,13 +1,18 @@
 var maingridcontainer = document.getElementById("maingridcontainer");
+var startbutton = document.getElementById("startbutton");
+var statusheading = document.getElementById("statusheading");
+var scorebar = document.getElementById("scorebar");
+var scorevalue = document.getElementById("scorevalue");
 var gameover=true;
-var noofcols = 6;
-var noofrows = 10;
+var noofcols = 12;
+var noofrows = 20;
 var boardsize = noofrows * noofcols;
-var gamespeed = 100;
+var gamespeed = 500;
 var currentlyselectedpiece;
 var currentlyselectedpiecematrix = [];
-// var currentuserrefrow;
+var piecedowninterval;
 var currentuserrefcellindex;
+var score = 0;
 
 
 var currentuserarray = [];
@@ -15,7 +20,54 @@ var cellsarr = [];
 var pieces = ["O", "I", "J", "L", "S", "Z", "T"];
 var blockedpieces = [];
 
-const matrix = [[1,2,3], [4,5,6], [7,8,9]];
+let testmatrix = [
+    [true, true, true],
+    [true, true, false],
+    [true, true, false],
+    [false, true, false],
+    [false, false, false],
+    [false, false, false],
+];
+
+let Opiecematrix = [
+        [true, true],
+        [true, true]    
+    ];
+
+let Ipiecematrix = [
+        [true],
+        [true],
+        [true],
+        [true]       
+    ];
+
+let Jpiecematrix = [
+        [false, true],
+        [false, true],
+        [true, true]       
+    ];
+
+let Lpiecematrix = [
+        [true, false],
+        [true, false],
+        [true, true]       
+    ];
+
+let Spiecematrix = [
+        [false, true, true],
+        [true, true, false]     
+    ];
+
+let Zpiecematrix = [
+        [true, true, false],
+        [false, true, true]     
+    ];
+
+ let Tpiecematrix = [
+        [true, true, true],
+        [false, true, false]  
+    ];
+
 
 function rotatematrixclockwise(mat){
     let tempmatrix = [];
@@ -48,16 +100,25 @@ function rotatematrixanticlockwise(mat){
     return tempmatrix;
 };
 
+startbutton.addEventListener("click", ()=>{
+    startgame();
+});
 
 function startgame() {
-    if((gameover)){
-        // gameover = false;
+    // if((gameover)){
+        gameover = false;
         maingridcontainer.innerHTML = "";
+        statusheading.innerHTML = "Use the arrow keys, Shift and Space to play";
         generategridcells();
         resetcurrentarrays();
-        // generaterandompiece();
-        // var gameintereval = setInterval(movepiecedown, 100);
-    }
+        blockedpieces = [];
+        score = 0;
+        scorevalue.innerHTML = score;
+        generaterandompiece();
+        clearInterval(piecedowninterval);
+        piecedowninterval = setInterval(movepiecedown, gamespeed);
+        
+    // }
 };
 
 function resetcurrentarrays(){
@@ -67,7 +128,7 @@ function resetcurrentarrays(){
     clearfloatingbricks();
     currentuserarray = [];
     currentlyselectedpiecematrix = [];
-    blockedpieces = [];
+    
     
 };
 
@@ -106,11 +167,14 @@ function addflooredbricks(indexno) {
 // #region piece generation logic
 
 function generateunblockedpiece(){
-   
+
+   console.log("The blocked pieces are: ", blockedpieces);
 
     if(blockedpieces.length == pieces.length){
-        console.log("None of the pieces can be generated in the grid.");
+        console.log("Game Over! None of the pieces can be generated in the grid space.");
         gameover = true;
+        statusheading.innerHTML = "Game Over! Press start to play again";
+        clearInterval(piecedowninterval);
     } else {
         for (piece of pieces){
             if (!blockedpieces.includes(piece)){
@@ -144,93 +208,180 @@ function generateunblockedpiece(){
     }
 
     
-}
+};
 
-function getavailablecolumns(piece){
+function checkbricksincolfordepth(colno,depth){
+    let bricksincol = cellsarr.filter(cell=>{
+        return (parseInt(cell.id) < (noofcols * depth)) && (cell.classList.contains("flooredbrick"))
+        && (parseInt(cell.id)%noofcols == colno)
+    })
+    // console.log("bricksincol is: ", bricksincol);
+    return bricksincol.length>0 ? true:false;
+};
 
-     let pieceheight;
-     let piecewidth;
-     
-     switch(piece){
-        case "O":
-            pieceheight = 2;
-            piecewidth = 2;
-            break;
-        case "I":
-            generateIpiece();
-            pieceheight = 4;
-            piecewidth = 1;
-        case "J":
-            pieceheight = 3;
-            piecewidth = 2;
-            break;
-        case "L":
-            pieceheight = 3;
-            piecewidth = 2;
-            break;
-        case "S":
-            pieceheight = 2;
-            piecewidth = 3;
-            break;
-        case "Z":
-            pieceheight = 2;
-            piecewidth = 3;
-            break;
-        case "T":
-            pieceheight = 2;
-            piecewidth = 3;
-            break;
-     }
+function getavailablecolumns(piecematrix){
 
-// check for any obstructions from floored bricks that would coincide with the location of the cells in the piece
-    let bricksintheway = cellsarr.filter(cell =>{
-        return ((parseInt(cell.id) < (noofcols * pieceheight)) && (cell.classList.contains("flooredbrick")));
-    });
-
-    let colbricksinway = bricksintheway.map(brickcell => parseInt(brickcell.id)%noofcols);
-
-    let pieceheightemptycols = [];
-    let availablecols = [];
+    let piecewidth = piecematrix[0].length;
+    let lastrow = piecematrix.length - 1;
+    let lastrowitems = piecematrix[lastrow];
 
     
-    // Need to check all the columns here
-    for (let i=0; i<(noofcols); i++){
-        if(!colbricksinway.includes(i)){
-            pieceheightemptycols.push(i);
+    let lastrowmap = lastrowitems.map(cell => cell ? 1 : 0);
+
+    // For potential future features where a piece matrix could have multiple empty rows at the bottom
+    while (!lastrowmap.includes(1) && lastrow >=0){
+        lastrow--;
+        lastrowitems = piecematrix[lastrow];
+        lastrowmap = lastrowitems.map(cell => cell ? 1 : 0);
+    }
+
+    let relativerowheightmap = lastrowmap.map((lastrowitem, itemindex) =>{
+        if (!lastrowitem) {
+            
+            for (let i=(lastrow -1); i>=0; i--){
+                if (!piecematrix[i][itemindex]){
+                    lastrowitem--;
+                } else {break;}
+            }
+        }
+        return lastrowitem-1;
+    });
+
+    // The height of the empty rows are trimmed out from the piecematrix
+    let pieceheight1 = lastrow +1;
+
+    let depthmap = relativerowheightmap.map(col =>{
+        return col + pieceheight1;
+    });
+
+    let availablecols = [];
+
+    for (let i=0; i<(noofcols-piecewidth+1);i++){
+        let piecefitcheck = depthmap.map((piececoldepth, piececolindex)=>{
+            return checkbricksincolfordepth((i+piececolindex), piececoldepth);
+        });
+        if(!piecefitcheck.includes(true)){
+            availablecols.push(i)
         }
     };
 
-    // The top left most cell of an O piece can be generatated in any column from 0 to (no of cols-2) in the top most row 
-    // currentuserrefcellindex = Math.floor(Math.random()*(noofcols-1));
+    // console.log("pieceheight1 is: ", pieceheight1);
 
-    console.log("pieceheightemptycols is: ", pieceheightemptycols);
+    // console.log("lastrowmap is: ", lastrowmap);
 
-    for (let i=0; i<pieceheightemptycols.length; i++){
+    // console.log("depthmap is: ", depthmap);
+
+    // #region legacy code
+
+    // let pieceheight2;
+    // lastrowmap.includes(0) ? pieceheight2 = (pieceheight1 -1) : pieceheight2 = pieceheight1;
+
+// check for any obstructions from floored bricks that would coincide with the location of the cells in the piece
+    // let bricksinthewayheight1 = cellsarr.filter(cell =>{
+    //     return ((parseInt(cell.id) < (noofcols * pieceheight1)) && (cell.classList.contains("flooredbrick")));
+    // });
+
+    
+
+    // let colbricksinwayheight1 = bricksinthewayheight1.map(brickcell => parseInt(brickcell.id)%noofcols);
+
+    // let pieceheight1emptycols = [];
+    // let pieceheight2emptycols = [];
+
+    // To check all the available columns for height1 here
+    // for (let i=0; i<(noofcols); i++){
+    //     if(!colbricksinwayheight1.includes(i)){
+    //         pieceheight1emptycols.push(i);
+    //     }
+    // };
+
+    // if(pieceheight1 !== pieceheight2){
+    //     let bricksinthewayheight2 = cellsarr.filter(cell =>{
+    //     return ((parseInt(cell.id) < (noofcols * pieceheight2)) && (cell.classList.contains("flooredbrick")));
+    //     });
+
+    //     let colbricksinwayheight2 = bricksinthewayheight2.map(brickcell => parseInt(brickcell.id)%noofcols);
+
         
-            if(piecewidth == 1){
-                availablecols.push(pieceheightemptycols[i])
-            }
-            if(piecewidth == 2){
-                if(parseInt(pieceheightemptycols[i+1])){
-                    if((parseInt(pieceheightemptycols[i]) + 1) == parseInt(pieceheightemptycols[i+1])){
-                        availablecols.push(pieceheightemptycols[i])
-                    }
-                }
-            }
-            if(piecewidth == 3){
-                if(parseInt(pieceheightemptycols[i+1]) && parseInt(pieceheightemptycols[i+2])){
-                    if((parseInt(pieceheightemptycols[i]) + 1) == parseInt(pieceheightemptycols[i+1])
-                        && (parseInt(pieceheightemptycols[i]) + 2) == parseInt(pieceheightemptycols[i+2])){
-                        availablecols.push(pieceheightemptycols[i])
-                    }
-                }
-            }
-        
-    };
-    console.log("availablecols is: ", availablecols);
+
+    //     // To check all the available columns for height2 here
+    //     for (let i=0; i<(noofcols); i++){
+    //         if(!colbricksinwayheight2.includes(i)){
+    //             pieceheight2emptycols.push(i);
+    //         }
+    //     };
+
+    // } else {
+    //     // bricksinthewayheight2 = bricksinthewayheight1;
+    //     // colbricksinwayheight2 = colbricksinwayheight1;
+    //     pieceheight2emptycols = pieceheight1emptycols;
+
+    // }
+
+    //  console.log("pieceheight1emptycols is: ", pieceheight1emptycols, "pieceheight2emptycols is: ", pieceheight2emptycols);
+
+    // This is the final available columns list for the selected piece type
+    
+
+
+   
+    // if (piece == "O" || piece == "I" || piece == "J" || piece == "L") {
+    //     for (let i=0; i<pieceheight1emptycols.length; i++){
+            
+    //             if(piecewidth == 1){
+    //                 availablecols.push(pieceheight1emptycols[i])
+    //             }
+    //             if(piecewidth == 2){
+    //                 if((pieceheight1emptycols[i+1])){
+    //                     if((parseInt(pieceheight1emptycols[i]) + 1) == parseInt(pieceheight1emptycols[i+1])){
+    //                         availablecols.push(pieceheight1emptycols[i])
+    //                     }
+    //                 }
+    //             }
+    //             if(piecewidth == 3){
+
+    //                 if((pieceheight1emptycols[i+1]) && (pieceheight1emptycols[i+2])){
+    //                     if((parseInt(pieceheight1emptycols[i]) + 1) == parseInt(pieceheight1emptycols[i+1])
+    //                         && (parseInt(pieceheight1emptycols[i]) + 2) == parseInt(pieceheight1emptycols[i+2])){
+    //                         availablecols.push(pieceheight1emptycols[i])
+    //                     }
+    //                 }
+
+    //             }
+            
+    //     };
+    // } else if (piece == "S" || piece == "Z" || piece == "T"){
+
+    //     for (let i=0; i<pieceheight1emptycols.length; i++){
+    //         let height1colnum = parseInt(pieceheight1emptycols[i]);
+
+    //         if(piece == "S"){
+    //             if (pieceheight1emptycols.includes(height1colnum+1) && pieceheight2emptycols.includes(height1colnum+2)){
+    //                 availablecols.push(pieceheight1emptycols[i])
+    //             }
+    //         }
+
+    //         if(piece == "Z"){
+    //             if (pieceheight1emptycols.includes(height1colnum+1) && pieceheight2emptycols.includes(height1colnum-1)){
+    //                 // have to subtract 1 to reflect the top left cell used in other parts of the logic
+    //                 availablecols.push(pieceheight1emptycols[i]-1)
+    //             }
+    //         }
+
+    //         if(piece == "T"){
+    //             if (pieceheight2emptycols.includes(height1colnum+1) && pieceheight2emptycols.includes(height1colnum-1)){
+    //                 availablecols.push(pieceheight1emptycols[i]-1)
+    //             }
+    //         }
+
+    //     }
+    // }
+
+    // #endregion legacy code
+
+    // console.log("availablecols is: ", availablecols);
     return availablecols;
-
-
+    
 };
 
 function generateOpiece(){
@@ -241,13 +392,11 @@ function generateOpiece(){
 
     // always generate the item from the top-left corner of the grid
 
-    let Opiecematrix = [
-        [true, true],
-        [true, true]    
-    ];
+    
 
     
-    let availablecols = getavailablecolumns("O");
+    // let availablecols = getavailablecolumns("O");
+    let availablecols = getavailablecolumns(Opiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -255,7 +404,7 @@ function generateOpiece(){
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new O piece. availablecols is: ", availablecols);
         blockedpieces.push("O");
         generateunblockedpiece();
     }
@@ -273,15 +422,11 @@ function generateIpiece(){
     // let Ipiece = [];
     // Ipiece.push(currentuserrefcellindex, (currentuserrefcellindex+(noofcols*1)), (currentuserrefcellindex+(noofcols*2)), (currentuserrefcellindex+(noofcols*3)));
 
-    let Ipiecematrix = [
-        [true],
-        [true],
-        [true],
-        [true]       
-    ];
+    
 
 
-    let availablecols = getavailablecolumns("I");
+    // let availablecols = getavailablecolumns("I");
+    let availablecols = getavailablecolumns(Ipiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -289,7 +434,7 @@ function generateIpiece(){
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new I piece. availablecols is: ", availablecols);
         blockedpieces.push("I");
         generateunblockedpiece();
     }
@@ -304,15 +449,12 @@ function generateJpiece(){
     // The top left most cell of an J piece matrix can be generatated in any column from 0 to (no of cols - 2) in the top most row 
     // currentuserrefcellindex = Math.floor((Math.random()*(noofcols-1)));
 
-    let Jpiecematrix = [
-        [false, true],
-        [false, true],
-        [true, true]       
-    ];
+    
 
     
 
-    let availablecols = getavailablecolumns("J");
+    // let availablecols = getavailablecolumns("J");
+    let availablecols = getavailablecolumns(Jpiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -320,7 +462,7 @@ function generateJpiece(){
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new J piece. availablecols is: ", availablecols);
         blockedpieces.push("J");
         generateunblockedpiece();
     }
@@ -334,13 +476,10 @@ function generateLpiece(){
 
 
 
-    let Lpiecematrix = [
-        [true, false],
-        [true, false],
-        [true, true]       
-    ];
+    
 
-    let availablecols = getavailablecolumns("L");
+    // let availablecols = getavailablecolumns("L");
+    let availablecols = getavailablecolumns(Lpiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -348,7 +487,7 @@ function generateLpiece(){
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new L piece. availablecols is: ", availablecols);
         blockedpieces.push("L");
         generateunblockedpiece();
     }
@@ -363,12 +502,10 @@ function generateSpiece(){
 
     
 
-    let Spiecematrix = [
-        [false, true, true],
-        [true, true, false]     
-    ]
+    
 
-    let availablecols = getavailablecolumns("S");
+    // let availablecols = getavailablecolumns("S");
+    let availablecols = getavailablecolumns(Spiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -376,7 +513,7 @@ function generateSpiece(){
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new S piece. availablecols is: ", availablecols);
         blockedpieces.push("S");
         generateunblockedpiece();
     }
@@ -389,12 +526,10 @@ function generateZpiece() {
     // The top left most cell of an Z piece can be generatated in any column from 0 to (no of cols - 3) in the top most row 
     // currentuserrefcellindex = Math.floor((Math.random()*(noofcols-2)));
 
-    let Zpiecematrix = [
-        [true, true, false],
-        [false, true, true]     
-    ]
+    
 
-    let availablecols = getavailablecolumns("Z");
+    // let availablecols = getavailablecolumns("Z");
+    let availablecols = getavailablecolumns(Zpiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -402,7 +537,7 @@ function generateZpiece() {
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new Z piece. availablecols is: ", availablecols);
         blockedpieces.push("Z");
         generateunblockedpiece();
     }
@@ -414,12 +549,10 @@ function generateTpiece() {
     // The top left most cell of an T piece can be generatated in any column from 0 to (no of cols - 3) in the top most row 
     // currentuserrefcellindex = Math.floor((Math.random()*(noofcols-2)));
 
-    let Tpiecematrix = [
-        [true, true, true],
-        [false, true, false]  
-    ]
+   
 
-    let availablecols = getavailablecolumns("T");
+    // let availablecols = getavailablecolumns("T");
+    let availablecols = getavailablecolumns(Tpiecematrix);
 
     if (availablecols.length > 0){
         currentuserrefcellindex = availablecols[Math.floor(Math.random()*(availablecols.length))];
@@ -427,7 +560,7 @@ function generateTpiece() {
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
     } else {
-        console.log("There is no space to generate new piece. availablecols is: ", availablecols);
+        // console.log("There is no space to generate new T piece. availablecols is: ", availablecols);
         blockedpieces.push("T");
         generateunblockedpiece();
     }
@@ -713,10 +846,12 @@ function movepiecedown() {
         // console.log(currentuserarray);
     }else {
         currentuserarray.forEach(addflooredbricks);
-        // resetcurrentarrays();
+        
         checkbrickedrows();
-        resetcurrentarrays();
-        generaterandompiece();
+        if (!gameover){
+            resetcurrentarrays();
+            generaterandompiece();
+        };
         // console.log("The piece has hit the bottom wall or a floored brick");
     }
 };
@@ -733,6 +868,7 @@ function checkfloor(){
 };
 
 document.addEventListener("keydown", (e)=>{
+    e.preventDefault();
     if(e.key == "ArrowLeft"){
         movepieceleft();
     }
@@ -746,6 +882,7 @@ document.addEventListener("keydown", (e)=>{
     }
 
     if(e.key == " ") {
+        
         rotatepiececlockwise();
     }
 
@@ -764,73 +901,80 @@ function checkbrickedrows(){
         rowsofbricked.push(Math.floor(parseInt(cell.id)/noofcols));
     });
 
-    // uniquerowsarr stores the unique rows with atleast one bricked cell
-    let uniquerowsarr = [...new Set(rowsofbricked)];
-    // fullrowsarr stores the unique rows with all cells bricked in it
-    let fullrowsarr = [];
+    if(rowsofbricked.includes(0)){
+        console.log("Gameover! The bricks have hit the ceiling!");
+        clearInterval(piecedowninterval);
+        gameover = true;
+        statusheading.innerHTML = "Game Over! Press start to play again";
+    };
 
-    uniquerowsarr.forEach(uniquerownumber =>{
-        let localcounter =0;
-        for (let i=0; i<rowsofbricked.length; i++){
-            if (uniquerownumber == rowsofbricked[i]){
-                localcounter++;
-                // console.log(`local counter for rownumber ${uniquerownumber}, comparing ${rowsofbricked[i]} is ${localcounter}`);
-                if (localcounter >= noofcols){
-                    fullrowsarr.push(uniquerownumber);
-                    break;
+    if(!gameover){
+        // uniquerowsarr stores the unique rows with atleast one bricked cell
+        let uniquerowsarr = [...new Set(rowsofbricked)];
+        // fullrowsarr stores the unique rows with all cells bricked in it
+        let fullrowsarr = [];
+
+        uniquerowsarr.forEach(uniquerownumber =>{
+            let localcounter =0;
+            for (let i=0; i<rowsofbricked.length; i++){
+                if (uniquerownumber == rowsofbricked[i]){
+                    localcounter++;
+                    // console.log(`local counter for rownumber ${uniquerownumber}, comparing ${rowsofbricked[i]} is ${localcounter}`);
+                    if (localcounter >= noofcols){
+                        fullrowsarr.push(uniquerownumber);
+                        break;
+                    }
                 }
-            }
-            
-        }
-    });
-
-    // console.log("rowsofbricked is: ", rowsofbricked);
-    // console.log("uniquerowsarr is: ", uniquerowsarr);
-    // console.log("fullrowsarr is: ", fullrowsarr);
-    
-    // Removing all full rows of bricked cells
-    fullrowsarr.forEach(fullrow =>{
-        let startingind = parseInt(fullrow) * noofcols;
-        let finishingind = startingind + (noofcols-1);
-
-        for (let i=startingind; i <= finishingind; i++){
-            cellsarr[i].classList.remove("flooredbrick");
-        };
-    });
-
-    // The floored bricks would still be floating in place b/w the rows which are just cleared needs to cascade down
-    setTimeout(() => {
-        
-    
-        fullrowsarr.sort(function(a,b){return a - b});
-        fullrowsarr.forEach(clearedrow =>{
-            
-            let cascadebrickstill = parseInt(clearedrow) * noofcols;
-            let noofrowsremoved = fullrowsarr.length;
-            console.log("clearedrow being used is: ", clearedrow ,", cascasdebrickstill is: ", cascadebrickstill, " and nowofrowsremoved is: ", noofrowsremoved);
-            brickedcells = [...document.getElementsByClassName("flooredbrick")];
-            let newindicestoadd = [];
-            brickedcells.forEach(brick =>{
-                let brickind = parseInt(brick.id);
-                if (brickind < cascadebrickstill){
-                    console.log("brickind used inside cascade logic is: ", brickind);
-                    // remove flooredbrick class on cell and add it to (noofcols*noofrowsremoved) index
-                    brick.classList.remove("flooredbrick");
-                    let newindex = brickind +(noofcols);
-                    newindicestoadd.push(newindex);
-                    console.log("cascaded cell referenced is: ", cellsarr[brickind +(noofcols*noofrowsremoved)]);
-                    // cellsarr[brickind +(noofcols*noofrowsremoved)].classList.add("flooredbrick");
-                }
-            });
-            newindicestoadd.forEach(index =>{
-                cellsarr[index].classList.add("flooredbrick");
-            });
                 
+            }
         });
-    }, 200);
+
+        // console.log("rowsofbricked is: ", rowsofbricked);
+        // console.log("uniquerowsarr is: ", uniquerowsarr);
+        // console.log("fullrowsarr is: ", fullrowsarr);
+        
+        // Removing all full rows of bricked cells
+        fullrowsarr.forEach(fullrow =>{
+            let startingind = parseInt(fullrow) * noofcols;
+            let finishingind = startingind + (noofcols-1);
+
+            for (let i=startingind; i <= finishingind; i++){
+                cellsarr[i].classList.remove("flooredbrick");
+            };
+            score++;
+            scorevalue.innerHTML = score;
+        });
+
+        // The floored bricks would still be floating in place b/w the rows which are just cleared needs to cascade down
+        setTimeout(() => {
+            
+        
+            fullrowsarr.sort(function(a,b){return a - b});
+            fullrowsarr.forEach(clearedrow =>{
+                
+                let cascadebrickstill = parseInt(clearedrow) * noofcols;
+                let noofrowsremoved = fullrowsarr.length;
+                console.log("clearedrow being used is: ", clearedrow ,", cascasdebrickstill is: ", cascadebrickstill, " and nowofrowsremoved is: ", noofrowsremoved);
+                brickedcells = [...document.getElementsByClassName("flooredbrick")];
+                let newindicestoadd = [];
+                brickedcells.forEach(brick =>{
+                    let brickind = parseInt(brick.id);
+                    if (brickind < cascadebrickstill){
+                        console.log("brickind used inside cascade logic is: ", brickind);
+                        // remove flooredbrick class on cell and add it to (noofcols*noofrowsremoved) index
+                        brick.classList.remove("flooredbrick");
+                        let newindex = brickind +(noofcols);
+                        newindicestoadd.push(newindex);
+                        console.log("cascaded cell referenced is: ", cellsarr[brickind +(noofcols*noofrowsremoved)]);
+                        // cellsarr[brickind +(noofcols*noofrowsremoved)].classList.add("flooredbrick");
+                    }
+                });
+                newindicestoadd.forEach(index =>{
+                    cellsarr[index].classList.add("flooredbrick");
+                });
+                    
+            });
+        }, 200);
     
-
+    }
 };
-
-// movepieceright();
-// movepieceleft();

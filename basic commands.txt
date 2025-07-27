@@ -4,6 +4,9 @@ generateTpiece();
 
 console.log(currentuserarray);
 
-console.log(getavailablecolumns("piece"));
+console.log(getavailablecolumns(testmatrix));
+console.log(getavailablecolumns(Jpiecematrix));
 
+
+checkbricksincolfordepth(colno,depth);
 generateunblockedpiece();
