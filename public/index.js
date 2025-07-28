@@ -206,7 +206,7 @@ function startgame() {
         scorevalue.innerHTML = score;
         generaterandompiece();
         clearInterval(piecedowninterval);
-        piecedowninterval = setInterval(movepiecedown, gamespeed);
+        // piecedowninterval = setInterval(movepiecedown, gamespeed);
         
     // }
 };
