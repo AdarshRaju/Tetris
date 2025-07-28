@@ -5,23 +5,37 @@
         <meta name="description" content="tetris by Adarsh">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Tetris by Adarsh</title>
+        <link rel="icon" type="image/png" href="public/TetrisTpieceimage.webp">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
         <link rel="stylesheet" href="public/styles.css">
     </head>
     <body>
-        <header>
-            <h1>Tetris</h1>
+        <header class="container">
+            <h1><img src="public/TetrisTpieceimage.webp" height="50"></icon>etris</h1>
             <h2 id="statusheading">Press Start to Play</h2>
             <h3 id="scorebar">Score: <span id="scorevalue"></span></h3>
-            <button id="startbutton">Start</button>
+            <button class="btn btn-outline-danger" id="startbutton">Start</button>
         </header>
-        <main>
-            <div id="maingridcontainer" tabindex="0">
+        <main class="container">
 
+            <div id="buttoncontainerleft">
+                <button id="rotateanticlockwisebtn" class="btn btn-danger"><i class="rotateicon bi bi-arrow-counterclockwise"></i></button>
+                <button id="moveleftbtn" class="btn btn-primary"></button>
+                <button id="movedownbtn1" class="btn btn-secondary"></button>
+            </div>
+            <div id="maingridcontainer" tabindex="0">
+            </div>
+            <div id="buttoncontainerright">
+                <button id="rotateclockwisebtn" class="btn btn-danger round"><i class="rotateicon bi bi-arrow-clockwise"></i></button>
+                <button id="moverightbtn" class="btn btn-primary"></button>
+                <button id="movedownbtn2" class="btn btn-secondary"></button>
             </div>
         </main>
         <footer>
             <p>Created by Adarsh Raju &copy;</p>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
         <script src="public/index.js"></script>
     </body>
 </html>

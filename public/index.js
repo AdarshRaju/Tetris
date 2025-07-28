@@ -3,14 +3,22 @@ var startbutton = document.getElementById("startbutton");
 var statusheading = document.getElementById("statusheading");
 var scorebar = document.getElementById("scorebar");
 var scorevalue = document.getElementById("scorevalue");
+var rotateanticlockwisebtn = document.getElementById("rotateanticlockwisebtn");
+var moveleftbtn = document.getElementById("moveleftbtn");
+var rotateclockwisebtn = document.getElementById("rotateclockwisebtn");
+var moverightbtn = document.getElementById("moverightbtn");
+var movedownbtn1 = document.getElementById("movedownbtn1");
+var movedownbtn2 = document.getElementById("movedownbtn2");
 var gameover=true;
-var noofcols = 12;
+var boardwidth = 200;
+var noofcols = 10;
 var noofrows = 20;
 var boardsize = noofrows * noofcols;
 var gamespeed = 500;
 var currentlyselectedpiece;
 var currentlyselectedpiecematrix = [];
 var piecedowninterval;
+var clickdowninterval;
 var currentuserrefcellindex;
 var score = 0;
 
@@ -68,6 +76,88 @@ let Zpiecematrix = [
         [false, true, false]  
     ];
 
+// #region logic for touchscreens
+
+maingridcontainer.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+var leftkeyevent = new KeyboardEvent("keydown", {
+    key: "ArrowLeft"
+});
+
+var rightkeyevent = new KeyboardEvent("keydown", {
+    key: "ArrowRight"
+});
+
+var upkeyevent = new KeyboardEvent("keydown", {
+    key: "ArrowUp"
+});
+
+var downkeyevent = new KeyboardEvent("keydown", {
+    key: "ArrowDown"
+});
+
+maingridcontainer.addEventListener("dragstart", e => e.preventDefault());
+
+maingridcontainer.addEventListener("mousedown", (e) =>{
+    startX = e.clientX;
+    startY = e.clientY;
+    // console.log("startx and starty is: ", startX, startY);
+});
+
+maingridcontainer.addEventListener("mouseup", (e) =>{
+    endX = e.clientX;
+    endY = e.clientY;
+    // console.log("endX and endY is: ", endX, endY);
+    handleGesture();
+
+});
+
+maingridcontainer.addEventListener("touchstart", (e) =>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+});
+
+maingridcontainer.addEventListener("touchend", (e) =>{
+
+    endX = e.changedTouches[0].clientX;
+    endY = e.changedTouches[0].clientY;
+
+    handleGesture();
+});
+
+function handleGesture() {
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    
+    let regX = false;
+    let regY = false;
+    
+    (Math.abs(deltaX) > Math.abs(deltaY) ) ? regX = true : regY = true;
+    
+    if (Math.abs(deltaX) > 50 && regX) {
+        if (deltaX > 0) {
+            // console.log("right swipe was activated.");
+            document.dispatchEvent(rightkeyevent);
+        } else {
+            // console.log("left swipe was activated.");
+            document.dispatchEvent(leftkeyevent);
+        }
+    }
+    
+
+    if (Math.abs(deltaY) > 50 && regY) {
+        if (deltaY > 0) {
+            // console.log("swipe down was activated.");
+            document.dispatchEvent(downkeyevent);
+        } else {
+            // console.log("swipe up was activated.");
+            document.dispatchEvent(upkeyevent);
+        }
+    }
+};
+
+// #endregion logic for touchscreens
+
 
 function rotatematrixclockwise(mat){
     let tempmatrix = [];
@@ -108,7 +198,7 @@ function startgame() {
     // if((gameover)){
         gameover = false;
         maingridcontainer.innerHTML = "";
-        statusheading.innerHTML = "Use the arrow keys, Shift and Space to play";
+        statusheading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
         generategridcells();
         resetcurrentarrays();
         blockedpieces = [];
@@ -141,8 +231,37 @@ function generategridcells(){
         maingridcontainer.appendChild(newgridelement);
     };
 
-    maingridcontainer.style.gridTemplateColumns = `repeat(${noofcols}, ${500/noofcols}px)`;
-    maingridcontainer.style.gridTemplateRows = `repeat(${noofrows}, ${500/noofrows}px)`;
+    maingridcontainer.style.gridTemplateColumns = `repeat(${noofcols}, 1fr)`;
+    maingridcontainer.style.gridTemplateRows = `repeat(${noofrows}, 1fr)`;
+    maingridcontainer.style.border= "transparent solid 5px";
+    maingridcontainer.style.borderImage= `linear-gradient(to top, black, rgb(93, 45, 45))`;
+    maingridcontainer.style.borderImageSlice= "1";
+
+    let cellwidth = boardwidth/noofcols;
+    let boardheight = boardwidth+(cellwidth*(noofrows-noofcols));
+    console.log("boardwidth is: ", boardwidth, "boardheight is: ", boardheight);
+    
+    var docstyle = document.createElement("style");
+    docstyle.textContent = `
+        @media (max-width: 600px) {
+            #maingridcontainer{
+                width: ${boardwidth/2}px;
+                height: ${boardheight/2}px;
+            }
+        }
+        @media (min-width: 601px) {
+            #maingridcontainer{
+               width: ${boardwidth}px;
+                height: ${boardheight}px;
+            }
+
+        }   
+
+    `;
+
+    document.head.appendChild(docstyle);
+    
+    
 
  
     cellsarr = [...document.getElementsByClassName("griditem")];
@@ -886,10 +1005,39 @@ document.addEventListener("keydown", (e)=>{
         rotatepiececlockwise();
     }
 
+    if(e.key == "ArrowUp") {
+        
+        rotatepiececlockwise();
+    }
+
     if(e.key == "Shift") {
         rotatepieceanticlockwise();
     }
     
+});
+
+moveleftbtn.addEventListener("click", () => {
+    movepieceleft();
+});
+
+moverightbtn.addEventListener("click", () => {
+    movepieceright();
+});
+
+movedownbtn1.addEventListener("mousedown", () => {
+    movepiecedown();
+});
+
+movedownbtn2.addEventListener("mousedown", () => {
+    movepiecedown();
+});
+
+rotateclockwisebtn.addEventListener("click", () => {
+    rotatepiececlockwise();
+});
+
+rotateanticlockwisebtn.addEventListener("click", () => {
+    rotatepieceanticlockwise();
 });
 
 function checkbrickedrows(){
