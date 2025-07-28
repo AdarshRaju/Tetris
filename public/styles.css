@@ -1,28 +1,130 @@
+
+
 body{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background-color:rgba(226, 203, 180, 0.751);
     align-items: center;
     min-height: 100vh;
     margin: 0;
+    padding: 0;
+}
+
+header{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+main {
+    display: flex;
+    justify-content: space-around;
+}
+
+button {
+    margin-bottom: 15px;
 }
 
 #maingridcontainer{
     display: grid;
-    width: 500px;
-    height: 500px;
+    box-sizing: content-box;
+    
+    /* width: 500px;
+    height: 500px; */
     /* grid-template: repeat(5, 100px) / repeat(5, 100px); */
-    border: black solid 5px;
+    /* border: transparent solid 5px;
+    border-image: linear-gradient(to top, black, rgb(93, 45, 45));
+    border-image-slice: 1; */
+}
+
+#startbutton{
+    width: 20%;
+    justify-self: center;
+    align-self: center;
+}
+
+#buttoncontainerleft, #buttoncontainerright{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .griditem{
     border: black solid 1px;
+    box-sizing: content-box;
+     background-image: linear-gradient(to bottom right, white, rgb(164, 159, 159));
+    border: transparent solid 1px;
+    border-image: linear-gradient(to bottom right, red, black);
+    border-image-slice: 1;
 }
 
 .floatingbrick {
     background-color: blue;
+    background-image: linear-gradient(to top left, red, green);
+    border: transparent solid 1px;
+    border-image: linear-gradient(to left, red, black);
+    border-image-slice: 1;
 }
 
 .flooredbrick {
     background-color: grey;
+    background-image: linear-gradient(to top left, black, rgb(94, 87, 87));
+}
+
+.rotateicon{
+
+    /* margin: 0;
+    padding: 0; */
+    margin-left: 0.3rem;
+}
+
+#rotateclockwisebtn, #rotateanticlockwisebtn{
+    width: 50px;
+    height: 50px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    font-size: larger;
+    display: flex;
+    align-items: flex-start;
+    /* margin: 0; */
+}
+
+#moverightbtn{
+    height: 0;
+    width: 0;
+    border-top: 25px solid transparent;
+    border-bottom: 25px solid transparent;
+    border-left: 40px solid rgb(115, 38, 38);
+    border-right: 0;
+    background-color: transparent;
+    padding: 0;
+    margin-top: 2rem;
+}
+
+#moveleftbtn{
+    height: 0;
+    width: 0;
+    border-top: 25px solid transparent;
+    border-bottom: 25px solid transparent;
+    border-right: 40px solid rgb(115, 38, 38);
+    border-left: 0;
+    background-color: transparent;
+    padding: 0;
+    margin-top: 2rem;
+}
+
+#movedownbtn1, #movedownbtn2 {
+    height: 0;
+    width: 0;
+    border-top: 40px solid rgb(84, 75, 75);
+    border-bottom: 0;
+    border-right: 25px solid transparent;
+    border-left: 25px solid transparent;
+    /* border-image: linear-gradient(to bottom, red, green); */
+    /* border-image-slice: 1; */
+    background-color: transparent;
+    padding: 0;
+    margin-top: 2rem;
 }
