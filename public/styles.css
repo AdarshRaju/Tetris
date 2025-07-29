@@ -80,6 +80,10 @@ button {
     margin-left: 0.3rem;
 }
 
+#rotatelefticon{
+    margin-left: 0.0;
+}
+
 #rotateclockwisebtn, #rotateanticlockwisebtn{
     width: 50px;
     height: 50px;
@@ -89,6 +93,7 @@ button {
     display: flex;
     align-items: flex-start;
     /* margin: 0; */
+    margin-bottom: 5px;
 }
 
 #moverightbtn{
@@ -100,7 +105,8 @@ button {
     border-right: 0;
     background-color: transparent;
     padding: 0;
-    margin-top: 2rem;
+    /* margin-top: 2rem; */
+    /* margin-bottom: 0; */
 }
 
 #moveleftbtn{
@@ -112,7 +118,8 @@ button {
     border-left: 0;
     background-color: transparent;
     padding: 0;
-    margin-top: 2rem;
+    /* margin-top: 2rem; */
+    /* margin-bottom: 0; */
 }
 
 #movedownbtn1, #movedownbtn2 {
@@ -127,4 +134,13 @@ button {
     background-color: transparent;
     padding: 0;
     margin-top: 2rem;
+}
+
+#customcolssel, #customrowssel, #customspeedsel, #labelcustomcolssel, #labelcustomrowssel, #labelcustomspeedsel{
+    display: none;
+    margin-bottom: 15px;
+}
+
+#noofcolssel, #noofrowssel, #gamespeedsel{
+    margin-bottom: 15px;
 }

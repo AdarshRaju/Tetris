@@ -1,5 +1,8 @@
+// #region HTML elements captured and stored in variables
+
 var maingridcontainer = document.getElementById("maingridcontainer");
 var startbutton = document.getElementById("startbutton");
+var acceptsettingsbtn = document.getElementById("acceptsettingsbtn");
 var statusheading = document.getElementById("statusheading");
 var scorebar = document.getElementById("scorebar");
 var scorevalue = document.getElementById("scorevalue");
@@ -9,12 +12,26 @@ var rotateclockwisebtn = document.getElementById("rotateclockwisebtn");
 var moverightbtn = document.getElementById("moverightbtn");
 var movedownbtn1 = document.getElementById("movedownbtn1");
 var movedownbtn2 = document.getElementById("movedownbtn2");
+var startgameModal = document.getElementById("startgameModal");
+var noofcolssel = document.getElementById("noofcolssel");
+var noofrowssel = document.getElementById("noofrowssel");
+var gamespeedsel = document.getElementById("gamespeedsel");
+var customcolssel = document.getElementById("customcolssel");
+var customrowssel = document.getElementById("customrowssel");
+var customspeedsel = document.getElementById("customspeedsel");
+var labelcustomcolssel = document.getElementById("labelcustomcolssel");
+var labelcustomrowssel = document.getElementById("labelcustomrowssel");
+var labelcustomspeedsel = document.getElementById("labelcustomspeedsel");
+
+// #endregion HTML elements captured and stored in variables
+
+// #region global variables set
 var gameover=true;
-var boardwidth = 200;
-var noofcols = 10;
-var noofrows = 20;
-var boardsize = noofrows * noofcols;
-var gamespeed = 500;
+var boardwidth = 300;
+var noofcols;
+var noofrows;
+var boardsize;
+var gamespeed;
 var currentlyselectedpiece;
 var currentlyselectedpiecematrix = [];
 var piecedowninterval;
@@ -75,6 +92,8 @@ let Zpiecematrix = [
         [true, true, true],
         [false, true, false]  
     ];
+
+// #endregion global variables set
 
 // #region logic for touchscreens
 
@@ -158,6 +177,50 @@ function handleGesture() {
 
 // #endregion logic for touchscreens
 
+// #region logic for the settings selection modal
+
+// startgameModal.addEventListener('shown.bs.modal', () => {
+//     // if(customcolssel.style.display == "block"){
+//     //     customcolssel.focus();
+//     // }
+//     customcolssel.style.display = "block";
+//     customcolssel.focus();
+//     console.log("showbsmodal was activated");
+// });
+
+noofcolssel.addEventListener("change", (e) =>{
+    if(e.target.value == "custom"){
+        customcolssel.style.display = "block";
+        labelcustomcolssel.style.display = "block";
+        // customspeedsel.focus();
+    } else {
+        customcolssel.style.display = "none";
+        labelcustomcolssel.style.display = "none";
+    }
+});
+
+noofrowssel.addEventListener("change", (e) =>{
+    if(e.target.value == "custom"){
+        customrowssel.style.display = "block";
+        labelcustomrowssel.style.display = "block";
+    } else {
+        customrowssel.style.display = "none";
+        labelcustomrowssel.style.display = "none";
+    }
+});
+
+gamespeedsel.addEventListener("change", (e) =>{
+    if(e.target.value == "custom"){
+        customspeedsel.style.display = "block";
+        labelcustomspeedsel.style.display = "block";
+    } else {
+        customspeedsel.style.display = "none";
+        labelcustomspeedsel.style.display = "none";
+    }
+});
+
+// #endregion logic for the settings selection modal
+
 
 function rotatematrixclockwise(mat){
     let tempmatrix = [];
@@ -190,7 +253,7 @@ function rotatematrixanticlockwise(mat){
     return tempmatrix;
 };
 
-startbutton.addEventListener("click", ()=>{
+acceptsettingsbtn.addEventListener("click", ()=>{
     startgame();
 });
 
@@ -199,8 +262,16 @@ function startgame() {
         gameover = false;
         maingridcontainer.innerHTML = "";
         statusheading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
+        noofcols = parseInt(noofcolssel.value);
+        noofrows = parseInt(noofrowssel.value);
+        gamespeed = parseInt(gamespeedsel.value);
+        boardsize = noofrows * noofcols;
         generategridcells();
         resetcurrentarrays();
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
         blockedpieces = [];
         score = 0;
         scorevalue.innerHTML = score;
@@ -987,6 +1058,10 @@ function checkfloor(){
 };
 
 document.addEventListener("keydown", (e)=>{
+    
+    
+    if (e.target.tagName == "INPUT") return;
+
     e.preventDefault();
     if(e.key == "ArrowLeft"){
         movepieceleft();

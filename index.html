@@ -15,25 +15,85 @@
             <h1><img src="public/TetrisTpieceimage.webp" height="50"></icon>etris</h1>
             <h2 id="statusheading">Press Start to Play</h2>
             <h3 id="scorebar">Score: <span id="scorevalue"></span></h3>
-            <button class="btn btn-outline-danger" id="startbutton">Start</button>
+            <button class="btn btn-outline-danger" id="startbutton" data-bs-toggle="modal" data-bs-target="#startgameModal">Start</button>
         </header>
         <main class="container">
 
             <div id="buttoncontainerleft">
-                <button id="rotateanticlockwisebtn" class="btn btn-danger"><i class="rotateicon bi bi-arrow-counterclockwise"></i></button>
+                <button id="rotateanticlockwisebtn" class="btn btn-danger"><i id="rotatelefticon" class="rotateicon bi bi-arrow-counterclockwise"></i></button>
                 <button id="moveleftbtn" class="btn btn-primary"></button>
                 <button id="movedownbtn1" class="btn btn-secondary"></button>
             </div>
             <div id="maingridcontainer" tabindex="0">
             </div>
             <div id="buttoncontainerright">
-                <button id="rotateclockwisebtn" class="btn btn-danger round"><i class="rotateicon bi bi-arrow-clockwise"></i></button>
+                <button id="rotateclockwisebtn" class="btn btn-danger round"><i id="rotaterighticon" class="rotateicon bi bi-arrow-clockwise"></i></button>
                 <button id="moverightbtn" class="btn btn-primary"></button>
                 <button id="movedownbtn2" class="btn btn-secondary"></button>
             </div>
+
+            <!-- Modal -->
+
+
+            <div class="modal fade" id="startgameModal" tabindex="-1" aria-labelledby="startgameModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="startgameModalLabel">Choose settings</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form">
+                                <br>
+                                <label for="noofcolssel" class="form-label">No of columns: </label>
+                                <select class="form-select" name="noofcolssel" id="noofcolssel">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                                
+                                <label id="labelcustomcolssel" for="customcolssel" class="form-label">Enter custom no of columns: </label>
+                                <input type="number" min="5" max="50" class="form-control" name="customcolssel" id="customcolssel">
+                                <br>
+                                <label for="noofrowssel" class="form-label" class="form-label">No of rows: </label>
+                                <select class="form-select" name="noofrowssel" id="noofrowssel">
+                                    <option value="10">10</option>
+                                    <option value="20" selected>20</option>
+                                    <option value="30">30</option>
+                                    <option value="40">40</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                                <label id="labelcustomrowssel"  for="customrowssel" class="form-label">Enter custom no of rows: </label>
+                                <input type="number" min="10" max="100" class="form-control"  name="customrowssel" id="customrowssel">
+                                <br>
+                                <label for="gamespeedsel" class="form-label">Game Speed: </label>
+                                <select class="form-select" name="gamespeedsel" id="gamespeedsel">
+                                    <option value="1000">1000</option>
+                                    <option value="500" selected>500</option>
+                                    <option value="200">200</option>
+                                    <option value="100">100</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                                <label id="labelcustomspeedsel" for="customspeedsel" class="form-label">Enter custom gamespeed in ms: </label>
+                                <input type="number" min="0" max="5000" class="form-control" name="customspeedsel" id="customspeedsel">
+                                <br>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button id="acceptsettingsbtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
         </main>
-        <footer>
-            <p>Created by Adarsh Raju &copy;</p>
+        <footer class="container text-center mt-3">
+            <p id="footertext">Created by Adarsh Raju &copy;</p>
         </footer>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
         <script src="public/index.js"></script>
