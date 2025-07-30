@@ -43,7 +43,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form class="form">
+                            <form id="form" class="form" novalidate >
                                 <br>
                                 <label for="noofcolssel" class="form-label">No of columns: </label>
                                 <select class="form-select" name="noofcolssel" id="noofcolssel">
@@ -54,8 +54,11 @@
                                     <option value="custom">Custom</option>
                                 </select>
                                 
-                                <label id="labelcustomcolssel" for="customcolssel" class="form-label">Enter custom no of columns: </label>
-                                <input type="number" min="5" max="50" class="form-control" name="customcolssel" id="customcolssel">
+                                <label disabled hidden id="labelcustomcolssel" for="customcolssel" class="form-label">Enter custom no of columns: </label>
+                                <input disabled hidden type="number" min="5" max="50" class="form-control" name="customcolssel" id="customcolssel">
+                                <div id="customcolinvalidfeedback" hidden>
+                                      Please enter a value between 5 and 50.
+                                </div>
                                 <br>
                                 <label for="noofrowssel" class="form-label" class="form-label">No of rows: </label>
                                 <select class="form-select" name="noofrowssel" id="noofrowssel">
@@ -65,8 +68,11 @@
                                     <option value="40">40</option>
                                     <option value="custom">Custom</option>
                                 </select>
-                                <label id="labelcustomrowssel"  for="customrowssel" class="form-label">Enter custom no of rows: </label>
-                                <input type="number" min="10" max="100" class="form-control"  name="customrowssel" id="customrowssel">
+                                <label disabled hidden id="labelcustomrowssel"  for="customrowssel" class="form-label">Enter custom no of rows: </label>
+                                <input disabled hidden type="number" min="10" max="100" class="form-control"  name="customrowssel" id="customrowssel">
+                                <div id="customrowinvalidfeedback" hidden>
+                                      Please enter a value between 10 and 100.
+                                </div>
                                 <br>
                                 <label for="gamespeedsel" class="form-label">Game Speed: </label>
                                 <select class="form-select" name="gamespeedsel" id="gamespeedsel">
@@ -76,15 +82,20 @@
                                     <option value="100">100</option>
                                     <option value="custom">Custom</option>
                                 </select>
-                                <label id="labelcustomspeedsel" for="customspeedsel" class="form-label">Enter custom gamespeed in ms: </label>
-                                <input type="number" min="0" max="5000" class="form-control" name="customspeedsel" id="customspeedsel">
+                                <label disabled hidden id="labelcustomspeedsel" for="customspeedsel" class="form-label">Enter custom gamespeed in ms: </label>
+                                <input disabled hidden type="number" min="0" max="5000" class="form-control" name="customspeedsel" id="customspeedsel">
+                                <div id="customspeedinvalidfeedback" hidden>
+                                      Please enter a value between 0 and 5000.
+                                </div>
                                 <br>
-                            </form>
+                            
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button id="acceptsettingsbtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            <button id="acceptsettingsbtn" type="submit" class="btn btn-primary" >OK</button>
+                            
                         </div>
+                            </form>
                     </div>
                 </div>
             </div>

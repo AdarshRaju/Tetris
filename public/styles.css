@@ -137,7 +137,7 @@ button {
 }
 
 #customcolssel, #customrowssel, #customspeedsel, #labelcustomcolssel, #labelcustomrowssel, #labelcustomspeedsel{
-    display: none;
+    /* display: none; */
     margin-bottom: 15px;
 }
 

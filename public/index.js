@@ -22,6 +22,11 @@ var customspeedsel = document.getElementById("customspeedsel");
 var labelcustomcolssel = document.getElementById("labelcustomcolssel");
 var labelcustomrowssel = document.getElementById("labelcustomrowssel");
 var labelcustomspeedsel = document.getElementById("labelcustomspeedsel");
+var form = document.getElementById("form");
+var modal = new bootstrap.Modal('#startgameModal');
+var customcolinvalidfeedback = document.getElementById("customcolinvalidfeedback");
+var customrowinvalidfeedback = document.getElementById("customrowinvalidfeedback");
+var customspeedinvalidfeedback = document.getElementById("customspeedinvalidfeedback");
 
 // #endregion HTML elements captured and stored in variables
 
@@ -190,32 +195,135 @@ function handleGesture() {
 
 noofcolssel.addEventListener("change", (e) =>{
     if(e.target.value == "custom"){
-        customcolssel.style.display = "block";
-        labelcustomcolssel.style.display = "block";
+        // customcolssel.style.display = "block";
+        // labelcustomcolssel.style.display = "block";
+        customcolssel.removeAttribute("hidden");
+        labelcustomcolssel.removeAttribute("hidden");
+        customcolssel.removeAttribute("disabled");
+        labelcustomcolssel.removeAttribute("disabled");
+
+        customcolssel.removeAttribute("required");
+
+        customcolinvalidfeedback.hidden = false;
+
         // customspeedsel.focus();
     } else {
-        customcolssel.style.display = "none";
-        labelcustomcolssel.style.display = "none";
+        // customcolssel.style.display = "none";
+        // labelcustomcolssel.style.display = "none";
+        customcolssel.setAttribute("hidden", "true");
+        labelcustomcolssel.setAttribute("hidden", "true");
+        customcolssel.setAttribute("disabled", "true");
+        labelcustomcolssel.setAttribute("disabled", "true");
+
+        customcolssel.setAttribute("required", "true");
+
+        customcolinvalidfeedback.hidden = true;
     }
 });
 
 noofrowssel.addEventListener("change", (e) =>{
     if(e.target.value == "custom"){
-        customrowssel.style.display = "block";
-        labelcustomrowssel.style.display = "block";
+        // customrowssel.style.display = "block";
+        // labelcustomrowssel.style.display = "block";
+        customrowssel.removeAttribute("hidden");
+        labelcustomrowssel.removeAttribute("hidden");
+        customrowssel.removeAttribute("disabled");
+        labelcustomrowssel.removeAttribute("disabled");
+
+        customrowssel.removeAttribute("required");
+
+        customrowinvalidfeedback.hidden = false;
     } else {
-        customrowssel.style.display = "none";
-        labelcustomrowssel.style.display = "none";
+        // customrowssel.style.display = "none";
+        // labelcustomrowssel.style.display = "none";
+        customrowssel.setAttribute("hidden", "true");
+        labelcustomrowssel.setAttribute("hidden", "true");
+        customrowssel.setAttribute("disabled", "true");
+        labelcustomrowssel.setAttribute("disabled", "true");
+
+        customrowssel.setAttribute("required", "true");
+
+        customrowinvalidfeedback.hidden = true;
     }
 });
 
 gamespeedsel.addEventListener("change", (e) =>{
     if(e.target.value == "custom"){
-        customspeedsel.style.display = "block";
-        labelcustomspeedsel.style.display = "block";
+        // customspeedsel.style.display = "block";
+        // labelcustomspeedsel.style.display = "block";
+        customspeedsel.removeAttribute("hidden");
+        labelcustomspeedsel.removeAttribute("hidden");
+        customspeedsel.removeAttribute("disabled");
+        labelcustomspeedsel.removeAttribute("disabled");
+
+        customspeedsel.removeAttribute("required");
+
+        customspeedinvalidfeedback.hidden = false;
     } else {
-        customspeedsel.style.display = "none";
-        labelcustomspeedsel.style.display = "none";
+        // customspeedsel.style.display = "none";
+        // labelcustomspeedsel.style.display = "none";
+        customspeedsel.setAttribute("hidden", "true");
+        labelcustomspeedsel.setAttribute("hidden", "true");
+        customspeedsel.setAttribute("disabled", "true");
+        labelcustomspeedsel.setAttribute("disabled", "true");
+
+        customspeedsel.setAttribute("required", "true");
+
+        customspeedinvalidfeedback.hidden = true;
+    }
+});
+
+customcolssel.addEventListener("change", ()=>{
+    if (!customcolssel.disabled){
+        let checkcustomcol = customcolssel.value;
+        if(!customcolssel.value || checkcustomcol <5 || checkcustomcol >50){
+            
+            customcolssel.classList.add("is-invalid");
+            customcolssel.classList.remove("is-valid");
+            customcolinvalidfeedback.classList.add("invalid-feedback");
+            customcolinvalidfeedback.hidden = false;
+        } else {
+            customcolssel.classList.add("is-valid");
+            customcolssel.classList.remove("is-invalid")
+            customcolinvalidfeedback.classList.remove("invalid-feedback");
+            customcolinvalidfeedback.hidden = true;
+        }
+    }
+});
+
+customrowssel.addEventListener("change", ()=>{
+    if (!customrowssel.disabled){
+        let checkcustomrow = customrowssel.value;
+        if(!customrowssel.value || checkcustomrow <10 || checkcustomrow >100){
+            
+            customrowssel.classList.add("is-invalid");
+            customrowssel.classList.remove("is-valid");
+            customrowinvalidfeedback.classList.add("invalid-feedback");
+            customrowinvalidfeedback.hidden = false;
+        } else {
+            customrowssel.classList.add("is-valid");
+            customrowssel.classList.remove("is-invalid")
+            customrowinvalidfeedback.classList.remove("invalid-feedback");
+            customrowinvalidfeedback.hidden = true;
+        }
+    }
+});
+
+customspeedsel.addEventListener("change", ()=>{
+    if (!customspeedsel.disabled){
+        let checkcustomspeed = customspeedsel.value;
+        if(!customspeedsel.value || checkcustomspeed <0 || checkcustomspeed >5000){
+            
+            customspeedsel.classList.add("is-invalid");
+            customspeedsel.classList.remove("is-valid");
+            customspeedinvalidfeedback.classList.add("invalid-feedback");
+            customspeedinvalidfeedback.hidden = false;
+        } else {
+            customspeedsel.classList.add("is-valid");
+            customspeedsel.classList.remove("is-invalid")
+            customspeedinvalidfeedback.classList.remove("invalid-feedback");
+            customspeedinvalidfeedback.hidden = true;
+        }
     }
 });
 
@@ -253,18 +361,132 @@ function rotatematrixanticlockwise(mat){
     return tempmatrix;
 };
 
-acceptsettingsbtn.addEventListener("click", ()=>{
-    startgame();
+// Preserves browser form value validation for use in bootstrap
+form.addEventListener("submit", (e) =>{
+    'use strict'
+    
+    e.preventDefault();
+
+    let valid=true;
+    let checkcustomcol;
+    let checkcustomrow;
+    let checkcustomspeed;
+    
+    // customcolssel.setCustomValidity("");
+    // customrowssel.setCustomValidity("");
+    // customspeedsel.setCustomValidity("");
+    customcolinvalidfeedback.classList.remove("invalid-feedback");
+    customrowinvalidfeedback.classList.remove("invalid-feedback");
+    customspeedinvalidfeedback.classList.remove("invalid-feedback");
+
+    if(noofcolssel.value == "custom"){
+        checkcustomcol = parseInt(customcolssel.value);
+        if(!customcolssel.value || checkcustomcol <5 || checkcustomcol >50){
+            valid = false;
+            customcolssel.classList.add("is-invalid");
+            customcolinvalidfeedback.classList.add("invalid-feedback");
+            customcolinvalidfeedback.hidden = false;
+        } else {
+            customcolssel.classList.add("is-valid");
+            customcolinvalidfeedback.classList.remove("invalid-feedback");
+            customcolinvalidfeedback.hidden = true;
+            noofcols = checkcustomcol;
+        }
+
+        // customcolssel.setAttribute("required", "true");
+    } else{
+        noofcols = parseInt(noofcolssel.value);
+        // customcolssel.removeAttribute("required");
+    };
+
+
+
+    if (noofrowssel.value  == "custom"){
+        checkcustomrow = parseInt(customrowssel.value);
+        if(!customrowssel.value || checkcustomrow <10 || checkcustomrow >100){
+            valid = false;
+            customrowssel.classList.add("is-invalid");
+            customrowinvalidfeedback.classList.add("invalid-feedback");
+            customrowinvalidfeedback.hidden = false;
+        } else {
+            customrowssel.classList.add("is-valid");
+            customrowinvalidfeedback.classList.remove("invalid-feedback");
+            customrowinvalidfeedback.hidden = true;
+            noofrows = checkcustomrow;
+        }
+        // customrowssel.setAttribute("required", "true");
+    } 
+    
+    else{
+        noofrows = parseInt(noofrowssel.value);
+        // customrowssel.removeAttribute("required");
+    };
+
+    
+    if (gamespeedsel.value  == "custom"){
+        checkcustomspeed = parseInt(customspeedsel.value);
+        if(!customspeedsel.value || checkcustomspeed <0 || checkcustomspeed >5000){
+            valid = false;
+            customspeedsel.classList.add("is-invalid");
+            customspeedinvalidfeedback.classList.add("invalid-feedback");
+            customspeedinvalidfeedback.hidden = false;
+        } else {
+            customspeedsel.classList.add("is-valid");
+            customspeedinvalidfeedback.classList.remove("invalid-feedback");
+            customspeedinvalidfeedback.hidden = true;
+            gamespeed = checkcustomspeed;
+        }
+        // customspeedsel.setAttribute("required", "true");
+    } else{
+        gamespeed = parseInt(gamespeedsel.value);
+       
+    };
+
+   
+    if (valid == false){
+        return;
+    }
+    else {
+        
+        modal.hide();
+        startgame();
+    }
+
+    
+    
 });
+
+acceptsettingsbtn.addEventListener("click", (e)=>{
+    // e.preventDefault();
+    
+});
+
+
 
 function startgame() {
     // if((gameover)){
         gameover = false;
         maingridcontainer.innerHTML = "";
         statusheading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
-        noofcols = parseInt(noofcolssel.value);
-        noofrows = parseInt(noofrowssel.value);
-        gamespeed = parseInt(gamespeedsel.value);
+        
+        // if(noofcolssel.value == "custom"){
+        //     noofcols = parseInt(customcolssel.value);
+        // } else{
+        //     noofcols = parseInt(noofcolssel.value);
+        // };
+
+        // if (noofrowssel.value  == "custom"){
+        //     noofrows = parseInt(customrowssel.value);
+        // } else{
+        //     noofrows = parseInt(noofrowssel.value);
+        // };
+        
+        // if (gamespeedsel.value  == "custom"){
+        //     gamespeed = parseInt(customspeedsel.value);
+        // } else{
+        // gamespeed = parseInt(gamespeedsel.value);
+        // };
+
         boardsize = noofrows * noofcols;
         generategridcells();
         resetcurrentarrays();
