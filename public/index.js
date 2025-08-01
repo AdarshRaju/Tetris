@@ -1509,33 +1509,52 @@ function clearfullrows(fullrowsarr){
 
 function shiftbricks(fullrowsarr){
 
+    // Sorting array numerically in ascending order (top of grid to bottom)
     fullrowsarr.sort(function(a,b){return a - b});
-    fullrowsarr.forEach(clearedrow =>{
+
+    // #region legacy code
+    // fullrowsarr.forEach(clearedrow =>{
         
-        let shiftbrickstill = parseInt(clearedrow) * noofcols;
-        let noofrowsremoved = fullrowsarr.length;
-        // console.log("clearedrow being used is: ", clearedrow ,", shiftbrickstill is: ", shiftbrickstill, " and nowofrowsremoved is: ", noofrowsremoved);
-        let brickedcells = [...document.getElementsByClassName("flooredbrick")];
-        let newindicestoadd = [];
-        brickedcells.forEach(brick =>{
-            let brickind = parseInt(brick.id);
-            if (brickind < shiftbrickstill){
-                // console.log("brickind used inside cascade logic is: ", brickind);
-                // remove flooredbrick class on cell and add it to (noofcols*noofrowsremoved) index
-                brick.classList.remove("flooredbrick");
-                let newindex = brickind +(noofcols);
-                newindicestoadd.push(newindex);
-                // console.log("cascaded cell referenced is: ", cellsarr[brickind +(noofcols*noofrowsremoved)]);
+    //     let shiftbrickstill = parseInt(clearedrow) * noofcols;
+    //     let noofrowsremoved = fullrowsarr.length;
+    //     // console.log("clearedrow being used is: ", clearedrow ,", shiftbrickstill is: ", shiftbrickstill, " and nowofrowsremoved is: ", noofrowsremoved);
+    //     let brickedcells = [...document.getElementsByClassName("flooredbrick")];
+    //     let newindicestoadd = [];
+    //     brickedcells.forEach(brick =>{
+    //         let brickind = parseInt(brick.id);
+    //         if (brickind < shiftbrickstill){
+    //             // console.log("brickind used inside cascade logic is: ", brickind);
+    //             // remove flooredbrick class on cell and add it to (noofcols*noofrowsremoved) index
+    //             brick.classList.remove("flooredbrick");
+    //             let newindex = brickind +(noofcols);
+    //             newindicestoadd.push(newindex);
+    //             // console.log("cascaded cell referenced is: ", cellsarr[brickind +(noofcols*noofrowsremoved)]);
                 
-            }
-        });
-        newindicestoadd.forEach(index =>{
-            cellsarr[index].classList.add("flooredbrick");
-        });
+    //         }
+    //     });
+    //     newindicestoadd.forEach(index =>{
+    //         cellsarr[index].classList.add("flooredbrick");
+    //     });
             
+    // });
+    // #endregion legacy code
+            
+    let brickedcells = [...document.getElementsByClassName("flooredbrick")];
+    let newindicestoadd = [];
+    brickedcells.forEach(cell =>{
+        let cellindex = parseInt(cell.id);
+        let cellrow = Math.floor(cellindex/noofcols);
+
+        let shiftby = fullrowsarr.filter(fullrow => fullrow > cellrow).length;
+        if (shiftby >0){
+            cell.classList.remove("flooredbrick");
+            let newindex = cellindex + (shiftby*noofcols);
+            newindicestoadd.push(newindex);
+        }
     });
-            
-            
+    newindicestoadd.forEach(index =>{
+            cellsarr[index].classList.add("flooredbrick");
+        });            
        
 };
 
@@ -1568,9 +1587,7 @@ function checkbrickedrows(){
             generaterandompiece();
             unpausegame();
             
-        },200);
-        
-            
+        },200);           
     
     }
 };
