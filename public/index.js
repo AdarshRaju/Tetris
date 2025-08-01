@@ -12,6 +12,8 @@ var rotateclockwisebtn = document.getElementById("rotateclockwisebtn");
 var moverightbtn = document.getElementById("moverightbtn");
 var movedownbtn1 = document.getElementById("movedownbtn1");
 var movedownbtn2 = document.getElementById("movedownbtn2");
+var instadownbtn1 = document.getElementById("instadownbtn1");
+var instadownbtn2 = document.getElementById("instadownbtn2");
 var startgameModal = document.getElementById("startgameModal");
 var noofcolssel = document.getElementById("noofcolssel");
 var noofrowssel = document.getElementById("noofrowssel");
@@ -32,6 +34,8 @@ var customspeedinvalidfeedback = document.getElementById("customspeedinvalidfeed
 
 // #region global variables set
 var gameover=true;
+var paused;
+var modalclosedbysubmit;
 var boardwidth = 300;
 var noofcols;
 var noofrows;
@@ -46,6 +50,7 @@ var score = 0;
 
 
 var currentuserarray = [];
+var floorshiftarray = [];
 var cellsarr = [];
 var pieces = ["O", "I", "J", "L", "S", "Z", "T"];
 var blockedpieces = [];
@@ -120,6 +125,7 @@ var downkeyevent = new KeyboardEvent("keydown", {
     key: "ArrowDown"
 });
 
+
 maingridcontainer.addEventListener("dragstart", e => e.preventDefault());
 
 maingridcontainer.addEventListener("mousedown", (e) =>{
@@ -184,146 +190,90 @@ function handleGesture() {
 
 // #region logic for the settings selection modal
 
-// startgameModal.addEventListener('shown.bs.modal', () => {
-//     // if(customcolssel.style.display == "block"){
-//     //     customcolssel.focus();
-//     // }
-//     customcolssel.style.display = "block";
-//     customcolssel.focus();
-//     console.log("showbsmodal was activated");
-// });
+
+function togglecustomdisplay(event,custominput, customlabel, customfeedback){
+    
+    if(event.target.value == "custom"){
+
+        custominput.removeAttribute("hidden");
+        custominput.removeAttribute("disabled");
+        custominput.removeAttribute("required");
+
+        customlabel.removeAttribute("hidden");        
+        
+        customfeedback.hidden = false;
+    }else {
+
+        custominput.setAttribute("hidden", "true");
+        custominput.setAttribute("disabled", "true");
+        custominput.setAttribute("required", "true");
+
+        customlabel.setAttribute("hidden", "true");        
+        
+        customfeedback.hidden = true;
+    }
+}
 
 noofcolssel.addEventListener("change", (e) =>{
-    if(e.target.value == "custom"){
-        // customcolssel.style.display = "block";
-        // labelcustomcolssel.style.display = "block";
-        customcolssel.removeAttribute("hidden");
-        labelcustomcolssel.removeAttribute("hidden");
-        customcolssel.removeAttribute("disabled");
-        labelcustomcolssel.removeAttribute("disabled");
+    
+    togglecustomdisplay(e, customcolssel, labelcustomcolssel, customcolinvalidfeedback);
 
-        customcolssel.removeAttribute("required");
-
-        customcolinvalidfeedback.hidden = false;
-
-        // customspeedsel.focus();
-    } else {
-        // customcolssel.style.display = "none";
-        // labelcustomcolssel.style.display = "none";
-        customcolssel.setAttribute("hidden", "true");
-        labelcustomcolssel.setAttribute("hidden", "true");
-        customcolssel.setAttribute("disabled", "true");
-        labelcustomcolssel.setAttribute("disabled", "true");
-
-        customcolssel.setAttribute("required", "true");
-
-        customcolinvalidfeedback.hidden = true;
-    }
 });
 
 noofrowssel.addEventListener("change", (e) =>{
-    if(e.target.value == "custom"){
-        // customrowssel.style.display = "block";
-        // labelcustomrowssel.style.display = "block";
-        customrowssel.removeAttribute("hidden");
-        labelcustomrowssel.removeAttribute("hidden");
-        customrowssel.removeAttribute("disabled");
-        labelcustomrowssel.removeAttribute("disabled");
-
-        customrowssel.removeAttribute("required");
-
-        customrowinvalidfeedback.hidden = false;
-    } else {
-        // customrowssel.style.display = "none";
-        // labelcustomrowssel.style.display = "none";
-        customrowssel.setAttribute("hidden", "true");
-        labelcustomrowssel.setAttribute("hidden", "true");
-        customrowssel.setAttribute("disabled", "true");
-        labelcustomrowssel.setAttribute("disabled", "true");
-
-        customrowssel.setAttribute("required", "true");
-
-        customrowinvalidfeedback.hidden = true;
-    }
+    
+    togglecustomdisplay(e, customrowssel, labelcustomrowssel, customrowinvalidfeedback);
 });
 
 gamespeedsel.addEventListener("change", (e) =>{
-    if(e.target.value == "custom"){
-        // customspeedsel.style.display = "block";
-        // labelcustomspeedsel.style.display = "block";
-        customspeedsel.removeAttribute("hidden");
-        labelcustomspeedsel.removeAttribute("hidden");
-        customspeedsel.removeAttribute("disabled");
-        labelcustomspeedsel.removeAttribute("disabled");
-
-        customspeedsel.removeAttribute("required");
-
-        customspeedinvalidfeedback.hidden = false;
-    } else {
-        // customspeedsel.style.display = "none";
-        // labelcustomspeedsel.style.display = "none";
-        customspeedsel.setAttribute("hidden", "true");
-        labelcustomspeedsel.setAttribute("hidden", "true");
-        customspeedsel.setAttribute("disabled", "true");
-        labelcustomspeedsel.setAttribute("disabled", "true");
-
-        customspeedsel.setAttribute("required", "true");
-
-        customspeedinvalidfeedback.hidden = true;
-    }
+   
+    togglecustomdisplay(e, customspeedsel, labelcustomspeedsel, customspeedinvalidfeedback);
 });
+
+
+function toggleinvalidfeedback(inputbox, feedbackbox){
+    let check;
+    let checkinputbox = parseInt(inputbox.value);
+    if (inputbox == customcolssel){
+        check = (!inputbox.value || checkinputbox <5 || checkinputbox >50)
+    } else if (inputbox == customrowssel){
+        check = (!inputbox.value || checkinputbox <10 || checkinputbox >100)
+    } else if (inputbox == customspeedsel){
+        check = (!inputbox.value || checkinputbox <25 || checkinputbox >5000)
+    }
+
+    if (check){
+        inputbox.classList.add("is-invalid");
+        inputbox.classList.remove("is-valid");
+        feedbackbox.classList.add("invalid-feedback");
+        feedbackbox.hidden = false;
+    } else {
+        inputbox.classList.add("is-valid");
+        inputbox.classList.remove("is-invalid")
+        feedbackbox.classList.remove("invalid-feedback");
+        feedbackbox.hidden = true;
+    }
+
+}
 
 customcolssel.addEventListener("change", ()=>{
     if (!customcolssel.disabled){
-        let checkcustomcol = customcolssel.value;
-        if(!customcolssel.value || checkcustomcol <5 || checkcustomcol >50){
-            
-            customcolssel.classList.add("is-invalid");
-            customcolssel.classList.remove("is-valid");
-            customcolinvalidfeedback.classList.add("invalid-feedback");
-            customcolinvalidfeedback.hidden = false;
-        } else {
-            customcolssel.classList.add("is-valid");
-            customcolssel.classList.remove("is-invalid")
-            customcolinvalidfeedback.classList.remove("invalid-feedback");
-            customcolinvalidfeedback.hidden = true;
-        }
+
+        toggleinvalidfeedback(customcolssel, customcolinvalidfeedback);
     }
 });
 
 customrowssel.addEventListener("change", ()=>{
     if (!customrowssel.disabled){
-        let checkcustomrow = customrowssel.value;
-        if(!customrowssel.value || checkcustomrow <10 || checkcustomrow >100){
-            
-            customrowssel.classList.add("is-invalid");
-            customrowssel.classList.remove("is-valid");
-            customrowinvalidfeedback.classList.add("invalid-feedback");
-            customrowinvalidfeedback.hidden = false;
-        } else {
-            customrowssel.classList.add("is-valid");
-            customrowssel.classList.remove("is-invalid")
-            customrowinvalidfeedback.classList.remove("invalid-feedback");
-            customrowinvalidfeedback.hidden = true;
-        }
+  
+        toggleinvalidfeedback(customrowssel, customrowinvalidfeedback);
     }
 });
 
 customspeedsel.addEventListener("change", ()=>{
     if (!customspeedsel.disabled){
-        let checkcustomspeed = customspeedsel.value;
-        if(!customspeedsel.value || checkcustomspeed <0 || checkcustomspeed >5000){
-            
-            customspeedsel.classList.add("is-invalid");
-            customspeedsel.classList.remove("is-valid");
-            customspeedinvalidfeedback.classList.add("invalid-feedback");
-            customspeedinvalidfeedback.hidden = false;
-        } else {
-            customspeedsel.classList.add("is-valid");
-            customspeedsel.classList.remove("is-invalid")
-            customspeedinvalidfeedback.classList.remove("invalid-feedback");
-            customspeedinvalidfeedback.hidden = true;
-        }
+
+        toggleinvalidfeedback(customspeedsel, customspeedinvalidfeedback);
     }
 });
 
@@ -361,6 +311,7 @@ function rotatematrixanticlockwise(mat){
     return tempmatrix;
 };
 
+// #region game start functions
 // Preserves browser form value validation for use in bootstrap
 form.addEventListener("submit", (e) =>{
     'use strict'
@@ -425,7 +376,7 @@ form.addEventListener("submit", (e) =>{
     
     if (gamespeedsel.value  == "custom"){
         checkcustomspeed = parseInt(customspeedsel.value);
-        if(!customspeedsel.value || checkcustomspeed <0 || checkcustomspeed >5000){
+        if(!customspeedsel.value || checkcustomspeed <25 || checkcustomspeed >5000){
             valid = false;
             customspeedsel.classList.add("is-invalid");
             customspeedinvalidfeedback.classList.add("invalid-feedback");
@@ -448,44 +399,35 @@ form.addEventListener("submit", (e) =>{
     }
     else {
         
+        modalclosedbysubmit = true;
         modal.hide();
         startgame();
     }
 
-    
-    
 });
 
-acceptsettingsbtn.addEventListener("click", (e)=>{
-    // e.preventDefault();
-    
+startbutton.addEventListener("click", () =>{
+    // console.log("start btn was pressed");
+    pausegame();
 });
 
+modal._element.addEventListener("hidden.bs.modal", ()=>{
+    // console.log("modal hidden was triggered");
+    if(modalclosedbysubmit){
+        modalclosedbysubmit = false;
+    } else {
+        unpausegame();
+    }
+    
+})
 
 
 function startgame() {
     // if((gameover)){
         gameover = false;
+        paused = false;
         maingridcontainer.innerHTML = "";
         statusheading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
-        
-        // if(noofcolssel.value == "custom"){
-        //     noofcols = parseInt(customcolssel.value);
-        // } else{
-        //     noofcols = parseInt(noofcolssel.value);
-        // };
-
-        // if (noofrowssel.value  == "custom"){
-        //     noofrows = parseInt(customrowssel.value);
-        // } else{
-        //     noofrows = parseInt(noofrowssel.value);
-        // };
-        
-        // if (gamespeedsel.value  == "custom"){
-        //     gamespeed = parseInt(customspeedsel.value);
-        // } else{
-        // gamespeed = parseInt(gamespeedsel.value);
-        // };
 
         boardsize = noofrows * noofcols;
         generategridcells();
@@ -498,22 +440,29 @@ function startgame() {
         score = 0;
         scorevalue.innerHTML = score;
         generaterandompiece();
-        clearInterval(piecedowninterval);
+        piecedowninterval && clearInterval(piecedowninterval);
         piecedowninterval = setInterval(movepiecedown, gamespeed);
         
     // }
 };
 
-function resetcurrentarrays(){
-    // Opiece = [];
-    // currentuserrefrow = 0;
-    currentuserrefcellindex = 0;
-    clearfloatingbricks();
-    currentuserarray = [];
-    currentlyselectedpiecematrix = [];
-    
-    
-};
+function pausegame(){
+    if(!paused && !gameover){
+        // console.log("pause game was triggered");
+        paused = true;
+        clearInterval(piecedowninterval);
+        piecedowninterval = null;
+    }
+}
+
+function unpausegame(){
+    if(!gameover && paused){
+        paused = false;
+        // console.log("unpausegame was triggered");
+        // console.log("Boolean piecedowninterval in unpause is: ", Boolean(piecedowninterval));
+        (!piecedowninterval) && (piecedowninterval = setInterval(movepiecedown, gamespeed));
+    }
+}
 
 function generategridcells(){
 
@@ -532,7 +481,7 @@ function generategridcells(){
 
     let cellwidth = boardwidth/noofcols;
     let boardheight = boardwidth+(cellwidth*(noofrows-noofcols));
-    console.log("boardwidth is: ", boardwidth, "boardheight is: ", boardheight);
+    // console.log("boardwidth is: ", boardwidth, "boardheight is: ", boardheight);
     
     var docstyle = document.createElement("style");
     docstyle.textContent = `
@@ -560,6 +509,20 @@ function generategridcells(){
     cellsarr = [...document.getElementsByClassName("griditem")];
 };
 
+// #endregion game start functions
+
+function resetcurrentarrays(){
+    // Opiece = [];
+    // currentuserrefrow = 0;
+    currentuserrefcellindex = 0;
+    clearfloatingbricks();
+    clearfloorshiftbricks();
+    currentuserarray = [];
+    floorshiftarray = [];
+    currentlyselectedpiecematrix = [];
+    
+    
+};
 
 
 function clearfloatingbricks(){
@@ -567,6 +530,12 @@ function clearfloatingbricks(){
         cell.classList.remove("floatingbrick");
     })
 };
+
+function clearfloorshiftbricks(){
+    cellsarr.forEach(cell =>{
+        cell.classList.remove("floorcheckbrick");
+    })
+}
 
 function addfloatingbricks(indexno) {
     cellsarr[indexno].classList.add("floatingbrick");
@@ -576,17 +545,22 @@ function addflooredbricks(indexno) {
     cellsarr[indexno].classList.add("flooredbrick");
 };
 
+function addfloorshiftbricks(indexno) {
+    cellsarr[indexno].classList.add("floorcheckbrick");
+};
+
 // #region piece generation logic
 
 function generateunblockedpiece(){
 
-   console.log("The blocked pieces are: ", blockedpieces);
+//    console.log("The blocked pieces are: ", blockedpieces);
 
     if(blockedpieces.length == pieces.length){
-        console.log("Game Over! None of the pieces can be generated in the grid space.");
+        // console.log("Game Over! None of the pieces can be generated in the grid space.");
         gameover = true;
         statusheading.innerHTML = "Game Over! Press start to play again";
         clearInterval(piecedowninterval);
+        piecedowninterval=null;
     } else {
         for (piece of pieces){
             if (!blockedpieces.includes(piece)){
@@ -628,19 +602,19 @@ function checkbricksincolfordepth(colno,depth){
         && (parseInt(cell.id)%noofcols == colno)
     })
     // console.log("bricksincol is: ", bricksincol);
-    return bricksincol.length>0 ? true:false;
+    // return bricksincol.length>0 ? true:false;
+    return bricksincol;
 };
 
-function getavailablecolumns(piecematrix){
-
-    let piecewidth = piecematrix[0].length;
+function getdepthmap(piecematrix){
+    
     let lastrow = piecematrix.length - 1;
     let lastrowitems = piecematrix[lastrow];
 
     
     let lastrowmap = lastrowitems.map(cell => cell ? 1 : 0);
 
-    // For potential future features where a piece matrix could have multiple empty rows at the bottom
+    // For potential future features where a piece matrix could have multiple false only rows at the bottom
     while (!lastrowmap.includes(1) && lastrow >=0){
         lastrow--;
         lastrowitems = piecematrix[lastrow];
@@ -659,23 +633,55 @@ function getavailablecolumns(piecematrix){
         return lastrowitem-1;
     });
 
-    // The height of the empty rows are trimmed out from the piecematrix
+    // Piece height after the height of the false only rows are trimmed out from the bottom of the piecematrix
     let pieceheight1 = lastrow +1;
 
     let depthmap = relativerowheightmap.map(col =>{
         return col + pieceheight1;
     });
+    return depthmap
+}
+
+function getavailablecolumns(piecematrix){
+
+    let piecewidth = piecematrix[0].length;
+
+    let depthmap = getdepthmap(piecematrix);
+    let pieceheight1 = Math.max(...depthmap);
+    // console.log("pieceheight1 is: ", pieceheight1);
 
     let availablecols = [];
 
-    for (let i=0; i<(noofcols-piecewidth+1);i++){
-        let piecefitcheck = depthmap.map((piececoldepth, piececolindex)=>{
-            return checkbricksincolfordepth((i+piececolindex), piececoldepth);
-        });
-        if(!piecefitcheck.includes(true)){
+    // preliminary depth check for optimization
+    let t1 = performance.now();
+    let bricksinthewayheight1 = cellsarr.filter(cell =>{
+        return ((parseInt(cell.id) < (noofcols * pieceheight1)) && (cell.classList.contains("flooredbrick")));
+    });
+
+    if (bricksinthewayheight1.length == 0){
+        // console.log("There are no bricks of in the way in the max height of the piece from the top row");
+        for (let i=0; i<(noofcols-piecewidth+1); i++){
             availablecols.push(i)
-        }
-    };
+        }   
+        
+        // let t2 = performance.now();
+        // console.log("Compute time taken in preliminary check is: ", (t2-t1));
+        
+    } else {
+
+        for (let i=0; i<(noofcols-piecewidth+1);i++){
+            let piecefitcheck = depthmap.map((piececoldepth, piececolindex)=>{
+                let brickincol = checkbricksincolfordepth((i+piececolindex), piececoldepth);
+                return brickincol.length>0 ? true:false;
+            });
+            if(!piecefitcheck.includes(true)){
+                availablecols.push(i)
+            }
+        };
+        // let t3 = performance.now();
+        // console.log("Compute time taken in detailed check is: ", (t3-t1));
+    }
+
 
     // console.log("pieceheight1 is: ", pieceheight1);
 
@@ -815,6 +821,7 @@ function generateOpiece(){
         currentlyselectedpiecematrix = Opiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new O piece. availablecols is: ", availablecols);
         blockedpieces.push("O");
@@ -845,6 +852,7 @@ function generateIpiece(){
         currentlyselectedpiecematrix = Ipiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new I piece. availablecols is: ", availablecols);
         blockedpieces.push("I");
@@ -873,6 +881,7 @@ function generateJpiece(){
         currentlyselectedpiecematrix = Jpiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new J piece. availablecols is: ", availablecols);
         blockedpieces.push("J");
@@ -898,6 +907,7 @@ function generateLpiece(){
         currentlyselectedpiecematrix = Lpiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new L piece. availablecols is: ", availablecols);
         blockedpieces.push("L");
@@ -924,6 +934,7 @@ function generateSpiece(){
         currentlyselectedpiecematrix = Spiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new S piece. availablecols is: ", availablecols);
         blockedpieces.push("S");
@@ -948,6 +959,7 @@ function generateZpiece() {
         currentlyselectedpiecematrix = Zpiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new Z piece. availablecols is: ", availablecols);
         blockedpieces.push("Z");
@@ -971,6 +983,7 @@ function generateTpiece() {
         currentlyselectedpiecematrix = Tpiecematrix;
         getcurrentuserarray();
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
     } else {
         // console.log("There is no space to generate new T piece. availablecols is: ", availablecols);
         blockedpieces.push("T");
@@ -978,19 +991,34 @@ function generateTpiece() {
     }
 }
 
+function getcurrentfloorshiftarray(){
+
+    floorshiftarray = [];
+    let highestrow = findfloor();
+    let refindrow = Math.floor(currentuserrefcellindex/noofcols);
+    let noofrowstoshift = highestrow - refindrow - 1;
+
+    floorshiftarray = currentuserarray.map(index =>{
+        return (index+(noofrowstoshift*noofcols));
+    })
+    
+}
+
 function getcurrentuserarray(){
      currentuserarray = [];
-     console.log("currentuserrefcellindex value received inside getcurrentuserarray() is: ", currentuserrefcellindex);
+    //  console.log("currentuserrefcellindex value received inside getcurrentuserarray() is: ", currentuserrefcellindex);
     //  The currentuserrefcellindex is the starting index of the topmost cell in the matrix
     currentlyselectedpiecematrix.forEach((row, rowadd)=>{
         // For toprow, we need to add +1 for each subsequent item from the currentuserrefcellindex
         row.forEach((cell,colindex)=>{
-            console.log("In currentarraygen loop, rowindex is noW: ", rowadd, " ,column index is now: ", colindex, " and truthy is: ", cell);
+            // console.log("In currentarraygen loop, rowindex is noW: ", rowadd, " ,column index is now: ", colindex, " and truthy is: ", cell);
+            // only if the value is "True" is a value added to the array
             if(cell){
                 currentuserarray.push(currentuserrefcellindex + (rowadd*noofcols) + colindex);
             }
         })
     });
+    getcurrentfloorshiftarray();
     // currentuserarray.forEach(addfloatingbricks);
 }
 
@@ -1055,13 +1083,15 @@ function movepieceright(){
     
     if (!(rightmostcol == (noofcols -1)) && !(flooredpiecescheck.length >0)){
         clearfloatingbricks();
-        console.log("currentuserrefcellindex before movepieceright is: ", currentuserrefcellindex);
+        clearfloorshiftbricks();
+        // console.log("currentuserrefcellindex before movepieceright is: ", currentuserrefcellindex);
         currentuserrefcellindex++;
-        console.log("currentuserrefcellindex after movepieceright is: ", currentuserrefcellindex);
+        // console.log("currentuserrefcellindex after movepieceright is: ", currentuserrefcellindex);
         getcurrentuserarray();
         // currentuserarray = currentuserarray.map(piececell => piececell +1);
         currentuserarray.forEach(addfloatingbricks);
-        console.log("The currentuserarray is: ", currentuserarray);
+        floorshiftarray.forEach(addfloorshiftbricks);
+        // console.log("The currentuserarray is: ", currentuserarray);
     } else {
         // console.log("The piece has hit a right wall");
     }
@@ -1086,13 +1116,15 @@ function movepieceleft(){
 
     if(!(leftmostcol == 0) && !(flooredpiecescheck.length >0) ){
         clearfloatingbricks();
-        console.log("currentuserrefcellindex before movepieceleft is: ", currentuserrefcellindex);
+        clearfloorshiftbricks();
+        // console.log("currentuserrefcellindex before movepieceleft is: ", currentuserrefcellindex);
         currentuserrefcellindex--;
-        console.log("currentuserrefcellindex after movepieceleft is: ", currentuserrefcellindex);
+        // console.log("currentuserrefcellindex after movepieceleft is: ", currentuserrefcellindex);
         getcurrentuserarray();
         // currentuserarray = currentuserarray.map(piececell => piececell -1);
         currentuserarray.forEach(addfloatingbricks);
-        console.log("The currentuserarray is: ", currentuserarray);
+        floorshiftarray.forEach(addfloorshiftbricks);
+        // console.log("The currentuserarray is: ", currentuserarray);
     } else {
         // console.log("The piece has hit a left wall");
     }
@@ -1165,7 +1197,9 @@ function rotatepiececlockwise(){
     }
 
     clearfloatingbricks();
+    clearfloorshiftbricks();
     currentuserarray.forEach(addfloatingbricks);
+    floorshiftarray.forEach(addfloorshiftbricks);
 }
 
 function rotatepieceanticlockwise(){
@@ -1235,13 +1269,17 @@ function rotatepieceanticlockwise(){
     }
 
     clearfloatingbricks();
+    clearfloorshiftbricks();
     currentuserarray.forEach(addfloatingbricks);
+    floorshiftarray.forEach(addfloorshiftbricks);
 }
 
 // #endregion logic for left and right movement
 
 function movepiecedown() {
+    // console.log("movepiecedown was run");
     clearfloatingbricks();
+    clearfloorshiftbricks();
     if(!checkfloor() ){
         
         currentuserrefcellindex += noofcols;
@@ -1251,6 +1289,7 @@ function movepiecedown() {
         // optionally make the object bricked instantly rather than waiting till the next movement
         // if(!checkfloor()){
         currentuserarray.forEach(addfloatingbricks);
+        floorshiftarray.forEach(addfloorshiftbricks);
         // } else {
         //     currentuserarray.forEach(addflooredbricks);
         //     resetcurrentarrays();
@@ -1260,13 +1299,21 @@ function movepiecedown() {
         currentuserarray.forEach(addflooredbricks);
         
         checkbrickedrows();
-        if (!gameover){
-            resetcurrentarrays();
-            generaterandompiece();
-        };
+        
         // console.log("The piece has hit the bottom wall or a floored brick");
     }
 };
+
+function instadrop() {
+
+    let floorrow = findfloor();
+    let refrow = Math.floor(currentuserrefcellindex/noofcols);
+    let noofrowstoshift = floorrow - refrow - 1;
+    currentuserrefcellindex += (noofrowstoshift*noofcols);
+    getcurrentuserarray();
+    currentuserarray.forEach(addflooredbricks);
+    checkbrickedrows();
+}
 
 function checkfloor(){
     
@@ -1279,107 +1326,176 @@ function checkfloor(){
     return floorhitcells.length >0 ? true : false;
 };
 
+function findfloor(){
+    
+    let relevantcellsindex = [];
+  
+
+    // If there is a 'gap' in between two indices vertically, it is relevant
+    currentuserarray.forEach(index =>{
+        if (!currentuserarray.includes((parseInt(index)+noofcols))){
+            relevantcellsindex.push(index);
+        }
+    })
+
+    let refindrow = Math.floor(currentuserrefcellindex/noofcols);
+
+    let floormap = relevantcellsindex.map(releindex=>{
+        let highestfloorrow;
+        let releindexrow = Math.floor(releindex/noofcols);
+        let extradepth = releindexrow - refindrow;
+        let brickcheck = cellsarr.filter(cell =>{
+            return((parseInt(cell.id) % noofcols == releindex % noofcols) && 
+            (parseInt(cell.id) > releindex) && (cell.classList.contains("flooredbrick")))
+        })
+        if(brickcheck.length>0){
+            let brickrowmap = brickcheck.map(brickinway =>{
+                return Math.floor(parseInt(brickinway.id)/noofcols);
+            });
+            highestfloorrow = Math.min(...brickrowmap);
+        } else {
+            highestfloorrow = noofrows;
+        }
+        // The result is shifted to be as if being just below the refindrow
+        return (highestfloorrow-extradepth);
+    })
+    // console.log("floormap for the piece is: ", floormap);
+    return Math.min(...floormap);
+    
+};
+
 document.addEventListener("keydown", (e)=>{
     
+    if(!gameover && !paused){
     
-    if (e.target.tagName == "INPUT") return;
+        if (e.target.tagName == "INPUT") return;
 
-    e.preventDefault();
-    if(e.key == "ArrowLeft"){
-        movepieceleft();
-    }
+        e.preventDefault();
+        if(e.key == "ArrowLeft"){
+            movepieceleft();
+        }
 
-    if(e.key == "ArrowRight"){
-        movepieceright();
-    }
+        if(e.key == "ArrowRight"){
+            movepieceright();
+        }
 
-    if(e.key == "ArrowDown"){
-        movepiecedown();
-    }
+        if(e.key == "ArrowDown"){
+            movepiecedown();
+        }
 
-    if(e.key == " ") {
-        
-        rotatepiececlockwise();
-    }
+        if(e.key == " ") {
 
-    if(e.key == "ArrowUp") {
-        
-        rotatepiececlockwise();
-    }
+            rotatepiececlockwise()
+        }
 
-    if(e.key == "Shift") {
-        rotatepieceanticlockwise();
+        if(e.key == "ArrowUp") {
+            
+            instadrop();
+        }
+
+        if(e.key == "Shift") {
+            rotatepieceanticlockwise();
+        }
     }
     
 });
 
 moveleftbtn.addEventListener("click", () => {
-    movepieceleft();
+    if(!gameover && !paused){
+        movepieceleft();
+    }
 });
 
 moverightbtn.addEventListener("click", () => {
-    movepieceright();
+    if(!gameover && !paused){
+        movepieceright();
+    }
 });
 
 movedownbtn1.addEventListener("mousedown", () => {
-    movepiecedown();
+    if(!gameover && !paused){
+        movepiecedown();
+    }
 });
 
 movedownbtn2.addEventListener("mousedown", () => {
-    movepiecedown();
+    if(!gameover && !paused){
+        movepiecedown();
+    }
 });
 
 rotateclockwisebtn.addEventListener("click", () => {
-    rotatepiececlockwise();
+    if(!gameover && !paused){
+        rotatepiececlockwise();
+    }
 });
+
+instadownbtn1.addEventListener("click", () => {
+    if(!gameover && !paused){
+        instadrop();
+    }
+});
+
+instadownbtn2.addEventListener("click", () => {
+    if(!gameover && !paused){
+        instadrop();
+    }
+});
+
 
 rotateanticlockwisebtn.addEventListener("click", () => {
-    rotatepieceanticlockwise();
+    if(!gameover && !paused){
+        rotatepieceanticlockwise();
+    }
 });
 
-function checkbrickedrows(){
-
+function getrowsofbricked(){
     let rowsofbricked = [];
-    let  brickedcells = [...document.getElementsByClassName("flooredbrick")];
+    let brickedcells = [...document.getElementsByClassName("flooredbrick")];
     brickedcells.forEach(cell =>{
         // rowsofbricked collects the row numbers of all the bricked cells
         rowsofbricked.push(Math.floor(parseInt(cell.id)/noofcols));
     });
+    return rowsofbricked;
+}
 
-    if(rowsofbricked.includes(0)){
-        console.log("Gameover! The bricks have hit the ceiling!");
-        clearInterval(piecedowninterval);
-        gameover = true;
-        statusheading.innerHTML = "Game Over! Press start to play again";
-    };
+function getfullrowsarray(rowsofbricked){
+    // uniquerowsarr stores the unique rows with atleast one bricked cell
+    let uniquerowsarr = [...new Set(rowsofbricked)];
+    // fullrowsarr stores the unique rows with all cells bricked in it
+    let fullrowsarr = [];
 
-    if(!gameover){
-        // uniquerowsarr stores the unique rows with atleast one bricked cell
-        let uniquerowsarr = [...new Set(rowsofbricked)];
-        // fullrowsarr stores the unique rows with all cells bricked in it
-        let fullrowsarr = [];
-
-        uniquerowsarr.forEach(uniquerownumber =>{
-            let localcounter =0;
-            for (let i=0; i<rowsofbricked.length; i++){
-                if (uniquerownumber == rowsofbricked[i]){
-                    localcounter++;
-                    // console.log(`local counter for rownumber ${uniquerownumber}, comparing ${rowsofbricked[i]} is ${localcounter}`);
-                    if (localcounter >= noofcols){
-                        fullrowsarr.push(uniquerownumber);
-                        break;
-                    }
-                }
-                
-            }
+    uniquerowsarr.forEach(uniquerownumber =>{
+        // #region legacy code
+        // let localcounter =0;
+        // for (let i=0; i<rowsofbricked.length; i++){
+        //     if (uniquerownumber == rowsofbricked[i]){
+        //         localcounter++;
+        //         // console.log(`local counter for rownumber ${uniquerownumber}, comparing ${rowsofbricked[i]} is ${localcounter}`);
+        //         if (localcounter >= noofcols){
+        //             fullrowsarr.push(uniquerownumber);
+        //             break;
+        //         }
+        //     }
+            
+        // }
+        // #endregion legacy code
+        let countarr = rowsofbricked.filter(row =>{
+            return (row == uniquerownumber);
         });
+        if (countarr.length == noofcols){
+            fullrowsarr.push(uniquerownumber);
+        }
+    });
 
-        // console.log("rowsofbricked is: ", rowsofbricked);
-        // console.log("uniquerowsarr is: ", uniquerowsarr);
-        // console.log("fullrowsarr is: ", fullrowsarr);
-        
-        // Removing all full rows of bricked cells
-        fullrowsarr.forEach(fullrow =>{
+    // console.log("rowsofbricked is: ", rowsofbricked);
+    // console.log("uniquerowsarr is: ", uniquerowsarr);
+    // console.log("fullrowsarr is: ", fullrowsarr);
+    return fullrowsarr;
+};
+
+function clearfullrows(fullrowsarr){
+    fullrowsarr.forEach(fullrow =>{
             let startingind = parseInt(fullrow) * noofcols;
             let finishingind = startingind + (noofcols-1);
 
@@ -1389,37 +1505,72 @@ function checkbrickedrows(){
             score++;
             scorevalue.innerHTML = score;
         });
+}
 
-        // The floored bricks would still be floating in place b/w the rows which are just cleared needs to cascade down
-        setTimeout(() => {
-            
+function shiftbricks(fullrowsarr){
+
+    fullrowsarr.sort(function(a,b){return a - b});
+    fullrowsarr.forEach(clearedrow =>{
         
-            fullrowsarr.sort(function(a,b){return a - b});
-            fullrowsarr.forEach(clearedrow =>{
+        let shiftbrickstill = parseInt(clearedrow) * noofcols;
+        let noofrowsremoved = fullrowsarr.length;
+        // console.log("clearedrow being used is: ", clearedrow ,", shiftbrickstill is: ", shiftbrickstill, " and nowofrowsremoved is: ", noofrowsremoved);
+        let brickedcells = [...document.getElementsByClassName("flooredbrick")];
+        let newindicestoadd = [];
+        brickedcells.forEach(brick =>{
+            let brickind = parseInt(brick.id);
+            if (brickind < shiftbrickstill){
+                // console.log("brickind used inside cascade logic is: ", brickind);
+                // remove flooredbrick class on cell and add it to (noofcols*noofrowsremoved) index
+                brick.classList.remove("flooredbrick");
+                let newindex = brickind +(noofcols);
+                newindicestoadd.push(newindex);
+                // console.log("cascaded cell referenced is: ", cellsarr[brickind +(noofcols*noofrowsremoved)]);
                 
-                let cascadebrickstill = parseInt(clearedrow) * noofcols;
-                let noofrowsremoved = fullrowsarr.length;
-                console.log("clearedrow being used is: ", clearedrow ,", cascasdebrickstill is: ", cascadebrickstill, " and nowofrowsremoved is: ", noofrowsremoved);
-                brickedcells = [...document.getElementsByClassName("flooredbrick")];
-                let newindicestoadd = [];
-                brickedcells.forEach(brick =>{
-                    let brickind = parseInt(brick.id);
-                    if (brickind < cascadebrickstill){
-                        console.log("brickind used inside cascade logic is: ", brickind);
-                        // remove flooredbrick class on cell and add it to (noofcols*noofrowsremoved) index
-                        brick.classList.remove("flooredbrick");
-                        let newindex = brickind +(noofcols);
-                        newindicestoadd.push(newindex);
-                        console.log("cascaded cell referenced is: ", cellsarr[brickind +(noofcols*noofrowsremoved)]);
-                        // cellsarr[brickind +(noofcols*noofrowsremoved)].classList.add("flooredbrick");
-                    }
-                });
-                newindicestoadd.forEach(index =>{
-                    cellsarr[index].classList.add("flooredbrick");
-                });
-                    
-            });
-        }, 200);
+            }
+        });
+        newindicestoadd.forEach(index =>{
+            cellsarr[index].classList.add("flooredbrick");
+        });
+            
+    });
+            
+            
+       
+};
+
+function checkbrickedrows(){
+
+    let rowsofbricked = getrowsofbricked();
+
+    // Checking for gameover condition
+    if(rowsofbricked.includes(0)){
+        // console.log("Gameover! The bricks have hit the ceiling!");
+        clearInterval(piecedowninterval);
+        piecedowninterval=null;
+        gameover = true;
+        statusheading.innerHTML = "Game Over! Press start to play again";
+    };
+
+    if(!gameover){
+        
+        let fullrowsarr = getfullrowsarray(rowsofbricked);
+        
+        // console.log("fullrowsarr.length >0 was registered ");
+        
+        clearfullrows(fullrowsarr);
+
+            // The floored bricks would still be floating in place b/w the rows which are just cleared needs to cascade down
+        pausegame();
+        setTimeout(() => {
+            shiftbricks(fullrowsarr);
+            resetcurrentarrays();
+            generaterandompiece();
+            unpausegame();
+            
+        },200);
+        
+            
     
     }
 };

@@ -8,6 +8,9 @@
         <link rel="icon" type="image/png" href="public/TetrisTpieceimage.webp">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Bitcount:wght@100..900&family=Lexend+Giga:wght@100..900&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Monoton&family=Notable&family=Orbitron:wght@400..900&family=Press+Start+2P&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="public/styles.css">
     </head>
     <body>
@@ -23,6 +26,7 @@
                 <button id="rotateanticlockwisebtn" class="btn btn-danger"><i id="rotatelefticon" class="rotateicon bi bi-arrow-counterclockwise"></i></button>
                 <button id="moveleftbtn" class="btn btn-primary"></button>
                 <button id="movedownbtn1" class="btn btn-secondary"></button>
+                <button id="instadownbtn1" class="btn btn-secondary"></button>
             </div>
             <div id="maingridcontainer" tabindex="0">
             </div>
@@ -30,6 +34,7 @@
                 <button id="rotateclockwisebtn" class="btn btn-danger round"><i id="rotaterighticon" class="rotateicon bi bi-arrow-clockwise"></i></button>
                 <button id="moverightbtn" class="btn btn-primary"></button>
                 <button id="movedownbtn2" class="btn btn-secondary"></button>
+                <button id="instadownbtn2" class="btn btn-secondary"></button>
             </div>
 
             <!-- Modal -->
@@ -83,9 +88,9 @@
                                     <option value="custom">Custom</option>
                                 </select>
                                 <label disabled hidden id="labelcustomspeedsel" for="customspeedsel" class="form-label">Enter custom gamespeed in ms: </label>
-                                <input disabled hidden type="number" min="0" max="5000" class="form-control" name="customspeedsel" id="customspeedsel">
+                                <input disabled hidden type="number" min="25" max="5000" class="form-control" name="customspeedsel" id="customspeedsel">
                                 <div id="customspeedinvalidfeedback" hidden>
-                                      Please enter a value between 0 and 5000.
+                                      Please enter a value between 25 and 5000.
                                 </div>
                                 <br>
                             

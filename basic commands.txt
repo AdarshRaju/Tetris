@@ -1,5 +1,5 @@
 startgame(); 
-generateTpiece();
+generateIpiece();
 
 
 console.log(currentuserarray);
