@@ -1,319 +1,67 @@
-// #region HTML elements captured and stored in variables
+// #region variables and functions imported from external modules
 
-var mainGridContainer = document.getElementById("mainGridContainer");
-var startButton = document.getElementById("startButton");
-var acceptSettingsBtn = document.getElementById("acceptSettingsBtn");
-var statusHeading = document.getElementById("statusHeading");
-var scoreBar = document.getElementById("scoreBar");
-var scoreValue = document.getElementById("scoreValue");
-var rotateAntiClockwiseBtn = document.getElementById("rotateAntiClockwiseBtn");
-var moveLeftBtn = document.getElementById("moveLeftBtn");
-var rotateClockwiseBtn = document.getElementById("rotateClockwiseBtn");
-var moveRightBtn = document.getElementById("moveRightBtn");
-var moveDownBtn1 = document.getElementById("moveDownBtn1");
-var moveDownBtn2 = document.getElementById("moveDownBtn2");
-var instaDownBtn1 = document.getElementById("instaDownBtn1");
-var instaDownBtn2 = document.getElementById("instaDownBtn2");
-var startGameModal = document.getElementById("startGameModal");
-var noOfColsSel = document.getElementById("noOfColsSel");
-var noOfRowsSel = document.getElementById("noOfRowsSel");
-var gameSpeedSel = document.getElementById("gameSpeedSel");
-var customColsSel = document.getElementById("customColsSel");
-var customRowsSel = document.getElementById("customRowsSel");
-var customSpeedSel = document.getElementById("customSpeedSel");
-var labelCustomColsSel = document.getElementById("labelCustomColsSel");
-var labelCustomRowsSel = document.getElementById("labelCustomRowsSel");
-var labelCustomSpeedSel = document.getElementById("labelCustomSpeedSel");
-var form = document.getElementById("form");
-var modal = new bootstrap.Modal('#startGameModal');
-var customColInvalidFeedback = document.getElementById("customColInvalidFeedback");
-var customRowInvalidFeedback = document.getElementById("customRowInvalidFeedback");
-var customSpeedInvalidFeedback = document.getElementById("customSpeedInvalidFeedback");
+// These contain the HTML DOM elements grabbed from the main index.html file
+import * as docElems from "./globalVariables/docElems.js";
+// These contain the 2D Array logic of the matrix pieces
+import * as tetrisPieces from "./globalVariables/tetrisPieces.js";
+// These contain the game's state variables
+import {genVar} from "./globalVariables/generalVars.js";
+// These contain the logic for touchscreens
+import {setUpTouchControls} from "./touchScreen/touchScreen.js";
+// These contain the general functions that can be used anywhere
+import * as genFunc from "./functions/generalFunctions.js";
 
-// #endregion HTML elements captured and stored in variables
-
-// #region global variables set
-var gameOver=true;
-var paused;
-var modalClosedBySubmit;
-var boardWidth = 300;
-var noOfCols;
-var noOfRows;
-var boardSize;
-var gameSpeed;
-var currentlySelectedPiece;
-var currentlySelectedPieceMatrix = [];
-var pieceDownInterval;
-var clickDownInterval;
-var currentUserRefCellIndex;
-var score = 0;
+// #endregion variables and functions imported from external modules
 
 
-var currentUserArray = [];
-var floorShiftArray = [];
-var cellsArr = [];
-var pieces = ["O", "I", "J", "L", "S", "Z", "T"];
-var blockedPieces = [];
+setUpTouchControls();
 
-let testMatrix = [
-    [true, true, true],
-    [true, true, false],
-    [true, true, false],
-    [false, true, false],
-    [false, false, false],
-    [false, false, false],
-];
-
-let OPieceMatrix = [
-        [true, true],
-        [true, true]    
-    ];
-
-let IPieceMatrix = [
-        [true],
-        [true],
-        [true],
-        [true]       
-    ];
-
-let JPieceMatrix = [
-        [false, true],
-        [false, true],
-        [true, true]       
-    ];
-
-let LPieceMatrix = [
-        [true, false],
-        [true, false],
-        [true, true]       
-    ];
-
-let SPieceMatrix = [
-        [false, true, true],
-        [true, true, false]     
-    ];
-
-let ZPieceMatrix = [
-        [true, true, false],
-        [false, true, true]     
-    ];
-
- let TPieceMatrix = [
-        [true, true, true],
-        [false, true, false]  
-    ];
-
-// #endregion global variables set
-
-// #region logic for touchscreens
-
-mainGridContainer.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-
-var leftKeyEvent = new KeyboardEvent("keydown", {
-    key: "ArrowLeft"
-});
-
-var rightKeyEvent = new KeyboardEvent("keydown", {
-    key: "ArrowRight"
-});
-
-var upKeyEvent = new KeyboardEvent("keydown", {
-    key: "ArrowUp"
-});
-
-var downKeyEvent = new KeyboardEvent("keydown", {
-    key: "ArrowDown"
-});
-
-
-mainGridContainer.addEventListener("dragstart", e => e.preventDefault());
-
-mainGridContainer.addEventListener("mousedown", (e) =>{
-    startX = e.clientX;
-    startY = e.clientY;
-    // console.log("startx and starty is: ", startX, startY);
-});
-
-mainGridContainer.addEventListener("mouseup", (e) =>{
-    endX = e.clientX;
-    endY = e.clientY;
-    // console.log("endX and endY is: ", endX, endY);
-    handleGesture();
-
-});
-
-mainGridContainer.addEventListener("touchstart", (e) =>{
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-});
-
-mainGridContainer.addEventListener("touchend", (e) =>{
-
-    endX = e.changedTouches[0].clientX;
-    endY = e.changedTouches[0].clientY;
-
-    handleGesture();
-});
-
-function handleGesture() {
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-    
-    let regX = false;
-    let regY = false;
-    
-    (Math.abs(deltaX) > Math.abs(deltaY) ) ? regX = true : regY = true;
-    
-    if (Math.abs(deltaX) > 50 && regX) {
-        if (deltaX > 0) {
-            // console.log("right swipe was activated.");
-            document.dispatchEvent(rightKeyEvent);
-        } else {
-            // console.log("left swipe was activated.");
-            document.dispatchEvent(leftKeyEvent);
-        }
-    }
-    
-
-    if (Math.abs(deltaY) > 50 && regY) {
-        if (deltaY > 0) {
-            // console.log("swipe down was activated.");
-            document.dispatchEvent(downKeyEvent);
-        } else {
-            // console.log("swipe up was activated.");
-            document.dispatchEvent(upKeyEvent);
-        }
-    }
-};
-
-// #endregion logic for touchscreens
 
 // #region logic for the settings selection modal
 
 
-function toggleCustomDisplay(event,customInput, customLabel, customFeedback){
+docElems.noOfColsSel.addEventListener("change", (e) =>{
     
-    if(event.target.value == "custom"){
-
-        customInput.removeAttribute("hidden");
-        customInput.removeAttribute("disabled");
-        customInput.removeAttribute("required");
-
-        customLabel.removeAttribute("hidden");        
-        
-        customFeedback.hidden = false;
-    }else {
-
-        customInput.setAttribute("hidden", "true");
-        customInput.setAttribute("disabled", "true");
-        customInput.setAttribute("required", "true");
-
-        customLabel.setAttribute("hidden", "true");        
-        
-        customFeedback.hidden = true;
-    }
-}
-
-noOfColsSel.addEventListener("change", (e) =>{
-    
-    toggleCustomDisplay(e, customColsSel, labelCustomColsSel, customColInvalidFeedback);
+    genFunc.toggleCustomDisplay(e, docElems.customColsSel, docElems.labelCustomColsSel, docElems.customColInvalidFeedback);
 
 });
 
-noOfRowsSel.addEventListener("change", (e) =>{
+docElems.noOfRowsSel.addEventListener("change", (e) =>{
     
-    toggleCustomDisplay(e, customRowsSel, labelCustomRowsSel, customRowInvalidFeedback);
+    genFunc.toggleCustomDisplay(e, docElems.customRowsSel, docElems.labelCustomRowsSel, docElems.customRowInvalidFeedback);
 });
 
-gameSpeedSel.addEventListener("change", (e) =>{
+docElems.gameSpeedSel.addEventListener("change", (e) =>{
    
-    toggleCustomDisplay(e, customSpeedSel, labelCustomSpeedSel, customSpeedInvalidFeedback);
+    genFunc.toggleCustomDisplay(e, docElems.customSpeedSel, docElems.labelCustomSpeedSel, docElems.customSpeedInvalidFeedback);
 });
 
+docElems.customColsSel.addEventListener("change", ()=>{
+    if (!docElems.customColsSel.disabled){
 
-function toggleInvalidFeedback(inputBox, feedbackBox){
-    let check;
-    let checkInputBox = parseInt(inputBox.value);
-    if (inputBox == customColsSel){
-        check = (!inputBox.value || checkInputBox <5 || checkInputBox >50)
-    } else if (inputBox == customRowsSel){
-        check = (!inputBox.value || checkInputBox <10 || checkInputBox >100)
-    } else if (inputBox == customSpeedSel){
-        check = (!inputBox.value || checkInputBox <25 || checkInputBox >5000)
-    }
-
-    if (check){
-        inputBox.classList.add("is-invalid");
-        inputBox.classList.remove("is-valid");
-        feedbackBox.classList.add("invalid-feedback");
-        feedbackBox.hidden = false;
-    } else {
-        inputBox.classList.add("is-valid");
-        inputBox.classList.remove("is-invalid")
-        feedbackBox.classList.remove("invalid-feedback");
-        feedbackBox.hidden = true;
-    }
-
-}
-
-customColsSel.addEventListener("change", ()=>{
-    if (!customColsSel.disabled){
-
-        toggleInvalidFeedback(customColsSel, customColInvalidFeedback);
+        genFunc.toggleInvalidFeedback(docElems.customColsSel, docElems.customColInvalidFeedback);
     }
 });
 
-customRowsSel.addEventListener("change", ()=>{
-    if (!customRowsSel.disabled){
+docElems.customRowsSel.addEventListener("change", ()=>{
+    if (!docElems.customRowsSel.disabled){
   
-        toggleInvalidFeedback(customRowsSel, customRowInvalidFeedback);
+        genFunc.toggleInvalidFeedback(docElems.customRowsSel, docElems.customRowInvalidFeedback);
     }
 });
 
-customSpeedSel.addEventListener("change", ()=>{
-    if (!customSpeedSel.disabled){
+docElems.customSpeedSel.addEventListener("change", ()=>{
+    if (!docElems.customSpeedSel.disabled){
 
-        toggleInvalidFeedback(customSpeedSel, customSpeedInvalidFeedback);
+        genFunc.toggleInvalidFeedback(docElems.customSpeedSel, docElems.customSpeedInvalidFeedback);
     }
 });
 
 // #endregion logic for the settings selection modal
 
-
-function rotateMatrixClockwise(mat){
-    let tempMatrix = [];
-    for (let i=0; i<mat[0].length; i++){
-    
-        let tempArr = [];
-       
-        for (let j=(mat.length-1); j>=0; j--){
-            
-                tempArr.push(mat[j][i])
-           
-        }
-        tempMatrix.push(tempArr);
-    };
-    return tempMatrix;
-};
-
-function rotateMatrixAntiClockwise(mat){
-    let tempMatrix = [];
-    
-    for (let i=(mat[0].length - 1); i>=0; i--){
-        let tempArr = [];
-        for (let j=0; j<mat.length; j++){
-        
-                tempArr.push(mat[j][i])
-           
-        }
-        tempMatrix.push(tempArr);
-    };
-    return tempMatrix;
-};
-
 // #region game start functions
 // Preserves browser form value validation for use in bootstrap
-form.addEventListener("submit", (e) =>{
+docElems.form.addEventListener("submit", (e) =>{
     'use strict'
     
     e.preventDefault();
@@ -323,73 +71,73 @@ form.addEventListener("submit", (e) =>{
     let checkCustomRow;
     let checkCustomSpeed;
     
-    // customColsSel.setCustomValidity("");
-    // customRowsSel.setCustomValidity("");
-    // customSpeedSel.setCustomValidity("");
-    customColInvalidFeedback.classList.remove("invalid-feedback");
-    customRowInvalidFeedback.classList.remove("invalid-feedback");
-    customSpeedInvalidFeedback.classList.remove("invalid-feedback");
+    // docElems.customColsSel.setCustomValidity("");
+    // docElems.customRowsSel.setCustomValidity("");
+    // docElems.customSpeedSel.setCustomValidity("");
+    docElems.customColInvalidFeedback.classList.remove("invalid-feedback");
+    docElems.customRowInvalidFeedback.classList.remove("invalid-feedback");
+    docElems.customSpeedInvalidFeedback.classList.remove("invalid-feedback");
 
-    if(noOfColsSel.value == "custom"){
-        checkCustomCol = parseInt(customColsSel.value);
-        if(!customColsSel.value || checkCustomCol <5 || checkCustomCol >50){
+    if(docElems.noOfColsSel.value == "custom"){
+        checkCustomCol = parseInt(docElems.customColsSel.value);
+        if(!docElems.customColsSel.value || checkCustomCol <5 || checkCustomCol >50){
             valid = false;
-            customColsSel.classList.add("is-invalid");
-            customColInvalidFeedback.classList.add("invalid-feedback");
-            customColInvalidFeedback.hidden = false;
+            docElems.customColsSel.classList.add("is-invalid");
+            docElems.customColInvalidFeedback.classList.add("invalid-feedback");
+            docElems.customColInvalidFeedback.hidden = false;
         } else {
-            customColsSel.classList.add("is-valid");
-            customColInvalidFeedback.classList.remove("invalid-feedback");
-            customColInvalidFeedback.hidden = true;
-            noOfCols = checkCustomCol;
+            docElems.customColsSel.classList.add("is-valid");
+            docElems.customColInvalidFeedback.classList.remove("invalid-feedback");
+            docElems.customColInvalidFeedback.hidden = true;
+            genVar.noOfCols = checkCustomCol;
         }
 
-        // customColsSel.setAttribute("required", "true");
+        // docElems.customColsSel.setAttribute("required", "true");
     } else{
-        noOfCols = parseInt(noOfColsSel.value);
-        // customColsSel.removeAttribute("required");
+        genVar.noOfCols = parseInt(docElems.noOfColsSel.value);
+        // docElems.customColsSel.removeAttribute("required");
     };
 
 
 
-    if (noOfRowsSel.value  == "custom"){
-        checkCustomRow = parseInt(customRowsSel.value);
-        if(!customRowsSel.value || checkCustomRow <10 || checkCustomRow >100){
+    if (docElems.noOfRowsSel.value  == "custom"){
+        checkCustomRow = parseInt(docElems.customRowsSel.value);
+        if(!docElems.customRowsSel.value || checkCustomRow <10 || checkCustomRow >100){
             valid = false;
-            customRowsSel.classList.add("is-invalid");
-            customRowInvalidFeedback.classList.add("invalid-feedback");
-            customRowInvalidFeedback.hidden = false;
+            docElems.customRowsSel.classList.add("is-invalid");
+            docElems.customRowInvalidFeedback.classList.add("invalid-feedback");
+            docElems.customRowInvalidFeedback.hidden = false;
         } else {
-            customRowsSel.classList.add("is-valid");
-            customRowInvalidFeedback.classList.remove("invalid-feedback");
-            customRowInvalidFeedback.hidden = true;
-            noOfRows = checkCustomRow;
+            docElems.customRowsSel.classList.add("is-valid");
+            docElems.customRowInvalidFeedback.classList.remove("invalid-feedback");
+            docElems.customRowInvalidFeedback.hidden = true;
+            genVar.noOfRows = checkCustomRow;
         }
-        // customRowsSel.setAttribute("required", "true");
+        // docElems.customRowsSel.setAttribute("required", "true");
     } 
     
     else{
-        noOfRows = parseInt(noOfRowsSel.value);
-        // customRowsSel.removeAttribute("required");
+        genVar.noOfRows = parseInt(docElems.noOfRowsSel.value);
+        // docElems.customRowsSel.removeAttribute("required");
     };
 
     
-    if (gameSpeedSel.value  == "custom"){
-        checkCustomSpeed = parseInt(customSpeedSel.value);
-        if(!customSpeedSel.value || checkCustomSpeed <25 || checkCustomSpeed >5000){
+    if (docElems.gameSpeedSel.value  == "custom"){
+        checkCustomSpeed = parseInt(docElems.customSpeedSel.value);
+        if(!docElems.customSpeedSel.value || checkCustomSpeed <25 || checkCustomSpeed >5000){
             valid = false;
-            customSpeedSel.classList.add("is-invalid");
-            customSpeedInvalidFeedback.classList.add("invalid-feedback");
-            customSpeedInvalidFeedback.hidden = false;
+            docElems.customSpeedSel.classList.add("is-invalid");
+            docElems.customSpeedInvalidFeedback.classList.add("invalid-feedback");
+            docElems.customSpeedInvalidFeedback.hidden = false;
         } else {
-            customSpeedSel.classList.add("is-valid");
-            customSpeedInvalidFeedback.classList.remove("invalid-feedback");
-            customSpeedInvalidFeedback.hidden = true;
-            gameSpeed = checkCustomSpeed;
+            docElems.customSpeedSel.classList.add("is-valid");
+            docElems.customSpeedInvalidFeedback.classList.remove("invalid-feedback");
+            docElems.customSpeedInvalidFeedback.hidden = true;
+            genVar.gameSpeed = checkCustomSpeed;
         }
-        // customSpeedSel.setAttribute("required", "true");
+        // docElems.customSpeedSel.setAttribute("required", "true");
     } else{
-        gameSpeed = parseInt(gameSpeedSel.value);
+        genVar.gameSpeed = parseInt(docElems.gameSpeedSel.value);
        
     };
 
@@ -399,22 +147,22 @@ form.addEventListener("submit", (e) =>{
     }
     else {
         
-        modalClosedBySubmit = true;
-        modal.hide();
+        genVar.isModalClosedBySubmit = true;
+        docElems.modal.hide();
         startGame();
     }
 
 });
 
-startButton.addEventListener("click", () =>{
+docElems.startButton.addEventListener("click", () =>{
     // console.log("start btn was pressed");
     pauseGame();
 });
 
-modal._element.addEventListener("hidden.bs.modal", ()=>{
+docElems.modal._element.addEventListener("hidden.bs.modal", ()=>{
     // console.log("modal hidden was triggered");
-    if(modalClosedBySubmit){
-        modalClosedBySubmit = false;
+    if(genVar.isModalClosedBySubmit){
+        genVar.isModalClosedBySubmit = false;
     } else {
         unPauseGame();
     }
@@ -423,77 +171,76 @@ modal._element.addEventListener("hidden.bs.modal", ()=>{
 
 
 function startGame() {
-    // if((gameOver)){
-        gameOver = false;
-        paused = false;
-        mainGridContainer.innerHTML = "";
-        statusHeading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
+    
+        genVar.gameOver = false;
+        genVar.paused = false;
+        docElems.mainGridContainer.innerHTML = "";
+        docElems.statusHeading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
 
-        boardSize = noOfRows * noOfCols;
+        genVar.boardSize = genVar.noOfRows * genVar.noOfCols;
         generateGridCells();
         resetCurrentArrays();
         window.scrollTo({
             top: document.body.scrollHeight,
             behavior: 'smooth'
         });
-        blockedPieces = [];
-        score = 0;
-        scoreValue.innerHTML = score;
+        genVar.blockedPieces = [];
+        genVar.score = 0;
+        docElems.scoreValue.innerHTML = genVar.score;
         generateRandomPiece();
-        pieceDownInterval && clearInterval(pieceDownInterval);
-        pieceDownInterval = setInterval(movePieceDown, gameSpeed);
+        genVar.pieceDownInterval && clearInterval(genVar.pieceDownInterval);
+        genVar.pieceDownInterval = setInterval(movePieceDown, genVar.gameSpeed);
         
-    // }
+    
 };
 
 function pauseGame(){
-    if(!paused && !gameOver){
+    if(!genVar.paused && !genVar.gameOver){
         // console.log("pause game was triggered");
-        paused = true;
-        clearInterval(pieceDownInterval);
-        pieceDownInterval = null;
+        genVar.paused = true;
+        clearInterval(genVar.pieceDownInterval);
+        genVar.pieceDownInterval = null;
     }
 }
 
 function unPauseGame(){
-    if(!gameOver && paused){
-        paused = false;
-        // console.log("unPauseGame was triggered");
-        // console.log("Boolean pieceDownInterval in unpause is: ", Boolean(pieceDownInterval));
-        (!pieceDownInterval) && (pieceDownInterval = setInterval(movePieceDown, gameSpeed));
+    if(!genVar.gameOver && genVar.paused){
+        genVar.paused = false;
+        
+        (!genVar.pieceDownInterval) && (genVar.pieceDownInterval = setInterval(movePieceDown, genVar.gameSpeed));
     }
 }
 
 function generateGridCells(){
 
-    for (let i=0; i<boardSize; i++){
+    for (let i=0; i<genVar.boardSize; i++){
         let newGridElement = document.createElement("div");
         newGridElement.classList.add("gridItem");
         newGridElement.id = i;
-        mainGridContainer.appendChild(newGridElement);
+        docElems.mainGridContainer.appendChild(newGridElement);
     };
 
-    mainGridContainer.style.gridTemplateColumns = `repeat(${noOfCols}, 1fr)`;
-    mainGridContainer.style.gridTemplateRows = `repeat(${noOfRows}, 1fr)`;
-    mainGridContainer.style.border= "transparent solid 5px";
-    mainGridContainer.style.borderImage= `linear-gradient(to top, black, rgb(93, 45, 45))`;
-    mainGridContainer.style.borderImageSlice= "1";
+    docElems.mainGridContainer.style.gridTemplateColumns = `repeat(${genVar.noOfCols}, 1fr)`;
+    docElems.mainGridContainer.style.gridTemplateRows = `repeat(${genVar.noOfRows}, 1fr)`;
+    docElems.mainGridContainer.style.border= "transparent solid 5px";
+    docElems.mainGridContainer.style.borderImage= `linear-gradient(to top, black, rgb(93, 45, 45))`;
+    docElems.mainGridContainer.style.borderImageSlice= "1";
 
-    let cellWidth = boardWidth/noOfCols;
-    let boardHeight = boardWidth+(cellWidth*(noOfRows-noOfCols));
-    // console.log("boardWidth is: ", boardWidth, "boardHeight is: ", boardHeight);
+    let cellWidth = genVar.boardWidth/genVar.noOfCols;
+    let boardHeight = genVar.boardWidth+(cellWidth*(genVar.noOfRows-genVar.noOfCols));
+    // console.log("genVar.boardWidth is: ", genVar.boardWidth, "boardHeight is: ", boardHeight);
     
     var docStyle = document.createElement("style");
     docStyle.textContent = `
         @media (max-width: 600px) {
             #mainGridContainer{
-                width: ${boardWidth/2}px;
+                width: ${genVar.boardWidth/2}px;
                 height: ${boardHeight/2}px;
             }
         }
         @media (min-width: 601px) {
             #mainGridContainer{
-               width: ${boardWidth}px;
+               width: ${genVar.boardWidth}px;
                 height: ${boardHeight}px;
             }
 
@@ -506,63 +253,63 @@ function generateGridCells(){
     
 
  
-    cellsArr = [...document.getElementsByClassName("gridItem")];
+    genVar.cellsArr = [...document.getElementsByClassName("gridItem")];
 };
 
 // #endregion game start functions
 
 function resetCurrentArrays(){
     
-    currentUserRefCellIndex = 0;
+    genVar.currentUserRefCellIndex = 0;
     clearFloatingBricks();
     clearFloorShiftBricks();
-    currentUserArray = [];
-    floorShiftArray = [];
-    currentlySelectedPieceMatrix = [];
+    genVar.currentUserArray = [];
+    genVar.floorShiftArray = [];
+    genVar.currentlySelectedPieceMatrix = [];
     
     
 };
 
 
 function clearFloatingBricks(){
-    cellsArr.forEach(cell =>{
+    genVar.cellsArr.forEach(cell =>{
         cell.classList.remove("floatingBrick");
     })
 };
 
 function clearFloorShiftBricks(){
-    cellsArr.forEach(cell =>{
+    genVar.cellsArr.forEach(cell =>{
         cell.classList.remove("floorCheckBrick");
     })
 }
 
 function addFloatingBricks(indexno) {
-    cellsArr[indexno].classList.add("floatingBrick");
+    genVar.cellsArr[indexno].classList.add("floatingBrick");
 };
 
 function addFlooredBricks(indexno) {
-    cellsArr[indexno].classList.add("flooredBrick");
+    genVar.cellsArr[indexno].classList.add("flooredBrick");
 };
 
 function addFloorShiftBricks(indexno) {
-    cellsArr[indexno].classList.add("floorCheckBrick");
+    genVar.cellsArr[indexno].classList.add("floorCheckBrick");
 };
 
 // #region piece generation logic
 
 function generateUnblockedPiece(){
 
-//    console.log("The blocked pieces are: ", blockedPieces);
+//    console.log("The blocked pieces are: ", genVar.blockedPieces);
 
-    if(blockedPieces.length == pieces.length){
+    if(genVar.blockedPieces.length == pieces.length){
         // console.log("Game Over! None of the pieces can be generated in the grid space.");
-        gameOver = true;
-        statusHeading.innerHTML = "Game Over! Press start to play again";
-        clearInterval(pieceDownInterval);
-        pieceDownInterval=null;
+        genVar.gameOver = true;
+        docElems.statusHeading.innerHTML = "Game Over! Press start to play again";
+        clearInterval(genVar.pieceDownInterval);
+        genVar.pieceDownInterval=null;
     } else {
-        for (piece of pieces){
-            if (!blockedPieces.includes(piece)){
+        for (piece of genVar.pieces){
+            if (!genVar.blockedPieces.includes(piece)){
                 switch(piece){
                     case "O":
                         generateOPiece();
@@ -596,56 +343,20 @@ function generateUnblockedPiece(){
 };
 
 function checkBricksInColForDepth(colNo,depth){
-    let bricksInCol = cellsArr.filter(cell=>{
-        return (parseInt(cell.id) < (noOfCols * depth)) && (cell.classList.contains("flooredBrick"))
-        && (parseInt(cell.id)%noOfCols == colNo)
+    let bricksInCol = genVar.cellsArr.filter(cell=>{
+        return (parseInt(cell.id) < (genVar.noOfCols * depth)) && (cell.classList.contains("flooredBrick"))
+        && (parseInt(cell.id)%genVar.noOfCols == colNo)
     })
     // console.log("bricksInCol is: ", bricksInCol);
     // return bricksInCol.length>0 ? true:false;
     return bricksInCol;
 };
 
-function getDepthMap(pieceMatrix){
-    
-    let lastRow = pieceMatrix.length - 1;
-    let lastRowItems = pieceMatrix[lastRow];
-
-    
-    let lastRowMap = lastRowItems.map(cell => cell ? 1 : 0);
-
-    // For potential future features where a piece matrix could have multiple false only rows at the bottom
-    while (!lastRowMap.includes(1) && lastRow >=0){
-        lastRow--;
-        lastRowItems = pieceMatrix[lastRow];
-        lastRowMap = lastRowItems.map(cell => cell ? 1 : 0);
-    }
-
-    let relativeRowHeightMap = lastRowMap.map((lastRowItem, itemIndex) =>{
-        if (!lastRowItem) {
-            
-            for (let i=(lastRow -1); i>=0; i--){
-                if (!pieceMatrix[i][itemIndex]){
-                    lastRowItem--;
-                } else {break;}
-            }
-        }
-        return lastRowItem-1;
-    });
-
-    // Piece height after the height of the false only rows are trimmed out from the bottom of the pieceMatrix
-    let pieceHeight1 = lastRow +1;
-
-    let depthMap = relativeRowHeightMap.map(col =>{
-        return col + pieceHeight1;
-    });
-    return depthMap
-}
-
 function getAvailableColumns(pieceMatrix){
 
     let pieceWidth = pieceMatrix[0].length;
 
-    let depthMap = getDepthMap(pieceMatrix);
+    let depthMap = genFunc.getDepthMap(pieceMatrix);
     let pieceHeight1 = Math.max(...depthMap);
     // console.log("pieceHeight1 is: ", pieceHeight1);
 
@@ -653,13 +364,13 @@ function getAvailableColumns(pieceMatrix){
 
     // preliminary depth check for optimization
     let t1 = performance.now();
-    let bricksInTheWayHeight1 = cellsArr.filter(cell =>{
-        return ((parseInt(cell.id) < (noOfCols * pieceHeight1)) && (cell.classList.contains("flooredBrick")));
+    let bricksInTheWayHeight1 = genVar.cellsArr.filter(cell =>{
+        return ((parseInt(cell.id) < (genVar.noOfCols * pieceHeight1)) && (cell.classList.contains("flooredBrick")));
     });
 
     if (bricksInTheWayHeight1.length == 0){
         // console.log("There are no bricks of in the way in the max height of the piece from the top row");
-        for (let i=0; i<(noOfCols-pieceWidth+1); i++){
+        for (let i=0; i<(genVar.noOfCols-pieceWidth+1); i++){
             availableCols.push(i)
         }   
         
@@ -668,7 +379,7 @@ function getAvailableColumns(pieceMatrix){
         
     } else {
 
-        for (let i=0; i<(noOfCols-pieceWidth+1);i++){
+        for (let i=0; i<(genVar.noOfCols-pieceWidth+1);i++){
             let pieceFitCheck = depthMap.map((pieceColDepth, pieceColIndex)=>{
                 let brickInCol = checkBricksInColForDepth((i+pieceColIndex), pieceColDepth);
                 return brickInCol.length>0 ? true:false;
@@ -682,148 +393,27 @@ function getAvailableColumns(pieceMatrix){
     }
 
 
-    // console.log("pieceHeight1 is: ", pieceHeight1);
-
-    // console.log("lastRowMap is: ", lastRowMap);
-
-    // console.log("depthMap is: ", depthMap);
-
-    // #region legacy code
-
-    // let pieceHeight2;
-    // lastRowMap.includes(0) ? pieceHeight2 = (pieceHeight1 -1) : pieceHeight2 = pieceHeight1;
-
-// check for any obstructions from floored bricks that would coincide with the location of the cells in the piece
-    // let bricksInTheWayHeight1 = cellsArr.filter(cell =>{
-    //     return ((parseInt(cell.id) < (noOfCols * pieceHeight1)) && (cell.classList.contains("flooredBrick")));
-    // });
-
-    
-
-    // let colBricksInWayHeight1 = bricksInTheWayHeight1.map(brickCell => parseInt(brickCell.id)%noOfCols);
-
-    // let pieceHeight1EmptyCols = [];
-    // let pieceHeight2EmptyCols = [];
-
-    // To check all the available columns for height1 here
-    // for (let i=0; i<(noOfCols); i++){
-    //     if(!colBricksInWayHeight1.includes(i)){
-    //         pieceHeight1EmptyCols.push(i);
-    //     }
-    // };
-
-    // if(pieceHeight1 !== pieceHeight2){
-    //     let bricksInTheWayHeight2 = cellsArr.filter(cell =>{
-    //     return ((parseInt(cell.id) < (noOfCols * pieceHeight2)) && (cell.classList.contains("flooredBrick")));
-    //     });
-
-    //     let colBricksInWayHeight2 = bricksInTheWayHeight2.map(brickCell => parseInt(brickCell.id)%noOfCols);
-
-        
-
-    //     // To check all the available columns for height2 here
-    //     for (let i=0; i<(noOfCols); i++){
-    //         if(!colBricksInWayHeight2.includes(i)){
-    //             pieceHeight2EmptyCols.push(i);
-    //         }
-    //     };
-
-    // } else {
-    //     // bricksInTheWayHeight2 = bricksInTheWayHeight1;
-    //     // colBricksInWayHeight2 = colBricksInWayHeight1;
-    //     pieceHeight2EmptyCols = pieceHeight1EmptyCols;
-
-    // }
-
-    //  console.log("pieceHeight1EmptyCols is: ", pieceHeight1EmptyCols, "pieceHeight2EmptyCols is: ", pieceHeight2EmptyCols);
-
-    // This is the final available columns list for the selected piece type
-    
-
-
-   
-    // if (piece == "O" || piece == "I" || piece == "J" || piece == "L") {
-    //     for (let i=0; i<pieceHeight1EmptyCols.length; i++){
-            
-    //             if(pieceWidth == 1){
-    //                 availableCols.push(pieceHeight1EmptyCols[i])
-    //             }
-    //             if(pieceWidth == 2){
-    //                 if((pieceHeight1EmptyCols[i+1])){
-    //                     if((parseInt(pieceHeight1EmptyCols[i]) + 1) == parseInt(pieceHeight1EmptyCols[i+1])){
-    //                         availableCols.push(pieceHeight1EmptyCols[i])
-    //                     }
-    //                 }
-    //             }
-    //             if(pieceWidth == 3){
-
-    //                 if((pieceHeight1EmptyCols[i+1]) && (pieceHeight1EmptyCols[i+2])){
-    //                     if((parseInt(pieceHeight1EmptyCols[i]) + 1) == parseInt(pieceHeight1EmptyCols[i+1])
-    //                         && (parseInt(pieceHeight1EmptyCols[i]) + 2) == parseInt(pieceHeight1EmptyCols[i+2])){
-    //                         availableCols.push(pieceHeight1EmptyCols[i])
-    //                     }
-    //                 }
-
-    //             }
-            
-    //     };
-    // } else if (piece == "S" || piece == "Z" || piece == "T"){
-
-    //     for (let i=0; i<pieceHeight1EmptyCols.length; i++){
-    //         let height1ColNum = parseInt(pieceHeight1EmptyCols[i]);
-
-    //         if(piece == "S"){
-    //             if (pieceHeight1EmptyCols.includes(height1ColNum+1) && pieceHeight2EmptyCols.includes(height1ColNum+2)){
-    //                 availableCols.push(pieceHeight1EmptyCols[i])
-    //             }
-    //         }
-
-    //         if(piece == "Z"){
-    //             if (pieceHeight1EmptyCols.includes(height1ColNum+1) && pieceHeight2EmptyCols.includes(height1ColNum-1)){
-    //                 // have to subtract 1 to reflect the top left cell used in other parts of the logic
-    //                 availableCols.push(pieceHeight1EmptyCols[i]-1)
-    //             }
-    //         }
-
-    //         if(piece == "T"){
-    //             if (pieceHeight2EmptyCols.includes(height1ColNum+1) && pieceHeight2EmptyCols.includes(height1ColNum-1)){
-    //                 availableCols.push(pieceHeight1EmptyCols[i]-1)
-    //             }
-    //         }
-
-    //     }
-    // }
-
-    // #endregion legacy code
-
-    // console.log("availableCols is: ", availableCols);
     return availableCols;
     
 };
 
 function generateOPiece(){
-    // currentlySelectedPiece = "O";
+    
     resetCurrentArrays();
     
-    
+    // always generate the item from the top-left corner of the piece matrix grid
 
-    // always generate the item from the top-left corner of the grid
-
-    
-
-    
-    // let availableCols = getAvailableColumns("O");
-    let availableCols = getAvailableColumns(OPieceMatrix);
+    let availableCols = getAvailableColumns(tetrisPieces.OPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = OPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.OPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new O piece. availableCols is: ", availableCols);
-        blockedPieces.push("O");
+        genVar.blockedPieces.push("O");
         generateUnblockedPiece();
     }
     
@@ -832,29 +422,22 @@ function generateOPiece(){
 
 function generateIPiece(){
 
-    // currentlySelectedPiece = "I";
+    
     resetCurrentArrays();
     // The top left most cell of an I piece can be generatated in any column in the top most row 
-    currentUserRefCellIndex = Math.floor(Math.random()*(noOfCols));
+    genVar.currentUserRefCellIndex = Math.floor(Math.random()*(genVar.noOfCols));
 
-    // let Ipiece = [];
-    // Ipiece.push(currentUserRefCellIndex, (currentUserRefCellIndex+(noOfCols*1)), (currentUserRefCellIndex+(noOfCols*2)), (currentUserRefCellIndex+(noOfCols*3)));
-
-    
-
-
-    // let availableCols = getAvailableColumns("I");
-    let availableCols = getAvailableColumns(IPieceMatrix);
+    let availableCols = getAvailableColumns(tetrisPieces.IPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = IPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.IPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new I piece. availableCols is: ", availableCols);
-        blockedPieces.push("I");
+        genVar.blockedPieces.push("I");
         generateUnblockedPiece();
     }
 
@@ -866,24 +449,18 @@ function generateJPiece(){
     resetCurrentArrays();
 
     // The top left most cell of an J piece matrix can be generatated in any column from 0 to (no of cols - 2) in the top most row 
-    // currentUserRefCellIndex = Math.floor((Math.random()*(noOfCols-1)));
-
-    
-
-    
-
-    // let availableCols = getAvailableColumns("J");
-    let availableCols = getAvailableColumns(JPieceMatrix);
+   
+    let availableCols = getAvailableColumns(tetrisPieces.JPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = JPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.JPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new J piece. availableCols is: ", availableCols);
-        blockedPieces.push("J");
+        genVar.blockedPieces.push("J");
         generateUnblockedPiece();
     }
 }
@@ -892,24 +469,18 @@ function generateLPiece(){
 
     resetCurrentArrays();
     // The top left most cell of an L piece can be generatated in any column from 0 to (no of cols - 2) in the top most row 
-    // currentUserRefCellIndex = Math.floor((Math.random()*(noOfCols-1)));
-
-
-
-    
-
-    // let availableCols = getAvailableColumns("L");
-    let availableCols = getAvailableColumns(LPieceMatrix);
+ 
+    let availableCols = getAvailableColumns(tetrisPieces.LPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = LPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.LPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new L piece. availableCols is: ", availableCols);
-        blockedPieces.push("L");
+        genVar.blockedPieces.push("L");
         generateUnblockedPiece();
     }
 }
@@ -919,24 +490,18 @@ function generateSPiece(){
     resetCurrentArrays();
 
     // The top left most cell of an S piece matrix can be generatated in any column from 0 to (no of cols - 3) in the top most row 
-    // currentUserRefCellIndex = Math.floor((Math.random()*(noOfCols-2)));
-
-    
-
-    
-
-    // let availableCols = getAvailableColumns("S");
-    let availableCols = getAvailableColumns(SPieceMatrix);
+ 
+    let availableCols = getAvailableColumns(tetrisPieces.SPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = SPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.SPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new S piece. availableCols is: ", availableCols);
-        blockedPieces.push("S");
+        genVar.blockedPieces.push("S");
         generateUnblockedPiece();
     }
 
@@ -946,22 +511,18 @@ function generateZPiece() {
 
     resetCurrentArrays();
     // The top left most cell of an Z piece can be generatated in any column from 0 to (no of cols - 3) in the top most row 
-    // currentUserRefCellIndex = Math.floor((Math.random()*(noOfCols-2)));
 
-    
-
-    // let availableCols = getAvailableColumns("Z");
-    let availableCols = getAvailableColumns(ZPieceMatrix);
+    let availableCols = getAvailableColumns(tetrisPieces.ZPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = ZPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.ZPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new Z piece. availableCols is: ", availableCols);
-        blockedPieces.push("Z");
+        genVar.blockedPieces.push("Z");
         generateUnblockedPiece();
     }
 }
@@ -970,55 +531,51 @@ function generateTPiece() {
 
     resetCurrentArrays();
     // The top left most cell of an T piece can be generatated in any column from 0 to (no of cols - 3) in the top most row 
-    // currentUserRefCellIndex = Math.floor((Math.random()*(noOfCols-2)));
 
-   
-
-    // let availableCols = getAvailableColumns("T");
-    let availableCols = getAvailableColumns(TPieceMatrix);
+    let availableCols = getAvailableColumns(tetrisPieces.TPieceMatrix);
 
     if (availableCols.length > 0){
-        currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
-        currentlySelectedPieceMatrix = TPieceMatrix;
+        genVar.currentUserRefCellIndex = availableCols[Math.floor(Math.random()*(availableCols.length))];
+        genVar.currentlySelectedPieceMatrix = tetrisPieces.TPieceMatrix;
         getCurrentUserArray();
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
     } else {
         // console.log("There is no space to generate new T piece. availableCols is: ", availableCols);
-        blockedPieces.push("T");
+        genVar.blockedPieces.push("T");
         generateUnblockedPiece();
     }
 }
 
 function getCurrentFloorShiftArray(){
 
-    floorShiftArray = [];
+    genVar.floorShiftArray = [];
     let highestRow = findFloor();
-    let refIndRow = Math.floor(currentUserRefCellIndex/noOfCols);
+    let refIndRow = Math.floor(genVar.currentUserRefCellIndex/genVar.noOfCols);
     let noOfRowsToShift = highestRow - refIndRow - 1;
 
-    floorShiftArray = currentUserArray.map(index =>{
-        return (index+(noOfRowsToShift*noOfCols));
+    genVar.floorShiftArray = genVar.currentUserArray.map(index =>{
+        return (index+(noOfRowsToShift*genVar.noOfCols));
     })
     
 }
 
 function getCurrentUserArray(){
-     currentUserArray = [];
-    //  console.log("currentUserRefCellIndex value received inside getCurrentUserArray() is: ", currentUserRefCellIndex);
-    //  The currentUserRefCellIndex is the starting index of the topmost cell in the matrix
-    currentlySelectedPieceMatrix.forEach((row, rowAdd)=>{
-        // For toprow, we need to add +1 for each subsequent item from the currentUserRefCellIndex
+     genVar.currentUserArray = [];
+    //  console.log("genVar.currentUserRefCellIndex value received inside getCurrentUserArray() is: ", genVar.currentUserRefCellIndex);
+    //  The genVar.currentUserRefCellIndex is the starting index of the topmost cell in the matrix
+    genVar.currentlySelectedPieceMatrix.forEach((row, rowAdd)=>{
+        // For toprow, we need to add +1 for each subsequent item from the genVar.currentUserRefCellIndex
         row.forEach((cell,colIndex)=>{
             // console.log("In currentarraygen loop, rowindex is noW: ", rowAdd, " ,column index is now: ", colIndex, " and truthy is: ", cell);
             // only if the value is "True" is a value added to the array
             if(cell){
-                currentUserArray.push(currentUserRefCellIndex + (rowAdd*noOfCols) + colIndex);
+                genVar.currentUserArray.push(genVar.currentUserRefCellIndex + (rowAdd*genVar.noOfCols) + colIndex);
             }
         })
     });
     getCurrentFloorShiftArray();
-    // currentUserArray.forEach(addFloatingBricks);
+    
 }
 
 
@@ -1064,33 +621,31 @@ function generateRandomPiece(){
 // #region logic for left and right movement
 function movePieceRight(){
     getCurrentUserArray();
-    // console.log("currentUserArray before movePieceRight is: ", currentUserArray);
+   
     // The right most column in all the elements from currentUserArray is used to check for right wall
-    let colMap = currentUserArray.map(index =>{
-        return (index%noOfCols);
+    let colMap = genVar.currentUserArray.map(index =>{
+        return (index%genVar.noOfCols);
     })
     let rightmostCol = Math.max(...colMap);
 
-    let flooredPiecesCheck = currentUserArray.filter(index =>{
-        if(cellsArr[index+1]){
-        return cellsArr[index+1].classList.contains("flooredBrick");
+    let flooredPiecesCheck = genVar.currentUserArray.filter(index =>{
+        if(genVar.cellsArr[index+1]){
+        return genVar.cellsArr[index+1].classList.contains("flooredBrick");
         }
     })
-    // if (flooredPiecesCheck.length>0){
-    // console.log("right flooredPiecesCheck is: ", flooredPiecesCheck);
-    // }
+   
     
-    if (!(rightmostCol == (noOfCols -1)) && !(flooredPiecesCheck.length >0)){
+    if (!(rightmostCol == (genVar.noOfCols -1)) && !(flooredPiecesCheck.length >0)){
         clearFloatingBricks();
         clearFloorShiftBricks();
-        // console.log("currentUserRefCellIndex before movePieceRight is: ", currentUserRefCellIndex);
-        currentUserRefCellIndex++;
-        // console.log("currentUserRefCellIndex after movePieceRight is: ", currentUserRefCellIndex);
+        // console.log("genVar.currentUserRefCellIndex before movePieceRight is: ", genVar.currentUserRefCellIndex);
+        genVar.currentUserRefCellIndex++;
+        // console.log("genVar.currentUserRefCellIndex after movePieceRight is: ", genVar.currentUserRefCellIndex);
         getCurrentUserArray();
-        // currentUserArray = currentUserArray.map(pieceCell => pieceCell +1);
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
-        // console.log("The currentUserArray is: ", currentUserArray);
+        
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
+        
     } else {
         // console.log("The piece has hit a right wall");
     }
@@ -1099,31 +654,29 @@ function movePieceRight(){
 function movePieceLeft(){
     getCurrentUserArray();
    // The left most column in all the elements from currentUserArray is used to check for left wall
-    let colMap = currentUserArray.map(index =>{
-        return (index%noOfCols);
+    let colMap = genVar.currentUserArray.map(index =>{
+        return (index%genVar.noOfCols);
     })
     let leftmostCol = Math.min(...colMap);
 
-    let flooredPiecesCheck = currentUserArray.filter(index =>{
-        if(cellsArr[index-1]){
-        return cellsArr[index-1].classList.contains("flooredBrick");
+    let flooredPiecesCheck = genVar.currentUserArray.filter(index =>{
+        if(genVar.cellsArr[index-1]){
+        return genVar.cellsArr[index-1].classList.contains("flooredBrick");
         }
     })
-    // if (flooredPiecesCheck.length>0){
-    // console.log("left flooredPiecesCheck is: ", flooredPiecesCheck);
-    // }
+
 
     if(!(leftmostCol == 0) && !(flooredPiecesCheck.length >0) ){
         clearFloatingBricks();
         clearFloorShiftBricks();
-        // console.log("currentUserRefCellIndex before movePieceLeft is: ", currentUserRefCellIndex);
-        currentUserRefCellIndex--;
-        // console.log("currentUserRefCellIndex after movePieceLeft is: ", currentUserRefCellIndex);
+        // console.log("genVar.currentUserRefCellIndex before movePieceLeft is: ", genVar.currentUserRefCellIndex);
+        genVar.currentUserRefCellIndex--;
+        // console.log("genVar.currentUserRefCellIndex after movePieceLeft is: ", genVar.currentUserRefCellIndex);
         getCurrentUserArray();
-        // currentUserArray = currentUserArray.map(pieceCell => pieceCell -1);
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
-        // console.log("The currentUserArray is: ", currentUserArray);
+        
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
+        
     } else {
         // console.log("The piece has hit a left wall");
     }
@@ -1132,22 +685,22 @@ function movePieceLeft(){
 function rotatePieceClockwise(){
 
     getCurrentUserArray();
-    let prevUserArr = currentUserArray;
+    let prevUserArr = genVar.currentUserArray;
 
-    let currentMatrixLength = currentlySelectedPieceMatrix[0].length;
-    let currentMatrixHeight = currentlySelectedPieceMatrix.length;
+    let currentMatrixLength = genVar.currentlySelectedPieceMatrix[0].length;
+    let currentMatrixHeight = genVar.currentlySelectedPieceMatrix.length;
     let dimensionDifference = Math.abs(currentMatrixLength - currentMatrixHeight);
 
-    let colMap = currentUserArray.map(index =>{
-        return (index%noOfCols);
+    let colMap = genVar.currentUserArray.map(index =>{
+        return (index%genVar.noOfCols);
     });
 
-    let rowMap = currentUserArray.map(index =>{
-        return (Math.floor(index/noOfCols));
+    let rowMap = genVar.currentUserArray.map(index =>{
+        return (Math.floor(index/genVar.noOfCols));
     });
 
     let rightmostCol = Math.max(...colMap);
-    // let leftmostCol = Math.min(...colMap);
+    
     let bottommostRow = Math.max(...rowMap);
     
     let rightOverflowCheck = rightmostCol + dimensionDifference;
@@ -1156,40 +709,40 @@ function rotatePieceClockwise(){
     // Right walls check
 
     let leftCascading = false;
-    // if((rightmostCol == (noOfCols-1)) && (currentMatrixHeight > currentMatrixLength)){
-    if( (rightOverflowCheck > (noOfCols-1)) && (currentMatrixHeight > currentMatrixLength)){
-        currentUserRefCellIndex -= rightOverflowCheck-(noOfCols-1);
+    
+    if( (rightOverflowCheck > (genVar.noOfCols-1)) && (currentMatrixHeight > currentMatrixLength)){
+        genVar.currentUserRefCellIndex -= rightOverflowCheck-(genVar.noOfCols-1);
         leftCascading = true;
     }
 
     // Bottom walls check
     let upperCascading = false;
-    //  if((bottommostRow == (noOfRows-1)) && (currentMatrixHeight < currentMatrixLength)){
-     if((bottomOverflowCheck > (noOfRows-1)) && (currentMatrixHeight < currentMatrixLength)){
-        currentUserRefCellIndex -= ((bottomOverflowCheck-(noOfRows-1))*noOfCols);
+    
+     if((bottomOverflowCheck > (genVar.noOfRows-1)) && (currentMatrixHeight < currentMatrixLength)){
+        genVar.currentUserRefCellIndex -= ((bottomOverflowCheck-(genVar.noOfRows-1))*genVar.noOfCols);
         upperCascading = true;
     }
 
-    let checkWallInRotationMat = rotateMatrixClockwise(currentlySelectedPieceMatrix);
-    currentlySelectedPieceMatrix = checkWallInRotationMat;
+    let checkWallInRotationMat = genFunc.rotateMatrixClockwise(genVar.currentlySelectedPieceMatrix);
+    genVar.currentlySelectedPieceMatrix = checkWallInRotationMat;
 
     getCurrentUserArray();
-    let bricksInTheWay = currentUserArray.filter(index =>{
-        return cellsArr[index].classList.contains("flooredBrick");
+    let bricksInTheWay = genVar.currentUserArray.filter(index =>{
+        return genVar.cellsArr[index].classList.contains("flooredBrick");
     });
 
     if (bricksInTheWay.length > 0){
         // Revert 
-        currentUserArray = prevUserArr;
-        let checkWallInRotationMat = rotateMatrixAntiClockwise(currentlySelectedPieceMatrix);
-        currentlySelectedPieceMatrix = checkWallInRotationMat;
+        genVar.currentUserArray = prevUserArr;
+        let checkWallInRotationMat = genFunc.rotateMatrixAntiClockwise(genVar.currentlySelectedPieceMatrix);
+        genVar.currentlySelectedPieceMatrix = checkWallInRotationMat;
         if(leftCascading == true){
-            currentUserRefCellIndex += rightOverflowCheck-(noOfCols-1);
+            genVar.currentUserRefCellIndex += rightOverflowCheck-(genVar.noOfCols-1);
             leftCascading = false;
         }
 
         if(upperCascading == true){
-            currentUserRefCellIndex += ((bottomOverflowCheck-(noOfRows-1))*noOfCols);
+            genVar.currentUserRefCellIndex += ((bottomOverflowCheck-(genVar.noOfRows-1))*genVar.noOfCols);
             upperCascading = false;
         }
 
@@ -1197,29 +750,29 @@ function rotatePieceClockwise(){
 
     clearFloatingBricks();
     clearFloorShiftBricks();
-    currentUserArray.forEach(addFloatingBricks);
-    floorShiftArray.forEach(addFloorShiftBricks);
+    genVar.currentUserArray.forEach(addFloatingBricks);
+    genVar.floorShiftArray.forEach(addFloorShiftBricks);
 }
 
 function rotatePieceAntiClockwise(){
 
     getCurrentUserArray();
-    let prevUserArr = currentUserArray;
+    let prevUserArr = genVar.currentUserArray;
 
-    let currentMatrixLength = currentlySelectedPieceMatrix[0].length;
-    let currentMatrixHeight = currentlySelectedPieceMatrix.length;
+    let currentMatrixLength = genVar.currentlySelectedPieceMatrix[0].length;
+    let currentMatrixHeight = genVar.currentlySelectedPieceMatrix.length;
     let dimensionDifference = Math.abs(currentMatrixLength - currentMatrixHeight);
 
-    let colMap = currentUserArray.map(index =>{
-        return (index%noOfCols);
+    let colMap = genVar.currentUserArray.map(index =>{
+        return (index%genVar.noOfCols);
     });
 
-    let rowMap = currentUserArray.map(index =>{
-        return (Math.floor(index/noOfCols));
+    let rowMap = genVar.currentUserArray.map(index =>{
+        return (Math.floor(index/genVar.noOfCols));
     });
 
     let rightmostCol = Math.max(...colMap);
-    // let leftmostCol = Math.min(...colMap);
+    
     let bottommostRow = Math.max(...rowMap);
     
     let rightOverflowCheck = rightmostCol + dimensionDifference;
@@ -1228,40 +781,40 @@ function rotatePieceAntiClockwise(){
     // Right walls check
 
     let leftCascading = false;
-    // if((rightmostCol == (noOfCols-1)) && (currentMatrixHeight > currentMatrixLength)){
-    if( (rightOverflowCheck > (noOfCols-1)) && (currentMatrixHeight > currentMatrixLength)){
-        currentUserRefCellIndex -= rightOverflowCheck-(noOfCols-1);
+    
+    if( (rightOverflowCheck > (genVar.noOfCols-1)) && (currentMatrixHeight > currentMatrixLength)){
+        genVar.currentUserRefCellIndex -= rightOverflowCheck-(genVar.noOfCols-1);
         leftCascading = true;
     }
 
     // Bottom walls check
     let upperCascading = false;
-    //  if((bottommostRow == (noOfRows-1)) && (currentMatrixHeight < currentMatrixLength)){
-     if((bottomOverflowCheck > (noOfRows-1)) && (currentMatrixHeight < currentMatrixLength)){
-        currentUserRefCellIndex -= ((bottomOverflowCheck-(noOfRows-1))*noOfCols);
+    
+     if((bottomOverflowCheck > (genVar.noOfRows-1)) && (currentMatrixHeight < currentMatrixLength)){
+        genVar.currentUserRefCellIndex -= ((bottomOverflowCheck-(genVar.noOfRows-1))*genVar.noOfCols);
         upperCascading = true;
     }
 
-    let checkWallInRotationMat = rotateMatrixAntiClockwise(currentlySelectedPieceMatrix);
-    currentlySelectedPieceMatrix = checkWallInRotationMat;
+    let checkWallInRotationMat = genFunc.rotateMatrixAntiClockwise(genVar.currentlySelectedPieceMatrix);
+    genVar.currentlySelectedPieceMatrix = checkWallInRotationMat;
 
     getCurrentUserArray();
-    let bricksInTheWay = currentUserArray.filter(index =>{
-        return cellsArr[index].classList.contains("flooredBrick");
+    let bricksInTheWay = genVar.currentUserArray.filter(index =>{
+        return genVar.cellsArr[index].classList.contains("flooredBrick");
     });
 
     if (bricksInTheWay.length > 0){
         // Revert 
-        currentUserArray = prevUserArr;
-        let checkWallInRotationMat = rotateMatrixClockwise(currentlySelectedPieceMatrix);
-        currentlySelectedPieceMatrix = checkWallInRotationMat;
+        genVar.currentUserArray = prevUserArr;
+        let checkWallInRotationMat = genFunc.rotateMatrixClockwise(genVar.currentlySelectedPieceMatrix);
+        genVar.currentlySelectedPieceMatrix = checkWallInRotationMat;
         if(leftCascading == true){
-            currentUserRefCellIndex += rightOverflowCheck-(noOfCols-1);
+            genVar.currentUserRefCellIndex += rightOverflowCheck-(genVar.noOfCols-1);
             leftCascading = false;
         }
 
         if(upperCascading == true){
-            currentUserRefCellIndex += ((bottomOverflowCheck-(noOfRows-1))*noOfCols);
+            genVar.currentUserRefCellIndex += ((bottomOverflowCheck-(genVar.noOfRows-1))*genVar.noOfCols);
             upperCascading = false;
         }
 
@@ -1269,56 +822,51 @@ function rotatePieceAntiClockwise(){
 
     clearFloatingBricks();
     clearFloorShiftBricks();
-    currentUserArray.forEach(addFloatingBricks);
-    floorShiftArray.forEach(addFloorShiftBricks);
+    genVar.currentUserArray.forEach(addFloatingBricks);
+    genVar.floorShiftArray.forEach(addFloorShiftBricks);
 }
 
 // #endregion logic for left and right movement
 
 function movePieceDown() {
-    // console.log("movePieceDown was run");
+    
     clearFloatingBricks();
     clearFloorShiftBricks();
     if(!checkFloor() ){
         
-        currentUserRefCellIndex += noOfCols;
+        genVar.currentUserRefCellIndex += genVar.noOfCols;
         getCurrentUserArray();
-        // currentUserArray = currentUserArray.map(pieceCell => pieceCell + noOfCols);
+        
       
-        // optionally make the object bricked instantly rather than waiting till the next movement
-        // if(!checkFloor()){
-        currentUserArray.forEach(addFloatingBricks);
-        floorShiftArray.forEach(addFloorShiftBricks);
-        // } else {
-        //     currentUserArray.forEach(addFlooredBricks);
-        //     resetCurrentArrays();
-        // }
-        // console.log(currentUserArray);
+        
+        genVar.currentUserArray.forEach(addFloatingBricks);
+        genVar.floorShiftArray.forEach(addFloorShiftBricks);
+        
     }else {
-        currentUserArray.forEach(addFlooredBricks);
+        genVar.currentUserArray.forEach(addFlooredBricks);
         
         checkBrickedRows();
         
-        // console.log("The piece has hit the bottom wall or a floored brick");
+        
     }
 };
 
 function instaDrop() {
 
     let floorRow = findFloor();
-    let refRow = Math.floor(currentUserRefCellIndex/noOfCols);
+    let refRow = Math.floor(genVar.currentUserRefCellIndex/genVar.noOfCols);
     let noOfRowsToShift = floorRow - refRow - 1;
-    currentUserRefCellIndex += (noOfRowsToShift*noOfCols);
+    genVar.currentUserRefCellIndex += (noOfRowsToShift*genVar.noOfCols);
     getCurrentUserArray();
-    currentUserArray.forEach(addFlooredBricks);
+    genVar.currentUserArray.forEach(addFlooredBricks);
     checkBrickedRows();
 }
 
 function checkFloor(){
     
     getCurrentUserArray();
-    let floorHitCells = currentUserArray.filter(cell =>{
-       return ((cell + noOfCols) >= boardSize) || (cellsArr[cell + noOfCols].classList.contains("flooredBrick"))       
+    let floorHitCells = genVar.currentUserArray.filter(cell =>{
+       return ((cell + genVar.noOfCols) >= genVar.boardSize) || (genVar.cellsArr[cell + genVar.noOfCols].classList.contains("flooredBrick"))       
     });
 
     // console.log("floorhit cells returned is: ", floorHitCells);
@@ -1331,29 +879,29 @@ function findFloor(){
   
 
     // If there is a 'gap' in between two indices vertically, it is relevant
-    currentUserArray.forEach(index =>{
-        if (!currentUserArray.includes((parseInt(index)+noOfCols))){
+    genVar.currentUserArray.forEach(index =>{
+        if (!genVar.currentUserArray.includes((parseInt(index)+genVar.noOfCols))){
             relevantCellsIndex.push(index);
         }
     })
 
-    let refIndRow = Math.floor(currentUserRefCellIndex/noOfCols);
+    let refIndRow = Math.floor(genVar.currentUserRefCellIndex/genVar.noOfCols);
 
     let floorMap = relevantCellsIndex.map(releIndex=>{
         let highestFloorRow;
-        let releIndexRow = Math.floor(releIndex/noOfCols);
+        let releIndexRow = Math.floor(releIndex/genVar.noOfCols);
         let extraDepth = releIndexRow - refIndRow;
-        let brickCheck = cellsArr.filter(cell =>{
-            return((parseInt(cell.id) % noOfCols == releIndex % noOfCols) && 
+        let brickCheck = genVar.cellsArr.filter(cell =>{
+            return((parseInt(cell.id) % genVar.noOfCols == releIndex % genVar.noOfCols) && 
             (parseInt(cell.id) > releIndex) && (cell.classList.contains("flooredBrick")))
         })
         if(brickCheck.length>0){
             let brickRowMap = brickCheck.map(brickInWay =>{
-                return Math.floor(parseInt(brickInWay.id)/noOfCols);
+                return Math.floor(parseInt(brickInWay.id)/genVar.noOfCols);
             });
             highestFloorRow = Math.min(...brickRowMap);
         } else {
-            highestFloorRow = noOfRows;
+            highestFloorRow = genVar.noOfRows;
         }
         // The result is shifted to be as if being just below the refIndRow
         return (highestFloorRow-extraDepth);
@@ -1365,7 +913,7 @@ function findFloor(){
 
 document.addEventListener("keydown", (e)=>{
     
-    if(!gameOver && !paused){
+    if(!genVar.gameOver && !genVar.paused){
     
         if (e.target.tagName == "INPUT") return;
 
@@ -1399,51 +947,51 @@ document.addEventListener("keydown", (e)=>{
     
 });
 
-moveLeftBtn.addEventListener("click", () => {
-    if(!gameOver && !paused){
+docElems.moveLeftBtn.addEventListener("click", () => {
+    if(!genVar.gameOver && !genVar.paused){
         movePieceLeft();
     }
 });
 
-moveRightBtn.addEventListener("click", () => {
-    if(!gameOver && !paused){
+docElems.moveRightBtn.addEventListener("click", () => {
+    if(!genVar.gameOver && !genVar.paused){
         movePieceRight();
     }
 });
 
-moveDownBtn1.addEventListener("mousedown", () => {
-    if(!gameOver && !paused){
+docElems.moveDownBtn1.addEventListener("mousedown", () => {
+    if(!genVar.gameOver && !genVar.paused){
         movePieceDown();
     }
 });
 
-moveDownBtn2.addEventListener("mousedown", () => {
-    if(!gameOver && !paused){
+docElems.moveDownBtn2.addEventListener("mousedown", () => {
+    if(!genVar.gameOver && !genVar.paused){
         movePieceDown();
     }
 });
 
-rotateClockwiseBtn.addEventListener("click", () => {
-    if(!gameOver && !paused){
+docElems.rotateClockwiseBtn.addEventListener("click", () => {
+    if(!genVar.gameOver && !genVar.paused){
         rotatePieceClockwise();
     }
 });
 
-instaDownBtn1.addEventListener("click", () => {
-    if(!gameOver && !paused){
+docElems.instaDownBtn1.addEventListener("click", () => {
+    if(!genVar.gameOver && !genVar.paused){
         instaDrop();
     }
 });
 
-instaDownBtn2.addEventListener("click", () => {
-    if(!gameOver && !paused){
+docElems.instaDownBtn2.addEventListener("click", () => {
+    if(!genVar.gameOver && !genVar.paused){
         instaDrop();
     }
 });
 
 
-rotateAntiClockwiseBtn.addEventListener("click", () => {
-    if(!gameOver && !paused){
+docElems.rotateAntiClockwiseBtn.addEventListener("click", () => {
+    if(!genVar.gameOver && !genVar.paused){
         rotatePieceAntiClockwise();
     }
 });
@@ -1453,7 +1001,7 @@ function getRowsOfBricked(){
     let brickedCells = [...document.getElementsByClassName("flooredBrick")];
     brickedCells.forEach(cell =>{
         // rowsOfBricked collects the row numbers of all the bricked cells
-        rowsOfBricked.push(Math.floor(parseInt(cell.id)/noOfCols));
+        rowsOfBricked.push(Math.floor(parseInt(cell.id)/genVar.noOfCols));
     });
     return rowsOfBricked;
 }
@@ -1465,44 +1013,28 @@ function getFullRowsArray(rowsOfBricked){
     let fullRowsArr = [];
 
     uniqueRowsArr.forEach(uniqueRowNumber =>{
-        // #region legacy code
-        // let localCounter =0;
-        // for (let i=0; i<rowsOfBricked.length; i++){
-        //     if (uniqueRowNumber == rowsOfBricked[i]){
-        //         localCounter++;
-        //         // console.log(`local counter for row number ${uniqueRowNumber}, comparing ${rowsOfBricked[i]} is ${localCounter}`);
-        //         if (localCounter >= noOfCols){
-        //             fullRowsArr.push(uniqueRowNumber);
-        //             break;
-        //         }
-        //     }
-            
-        // }
-        // #endregion legacy code
+   
         let countArr = rowsOfBricked.filter(row =>{
             return (row == uniqueRowNumber);
         });
-        if (countArr.length == noOfCols){
+        if (countArr.length == genVar.noOfCols){
             fullRowsArr.push(uniqueRowNumber);
         }
     });
 
-    // console.log("rowsOfBricked is: ", rowsOfBricked);
-    // console.log("uniqueRowsArr is: ", uniqueRowsArr);
-    // console.log("fullRowsArr is: ", fullRowsArr);
     return fullRowsArr;
 };
 
 function clearFullRows(fullRowsArr){
     fullRowsArr.forEach(fullRow =>{
-            let startingInd = parseInt(fullRow) * noOfCols;
-            let finishingInd = startingInd + (noOfCols-1);
+            let startingInd = parseInt(fullRow) * genVar.noOfCols;
+            let finishingInd = startingInd + (genVar.noOfCols-1);
 
             for (let i=startingInd; i <= finishingInd; i++){
-                cellsArr[i].classList.remove("flooredBrick");
+                genVar.cellsArr[i].classList.remove("flooredBrick");
             };
-            score++;
-            scoreValue.innerHTML = score;
+            genVar.score++;
+            docElems.scoreValue.innerHTML = genVar.score;
         });
 }
 
@@ -1510,49 +1042,22 @@ function shiftBricks(fullRowsArr){
 
     // Sorting array numerically in ascending order (top of grid to bottom)
     fullRowsArr.sort(function(a,b){return a - b});
-
-    // #region legacy code
-    // fullRowsArr.forEach(clearedRow =>{
-        
-    //     let shiftBricksTill = parseInt(clearedRow) * noOfCols;
-    //     let noOfRowsRemoved = fullRowsArr.length;
-    //     // console.log("clearedRow being used is: ", clearedRow ,", shiftBricksTill is: ", shiftBricksTill, " and noOfRowsRemoved is: ", noOfRowsRemoved);
-    //     let brickedCells = [...document.getElementsByClassName("flooredBrick")];
-    //     let newIndicesToAdd = [];
-    //     brickedCells.forEach(brick =>{
-    //         let brickInd = parseInt(brick.id);
-    //         if (brickInd < shiftBricksTill){
-    //             // console.log("brickInd used inside cascade logic is: ", brickInd);
-    //             // remove flooredBrick class on cell and add it to (noOfCols*noOfRowsRemoved) index
-    //             brick.classList.remove("flooredBrick");
-    //             let newIndex = brickInd +(noOfCols);
-    //             newIndicesToAdd.push(newIndex);
-    //             // console.log("cascaded cell referenced is: ", cellsArr[brickInd +(noOfCols*noOfRowsRemoved)]);
-                
-    //         }
-    //     });
-    //     newIndicesToAdd.forEach(index =>{
-    //         cellsArr[index].classList.add("flooredBrick");
-    //     });
-            
-    // });
-    // #endregion legacy code
             
     let brickedCells = [...document.getElementsByClassName("flooredBrick")];
     let newIndicesToAdd = [];
     brickedCells.forEach(cell =>{
         let cellIndex = parseInt(cell.id);
-        let cellRow = Math.floor(cellIndex/noOfCols);
+        let cellRow = Math.floor(cellIndex/genVar.noOfCols);
 
         let shiftBy = fullRowsArr.filter(fullRow => fullRow > cellRow).length;
         if (shiftBy >0){
             cell.classList.remove("flooredBrick");
-            let newIndex = cellIndex + (shiftBy*noOfCols);
+            let newIndex = cellIndex + (shiftBy*genVar.noOfCols);
             newIndicesToAdd.push(newIndex);
         }
     });
     newIndicesToAdd.forEach(index =>{
-            cellsArr[index].classList.add("flooredBrick");
+            genVar.cellsArr[index].classList.add("flooredBrick");
         });            
        
 };
@@ -1564,13 +1069,13 @@ function checkBrickedRows(){
     // Checking for gameOver condition
     if(rowsOfBricked.includes(0)){
         // console.log("Game over! The bricks have hit the ceiling!");
-        clearInterval(pieceDownInterval);
-        pieceDownInterval=null;
-        gameOver = true;
-        statusHeading.innerHTML = "Game Over! Press start to play again";
+        clearInterval(genVar.pieceDownInterval);
+        genVar.pieceDownInterval=null;
+        genVar.gameOver = true;
+        docElems.statusHeading.innerHTML = "Game Over! Press start to play again";
     };
 
-    if(!gameOver){
+    if(!genVar.gameOver){
         
         let fullRowsArr = getFullRowsArray(rowsOfBricked);
         
