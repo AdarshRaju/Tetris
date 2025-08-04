@@ -1,9 +1,10 @@
-// #region HTML elements captured and stored in variables
+// This module is for storing the HTML DOM elements in variables
 
 export var mainGridContainer = document.getElementById("mainGridContainer");
 export var startButton = document.getElementById("startButton");
 export var statusHeading = document.getElementById("statusHeading");
 export var scoreValue = document.getElementById("scoreValue");
+export var highScoreValue = document.getElementById("highScoreValue");
 export var rotateAntiClockwiseBtn = document.getElementById("rotateAntiClockwiseBtn");
 export var moveLeftBtn = document.getElementById("moveLeftBtn");
 export var rotateClockwiseBtn = document.getElementById("rotateClockwiseBtn");
@@ -15,6 +16,7 @@ export var instaDownBtn2 = document.getElementById("instaDownBtn2");
 export var noOfColsSel = document.getElementById("noOfColsSel");
 export var noOfRowsSel = document.getElementById("noOfRowsSel");
 export var gameSpeedSel = document.getElementById("gameSpeedSel");
+export var gameControlSel = document.getElementById("gameControlSel");
 export var customColsSel = document.getElementById("customColsSel");
 export var customRowsSel = document.getElementById("customRowsSel");
 export var customSpeedSel = document.getElementById("customSpeedSel");
@@ -26,5 +28,14 @@ export var modal = new bootstrap.Modal('#startGameModal');
 export var customColInvalidFeedback = document.getElementById("customColInvalidFeedback");
 export var customRowInvalidFeedback = document.getElementById("customRowInvalidFeedback");
 export var customSpeedInvalidFeedback = document.getElementById("customSpeedInvalidFeedback");
+export var nextPieceContainer1 = document.getElementById("nextPieceContainer1");
+export var nextPieceContainer2 = document.getElementById("nextPieceContainer2");
+export var gameOverSound = new Audio("./public/audio/gameOver.mp3");
+export var newHighScoreSound = new Audio("./public/audio/newHighScore.mp3");
+export var floorDropSound = new Audio("./public/audio/hardDrop.mp3");
+export var mainLoopMusic = new Audio("./public/audio/mainLoopMusic.mp3");
+export var pauseSound = new Audio("./public/audio/pauseSound.mp3");
+export var pieceRotate = new Audio("./public/audio/pieceRotate.mp3");
+export var rowCleared = new Audio("./public/audio/rowCleared.mp3");
 
-// #endregion HTML elements captured and stored in variables
+mainLoopMusic.loop = true;

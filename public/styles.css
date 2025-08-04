@@ -5,11 +5,12 @@ body{
     flex-direction: column;
     justify-content: space-between;
     background-color:rgba(226, 203, 180, 0.751);
-    background-image: linear-gradient(to bottom left, rgb(193, 167, 192), rgb(172, 161, 168));
+    /* background-image: linear-gradient(to bottom left, rgb(193, 167, 192), rgb(172, 161, 168)); */
     align-items: center;
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    transition: background-color 2s ease-in-out;
     
 }
 
@@ -84,7 +85,7 @@ button {
 
 .floorCheckBrick {
     /* background-color: rgb(250, 246, 133); */
-    background-image: linear-gradient(to bottom left, rgba(134, 88, 57, 0.407), rgba(34, 31, 31, 0));
+    background-image: linear-gradient(to bottom left, rgba(132, 41, 27, 0.664), rgba(34, 31, 31, 0.385));
 }
 
 .floatingBrick {
@@ -191,6 +192,16 @@ button {
     margin-bottom: 15px;
 }
 
-#noOfColsSel, #noOfRowsSel, #gameSpeedSel{
+#noOfColsSel, #noOfRowsSel, #gameSpeedSel, #gameControlSel{
     margin-bottom: 15px;
+}
+
+.gameOver{
+    /* background-image: linear-gradient(to bottom left, rgb(113, 18, 18), rgb(153, 44, 44)); */
+    background-color: rgb(113, 18, 18);
+}
+
+.newHighScore{
+    /* background-image: linear-gradient(to bottom left, rgb(14, 67, 36), rgb(26, 77, 31)); */
+    background-color: rgb(14, 67, 36);
 }

@@ -17,12 +17,14 @@
         <header class="container">
             <h1><img src="public/TetrisTpieceimage.webp" height="50"></icon>etris</h1>
             <h2 id="statusHeading">Press Start to Play</h2>
+            <h3 id="highScoreBar">High score: <span id="highScoreValue"></span></h3>
             <h3 id="scoreBar">Score: <span id="scoreValue"></span></h3>
             <button class="btn btn-outline-danger" id="startButton" data-bs-toggle="modal" data-bs-target="#startGameModal">Start</button>
         </header>
         <main class="container">
 
             <div id="buttonContainerLeft">
+                <div id="nextPieceContainer1"></div>
                 <button id="rotateAntiClockwiseBtn" class="btn btn-danger"><i id="rotateLeftIcon" class="rotateIcon bi bi-arrow-counterclockwise"></i></button>
                 <button id="moveLeftBtn" class="btn btn-primary"></button>
                 <button id="moveDownBtn1" class="btn btn-secondary"></button>
@@ -31,6 +33,7 @@
             <div id="mainGridContainer" tabindex="0">
             </div>
             <div id="buttonContainerRight">
+                <div id="nextPieceContainer2"></div>
                 <button id="rotateClockwiseBtn" class="btn btn-danger round"><i id="rotateRightIcon" class="rotateIcon bi bi-arrow-clockwise"></i></button>
                 <button id="moveRightBtn" class="btn btn-primary"></button>
                 <button id="moveDownBtn2" class="btn btn-secondary"></button>
@@ -53,7 +56,7 @@
                                 <label for="noOfColsSel" class="form-label">No of columns: </label>
                                 <select class="form-select" name="noOfColsSel" id="noOfColsSel">
                                     <option value="5">5</option>
-                                    <option value="10" selected>10</option>
+                                    <option value="10" selected>10 (default)</option>
                                     <option value="15">15</option>
                                     <option value="20">20</option>
                                     <option value="custom">Custom</option>
@@ -68,7 +71,7 @@
                                 <label for="noOfRowsSel" class="form-label" >No of rows: </label>
                                 <select class="form-select" name="noOfRowsSel" id="noOfRowsSel">
                                     <option value="10">10</option>
-                                    <option value="20" selected>20</option>
+                                    <option value="20" selected>20 (default)</option>
                                     <option value="30">30</option>
                                     <option value="40">40</option>
                                     <option value="custom">Custom</option>
@@ -79,12 +82,12 @@
                                       Please enter a value between 10 and 100.
                                 </div>
                                 <br>
-                                <label for="gameSpeedSel" class="form-label">Game Speed: </label>
+                                <label for="gameSpeedSel" class="form-label">Game Speed in ms (less is faster): </label>
                                 <select class="form-select" name="gameSpeedSel" id="gameSpeedSel">
-                                    <option value="1000">1000</option>
-                                    <option value="500" selected>500</option>
-                                    <option value="200">200</option>
-                                    <option value="100">100</option>
+                                    <option value="1000">1000 (slow)</option>
+                                    <option value="500" selected>500 (normal for default grid)</option>
+                                    <option value="200">200 (fast)</option>
+                                    <option value="100">100 (faster)</option>
                                     <option value="custom">Custom</option>
                                 </select>
                                 <label disabled hidden id="labelCustomSpeedSel" for="customSpeedSel" class="form-label">Enter custom gamespeed in ms: </label>
@@ -93,6 +96,11 @@
                                       Please enter a value between 25 and 5000.
                                 </div>
                                 <br>
+                                <label for="gameControlSel" class="form-label">Swap spacebar and up arrow for rotate?: </label>
+                                <select class="form-select" name="gameControlSel" id="gameControlSel">
+                                    <option value="No" selected>No (Use up to rotate piece)</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
                             
                         </div>
                         <div class="modal-footer">
