@@ -42,6 +42,6 @@ export let ZPieceMatrix = [
     ];
 
 export let TPieceMatrix = [
-        [true, true, true],
-        [false, true, false]  
+        [false, true, false],
+        [true, true, true]
     ];

@@ -53,7 +53,7 @@ export function updateCurrentUserArray(){
 
 
 export function clearFullRows(fullRowsArr){
-    if (fullRowsArr.length >0){
+    
         docElems.rowCleared.currentTime=0;
         docElems.rowCleared.play();
         fullRowsArr.forEach(fullRow =>{
@@ -70,7 +70,7 @@ export function clearFullRows(fullRowsArr){
             };
             docElems.highScoreValue.innerHTML = stateVar.highscore;
         });
-    };
+    
 };
 
 export function shiftBricks(fullRowsArr){
@@ -187,14 +187,18 @@ function handleEndGame(classListToAdd){
     
     if(classListToAdd =="newHighScore"){
         docElems.statusHeading.innerHTML = "Congrats! New High Score! Press start to play again";
-        setTimeout(()=> document.body.classList.remove(classListToAdd), 500);
     } else {
         docElems.statusHeading.innerHTML = "Game Over! Press start to play again";
-        setTimeout(()=> document.body.classList.remove(classListToAdd), 200);
     }
-    
-    
+    setTimeout(()=> document.body.classList.remove(classListToAdd), 200);
 };
+
+function nextPieceLogic(){
+    resetCurrentArrays();
+    generateNextPiece();
+    selectNextPiece();
+    updateNextPieceIndicator();
+}
 
 export async function checkBrickedRows(){
 
@@ -224,23 +228,20 @@ export async function checkBrickedRows(){
     if(!stateVar.gameOver){
         
         let fullRowsArr = stateEnquiry.getFullRowsArray(rowsOfBricked);
-        
-       
-        
-        clearFullRows(fullRowsArr);
-
-            // The floored bricks would still be floating in place b/w the rows which are just cleared needs to cascade down
-        pauseGame();
-        setTimeout(() => {
-            shiftBricks(fullRowsArr);
-            resetCurrentArrays();
-            // generateRandomPiece();
-            generateNextPiece();
-            selectNextPiece();
-            unPauseGame();
+        if (fullRowsArr.length >0){
+            pauseGame();
+            setTimeout(() => {
+                
+                clearFullRows(fullRowsArr);
+                // The floored bricks would still be floating in place b/w the rows which are just cleared needs to shift down
+                shiftBricks(fullRowsArr);
+                nextPieceLogic();
+                unPauseGame();  
+            },200);  
             
-        },200);           
-    
+        } else{
+            nextPieceLogic();
+        }; 
     }
 };
 
@@ -648,37 +649,66 @@ export function generateTPiece() {
 };
 
 export function selectNextPiece(){
-    stateVar.nextPiece = stateVar.pieces[Math.floor(Math.random() * 7)];
-    console.log("Next piece is: ", stateVar.nextPiece);
-};
-
-export function generateNextPiece(){
-    switch(stateVar.nextPiece){
+    let nextPiece = stateVar.pieces[Math.floor(Math.random() * 7)];
+    switch(nextPiece){
         case "O":
-        generateOPiece();
+        stateVar.nextPieceMatrix= tetrisPieces.OPieceMatrix;
         break;
 
         case "I":
-        generateIPiece();
+        stateVar.nextPieceMatrix= tetrisPieces.IPieceMatrix;
         break;
 
         case "J":
-        generateJPiece();
+        stateVar.nextPieceMatrix= tetrisPieces.JPieceMatrix;
         break;
 
         case "L":
-        generateLPiece();
+        stateVar.nextPieceMatrix= tetrisPieces.LPieceMatrix;
         break;
 
         case "S":
-        generateSPiece();
+        stateVar.nextPieceMatrix= tetrisPieces.SPieceMatrix;
         break;
 
         case "Z":
-        generateZPiece();
+        stateVar.nextPieceMatrix= tetrisPieces.ZPieceMatrix;
         break;
 
         case "T":
+        stateVar.nextPieceMatrix= tetrisPieces.TPieceMatrix;
+        break;
+    }
+};
+
+export function generateNextPiece(){
+    switch(stateVar.nextPieceMatrix){
+
+        case tetrisPieces.OPieceMatrix:
+        generateOPiece();
+        break;
+
+        case tetrisPieces.IPieceMatrix:
+        generateIPiece();
+        break;
+
+        case tetrisPieces.JPieceMatrix:
+        generateJPiece();
+        break;
+
+        case tetrisPieces.LPieceMatrix:
+        generateLPiece();
+        break;
+
+        case tetrisPieces.SPieceMatrix:
+        generateSPiece();
+        break;
+
+        case tetrisPieces.ZPieceMatrix:
+        generateZPiece();
+        break;
+
+        case tetrisPieces.TPieceMatrix:
         generateTPiece();
         break;
     }
@@ -730,6 +760,7 @@ export function startGame() {
         docElems.mainLoopMusic.currentTime=0;
         docElems.mainLoopMusic.play();
         docElems.mainGridContainer.innerHTML = "";
+        docElems.nextPieceContainer1.innerHTML = "";
         docElems.statusHeading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
         stateVar.boardSize = stateVar.noOfRows * stateVar.noOfCols;
         generateGridCells();
@@ -744,11 +775,87 @@ export function startGame() {
         docElems.highScoreValue.innerHTML = stateVar.highscore;
         generateRandomPiece();
         selectNextPiece();
-        console.log("nextPiece is: ", stateVar.nextPiece);
+        updateNextPieceIndicator();
         stateVar.pieceDownInterval && clearInterval(stateVar.pieceDownInterval);
         stateVar.pieceDownInterval = setInterval(movePieceDown, stateVar.gameSpeed);
         
     
+};
+
+function updateNextPieceIndicator(){
+    // This logic is inclusive of accepting custom tetris pieces of different dimensions introduced in the future
+    docElems.nextPieceContainer1.innerHTML = "";
+    let maxDimension = stateVar.nextPieceMatrix.length > stateVar.nextPieceMatrix[0].length ? stateVar.nextPieceMatrix.length : stateVar.nextPieceMatrix[0].length;
+    let pieceMatrixWidth = stateVar.nextPieceMatrix[0].length;
+    let pieceMatrixHeight = stateVar.nextPieceMatrix.length;
+    let localNoOfCols = pieceMatrixWidth == maxDimension ? pieceMatrixWidth : pieceMatrixHeight;
+    let flatarray = stateVar.nextPieceMatrix.flat();
+    // The next piece indicator container will always be a square shape
+    let pieceIndicatorSize = maxDimension * maxDimension;
+
+    // When the pieceMatrixWidth is the maxDimension, we can just add the cells in order from the piece matrix
+    if (pieceMatrixWidth == maxDimension){
+        for (let i=0; i<pieceIndicatorSize; i++){
+            let newGridElement = document.createElement("div");
+            if (i<(flatarray.length) ){          
+                if(flatarray[i]){
+                    newGridElement.classList.add("nextBrick");
+                } else {
+                    newGridElement.classList.add("nextPieceGridItem");
+                }
+            }else{
+                newGridElement.classList.add("nextPieceGridItem");
+            };
+            docElems.nextPieceContainer1.appendChild(newGridElement);
+        };
+    } else {
+        let localCounter =0;
+        for (let i=0; i<pieceIndicatorSize; i++){
+            let newGridElement = document.createElement("div");
+                // In this case, the piece height will be the maxDimension
+                        
+            if (i%maxDimension<pieceMatrixWidth){
+                if(flatarray[localCounter]){
+                    newGridElement.classList.add("nextBrick");
+                } else {
+                    newGridElement.classList.add("nextPieceGridItem");
+                }
+                localCounter++;
+            }else {
+                newGridElement.classList.add("nextPieceGridItem");
+            }
+            docElems.nextPieceContainer1.appendChild(newGridElement);
+        };
+
+    };
+    
+    var docStyle = document.createElement("style");
+    docStyle.textContent = `
+    
+        #nextPieceContainer1 {
+            grid-template: repeat(${maxDimension}, 1fr) / repeat(${maxDimension}, 1fr);
+            border: transparent solid 3px;
+            border-image: linear-gradient(to top, black, rgb(93, 45, 45));
+            border-image-slice: 1;
+        }
+        @media (max-width: 600px) {
+            #nextPieceContainer1, #nextPieceContainer2{
+                width: ${stateVar.nextPieceIndicatorWidth/2}px;
+                height: ${stateVar.nextPieceIndicatorWidth/2}px;
+                margin-bottom: 5px;
+            }
+        }
+        @media (min-width: 601px) {
+            #nextPieceContainer1, #nextPieceContainer2{
+               width: ${stateVar.nextPieceIndicatorWidth}px;
+                height: ${stateVar.nextPieceIndicatorWidth}px;
+                margin-bottom: 10px;
+            }
+
+        }   
+
+    `;
+    document.head.appendChild(docStyle);
 };
 
 export function generateGridCells(){
@@ -760,18 +867,18 @@ export function generateGridCells(){
         docElems.mainGridContainer.appendChild(newGridElement);
     };
 
-    docElems.mainGridContainer.style.gridTemplateColumns = `repeat(${stateVar.noOfCols}, 1fr)`;
-    docElems.mainGridContainer.style.gridTemplateRows = `repeat(${stateVar.noOfRows}, 1fr)`;
-    docElems.mainGridContainer.style.border= "transparent solid 5px";
-    docElems.mainGridContainer.style.borderImage= `linear-gradient(to top, black, rgb(93, 45, 45))`;
-    docElems.mainGridContainer.style.borderImageSlice= "1";
-
     let cellWidth = stateVar.boardWidth/stateVar.noOfCols;
     let boardHeight = stateVar.boardWidth+(cellWidth*(stateVar.noOfRows-stateVar.noOfCols));
-    
+    let boardHeightCheck = genFunc.checkBoardHeight();
     
     var docStyle = document.createElement("style");
     docStyle.textContent = `
+        #mainGridContainer {
+            grid-template: repeat(${stateVar.noOfRows}, 1fr) / repeat(${stateVar.noOfCols}, 1fr) ;
+            border: transparent solid 5px;
+            border-image: linear-gradient(to top, black, rgb(93, 45, 45));
+            border-image-slice: 1;
+        }
         @media (max-width: 600px) {
             #mainGridContainer{
                 width: ${stateVar.boardWidth/2}px;
@@ -883,9 +990,38 @@ export function handleUsersettings(e){
         return;
     }
     else {
+        // A board check needs to be done here to have the user select a correct board size combination
+        let cellWidth = stateVar.boardWidth/stateVar.noOfCols;
+        let boardHeight = stateVar.boardWidth+(cellWidth*(stateVar.noOfRows-stateVar.noOfCols));
+        let boardHeightCheck = genFunc.checkBoardHeight();
         
         stateVar.isModalClosedBySubmit = true;
         docElems.modal.hide();
         startGame();
     }
 };
+
+// #region logic for sound and music volume toggle
+
+export function toggleMusic(e){
+    if (e.target.classList.contains("bi-file-music-fill")){
+        e.target.classList.remove("bi-file-music-fill");
+        e.target.classList.add("bi-file-music");
+    } else {
+        e.target.classList.remove("bi-file-music");
+        e.target.classList.add("bi-file-music-fill");
+    }
+};
+
+export function toggleSounds(e){
+    if (e.target.classList.contains("bi-file-music-fill")){
+        e.target.classList.remove("bi-file-music-fill");
+        e.target.classList.add("bi-file-music");
+    } else {
+        e.target.classList.remove("bi-file-music");
+        e.target.classList.add("bi-file-music-fill");
+    }
+};
+
+
+// #endregion logic for sound and music volume toggle

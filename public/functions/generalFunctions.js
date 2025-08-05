@@ -67,6 +67,10 @@ export function preLoadSoundFile(soundVariable){
     soundVariable.load();
 };
 
+export function checkBoardHeight(boardHeight){
+    return (boardHeight > window.innerHeight);
+};
+
 // #region logic for the settings selection modal
 export function toggleCustomDisplay(event,customInput, customLabel, customFeedback){
     
@@ -111,3 +115,43 @@ export function toggleInvalidFeedback(inputBox, feedbackBox){
     }
 };
 // #endregion logic for the settings selection modal
+
+// #region logic for sound and music volume toggle
+
+export function toggleMusic(e){
+    if (e.target.classList.contains("bi-file-music-fill")){
+        e.target.classList.remove("bi-file-music-fill");
+        e.target.classList.add("bi-file-music");
+        docElems.mainLoopMusic.muted = true;
+    } else {
+        e.target.classList.remove("bi-file-music");
+        e.target.classList.add("bi-file-music-fill");
+        docElems.mainLoopMusic.muted = false;
+    }
+};
+
+export function toggleSounds(e){
+    if (e.target.classList.contains("bi-volume-down-fill")){
+        e.target.classList.remove("bi-volume-down-fill");
+        e.target.classList.add("bi-volume-mute");
+        docElems.gameOverSound.muted = true;
+        docElems.newHighScoreSound.muted = true;
+        docElems.floorDropSound.muted = true;
+        docElems.pauseSound.muted = true;
+        docElems.pieceRotate.muted = true;
+        docElems.rowCleared.muted = true;
+        
+    } else {
+        e.target.classList.remove("bi-volume-mute");
+        e.target.classList.add("bi-volume-down-fill");
+        docElems.gameOverSound.muted = false;
+        docElems.newHighScoreSound.muted = false;
+        docElems.floorDropSound.muted = false;
+        docElems.pauseSound.muted = false;
+        docElems.pieceRotate.muted = false;
+        docElems.rowCleared.muted = false;
+    }
+};
+
+// #endregion logic for sound and music volume toggle
+

@@ -21,6 +21,10 @@ export function setUpIndependentEventListeners(){
         genFunc.preLoadSoundFile(docElems.rowCleared);
     });
 
+    docElems.musicTriggerBtn.addEventListener("click", genFunc.toggleMusic);
+
+    docElems.soundTriggerBtn.addEventListener("click", genFunc.toggleSounds);
+
     docElems.noOfColsSel.addEventListener("change", (e) =>{
         
         genFunc.toggleCustomDisplay(e, docElems.customColsSel, docElems.labelCustomColsSel, docElems.customColInvalidFeedback);
