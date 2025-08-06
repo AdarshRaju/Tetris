@@ -4,10 +4,14 @@
 import * as docElems from "../globalVariables/docElems.js";
 // The module imported below contains the general functions that can be used anywhere
 import * as genFunc from "../functions/generalFunctions.js";
-// The module imported below contains the game's state change functions
-import * as stateChange from "../functions/stateChangeFunctions.js";
+// The module imported below contains the game's major state change functions
+import * as stateChange from "../functions/stateChangeFunctions/generalStateChangeFunctions.js";
 // The module imported below contains the game's state variables
 import {stateVar} from "../globalVariables/stateVars.js";
+// The module imported below contains functions that move bricks linarly
+import * as moveBricks from "../functions/stateChangeFunctions/movePieceFunctions.js";
+// The module imported below contains functions that rotate bricks
+import * as rotateBricks from "../functions/stateChangeFunctions/rotateFunctions.js";
 
 export function setUpIndependentEventListeners(){
 
@@ -70,42 +74,42 @@ export function setUpDependentEventListeners(){
 
     docElems.moveLeftBtn.addEventListener("click", () => {
 
-        stateChange.buttonClickValidation(stateChange.movePieceLeft);
+        stateChange.buttonClickValidation(moveBricks.movePieceLeft);
     });
 
     docElems.moveRightBtn.addEventListener("click", () => {
 
-        stateChange.buttonClickValidation(stateChange.movePieceRight);
+        stateChange.buttonClickValidation(moveBricks.movePieceRight);
     });
 
     docElems.moveDownBtn1.addEventListener("mousedown", () => {
 
-        stateChange.buttonClickValidation(stateChange.movePieceDown);
+        stateChange.buttonClickValidation(moveBricks.movePieceDown);
     });
 
     docElems.moveDownBtn2.addEventListener("mousedown", () => {
 
-        stateChange.buttonClickValidation(stateChange.movePieceDown);
+        stateChange.buttonClickValidation(moveBricks.movePieceDown);
     });
 
     docElems.rotateClockwiseBtn.addEventListener("click", () => {
 
-        stateChange.buttonClickValidation(stateChange.rotatePieceClockwise);
+        stateChange.buttonClickValidation(rotateBricks.rotatePieceClockwise);
     });
 
     docElems.rotateAntiClockwiseBtn.addEventListener("click", () => {
 
-        stateChange.buttonClickValidation(stateChange.rotatePieceAntiClockwise);
+        stateChange.buttonClickValidation(rotateBricks.rotatePieceAntiClockwise);
     });
 
     docElems.instaDownBtn1.addEventListener("click", () => {
 
-        stateChange.buttonClickValidation(stateChange.instaDrop);
+        stateChange.buttonClickValidation(moveBricks.instaDrop);
     });
 
     docElems.instaDownBtn2.addEventListener("click", () => {
 
-        stateChange.buttonClickValidation(stateChange.instaDrop);
+        stateChange.buttonClickValidation(moveBricks.instaDrop);
     });
 
 

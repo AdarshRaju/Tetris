@@ -1,8 +1,10 @@
-// This module contains functions that do calculations based on the game state, but doesn't modify the game state.
+// This module contains functions that do calculations based on the game state and sometimes modify the game state.
 // The functions are generally arranged from least dependent to most dependent
 
 // The module imported below contain the game's state variables
 import {stateVar} from "../globalVariables/stateVars.js";
+// The module imported below contains the general functions that can be used anywhere
+import * as genFunc from "./generalFunctions.js";
 
 
 export function checkBricksInColForDepth(colNo,depth){
@@ -88,3 +90,42 @@ export function getFullRowsArray(rowsOfBricked){
 
     return fullRowsArr;
 };
+
+export function getAvailableColumns(pieceMatrix){
+
+    let pieceWidth = pieceMatrix[0].length;
+    let depthMap = genFunc.getDepthMap(pieceMatrix);
+    let pieceHeight1 = Math.max(...depthMap);
+    let availableCols = [];
+
+    // preliminary depth check for optimization
+    
+    let bricksInTheWayHeight1 = stateVar.cellsArr.filter(cell =>{
+        return ((parseInt(cell.id) < (stateVar.noOfCols * pieceHeight1)) && (cell.classList.contains("flooredBrick")));
+    });
+
+    if (bricksInTheWayHeight1.length == 0){
+        
+        for (let i=0; i<(stateVar.noOfCols-pieceWidth+1); i++){
+            availableCols.push(i)
+        }   
+        
+    } else {
+
+        for (let i=0; i<(stateVar.noOfCols-pieceWidth+1);i++){
+            let pieceFitCheck = depthMap.map((pieceColDepth, pieceColIndex)=>{
+                let brickInCol = checkBricksInColForDepth((i+pieceColIndex), pieceColDepth);
+                return brickInCol.length>0 ? true:false;
+            });
+            if(!pieceFitCheck.includes(true)){
+                availableCols.push(i)
+            };
+        };
+    };
+    return availableCols;
+    
+};
+
+
+
+

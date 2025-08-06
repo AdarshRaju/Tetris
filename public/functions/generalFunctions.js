@@ -3,7 +3,7 @@
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
 import * as docElems from "../globalVariables/docElems.js";
 
-
+// #region general matrix rotate functions
 export function rotateMatrixClockwise(mat){
     let tempMatrix = [];
     for (let i=0; i<mat[0].length; i++){
@@ -28,14 +28,97 @@ export function rotateMatrixAntiClockwise(mat){
     };
     return tempMatrix;
 };
+// #endregion general matrix rotate functions
 
+// #region function for trimming a piecematrix for "false" only rows and columns at the ends
+export function trimMatrixBottom(pieceMatrix){
+    let lastRealRow = pieceMatrix.length - 1;
+    let lastRealRowItems = pieceMatrix[lastRealRow];
+
+    // For potential future features where a custom piece matrix could have multiple false only rows at the bottom
+    while (!lastRealRowItems.includes(true) && lastRealRow >=0){
+        lastRealRow--;
+        lastRealRowItems = pieceMatrix[lastRealRow];
+    }
+    return pieceMatrix.slice(0,lastRealRow+1);
+};
+
+export function trimMatrixTop(pieceMatrix){
+    let firstRealRow = 0;
+    let firstRealRowItems = pieceMatrix[firstRealRow];
+
+    // For potential future features where a custom piece matrix could have multiple false only rows at the top
+    while (!firstRealRowItems.includes(true) && firstRealRow < pieceMatrix.length){
+        firstRealRow++;
+        firstRealRowItems = pieceMatrix[firstRealRow];
+    }
+    return pieceMatrix.slice(firstRealRow);
+};
+
+export function trimMatrixRight(pieceMatrix){
+    let lastRealCol = pieceMatrix[0].length -1;
+
+    // For potential future features where a custom piece matrix could have multiple false only columns at the right
+
+    // going from right to left on outer loop and top to bottom on inner loop
+    for(let i=lastRealCol; i>=0;i--){
+        let localFalseCounter=0;
+        for (let j=0; j<pieceMatrix.length; j++){
+            if (!pieceMatrix[j][i]){
+                localFalseCounter++;
+            }
+        }
+        if (!(localFalseCounter === pieceMatrix.length)){
+            
+            lastRealCol = i;
+            break;
+        }
+    };
+    let rightSlicedMatrix = pieceMatrix.map(row =>{
+        return row.slice(0,lastRealCol+1);
+    });
+
+    return rightSlicedMatrix;
+};
+
+export function trimMatrixLeft(pieceMatrix){
+    let firstRealCol = 0;
+
+    // For potential future features where a custom piece matrix could have multiple false only columns at the left
+
+    for(let i=firstRealCol; i<pieceMatrix[0].length;i++){
+        let localFalseCounter=0;
+        for (let j=0; j<pieceMatrix.length; j++){
+            if (!pieceMatrix[j][i]){
+                localFalseCounter++;
+            }
+        }
+        if (!(localFalseCounter === pieceMatrix.length)){
+            firstRealCol = i;
+            break;
+        }
+    };
+    let leftSlicedMatrix = pieceMatrix.map(row =>{
+        return row.slice(firstRealCol);
+    });
+
+    return leftSlicedMatrix;
+};
+
+export function trimAllMatrixSides(pieceMatrix){
+    return trimMatrixBottom(trimMatrixTop(trimMatrixRight(trimMatrixLeft(pieceMatrix))));
+}
+
+// #endregion function for trimming a piecematrix for "false" only rows and columns at the ends
+
+// #region function for getting the heights of columns of a tetris piece matrix till the first "false" only rows
 export function getDepthMap(pieceMatrix){
     
     let lastRow = pieceMatrix.length - 1;
     let lastRowItems = pieceMatrix[lastRow];
     let lastRowMap = lastRowItems.map(cell => cell ? 1 : 0);
 
-    // For potential future features where a piece matrix could have multiple false only rows at the bottom
+    // For potential future features where a custom piece matrix could have multiple false only rows at the bottom
     while (!lastRowMap.includes(1) && lastRow >=0){
         lastRow--;
         lastRowItems = pieceMatrix[lastRow];
@@ -62,16 +145,9 @@ export function getDepthMap(pieceMatrix){
     return depthMap
 };
 
-export function preLoadSoundFile(soundVariable){
-    soundVariable.preload = "auto";
-    soundVariable.load();
-};
+// #endregion function for getting the heights of columns of a tetris piece matrix till the first "false" only rows
 
-export function checkBoardHeight(boardHeight){
-    return (boardHeight > window.innerHeight);
-};
-
-// #region logic for the settings selection modal
+// #region logic for the settings selection in bootstrap modal
 export function toggleCustomDisplay(event,customInput, customLabel, customFeedback){
     
     if(event.target.value == "custom"){
@@ -114,9 +190,14 @@ export function toggleInvalidFeedback(inputBox, feedbackBox){
         feedbackBox.hidden = true;
     }
 };
-// #endregion logic for the settings selection modal
 
-// #region logic for sound and music volume toggle
+export function checkBoardHeight(boardHeight){
+    return (boardHeight > window.innerHeight);
+};
+
+// #endregion logic for the settings selection in bootstrap modal
+
+// #region logic for sound and music volume
 
 export function toggleMusic(e){
     if (e.target.classList.contains("bi-file-music-fill")){
@@ -153,5 +234,9 @@ export function toggleSounds(e){
     }
 };
 
-// #endregion logic for sound and music volume toggle
+export function preLoadSoundFile(soundVariable){
+    soundVariable.preload = "auto";
+    soundVariable.load();
+};
 
+// #endregion logic for sound and music volume
