@@ -24,6 +24,7 @@ export function addFloorGuideBricks(indexno) {
 };
 
 export async function generateUnblockedPiece(){
+    console.log("generate unblocked piece was activated");
 
     if(stateVar.blockedPieces.length == stateVar.pieces.length){
         
@@ -250,7 +251,16 @@ function generateTPiece() {
 };
 
 export function selectNextPiece(){
-    let nextPiece = stateVar.pieces[Math.floor(Math.random() * 7)];
+    
+    if (stateVar.sevenBag.length==0){
+        stateChange.fillSevenBag();
+    }
+
+    let nextPieceIndex = Math.floor(Math.random() * (stateVar.sevenBag.length));
+    let nextPiece = stateVar.sevenBag[nextPieceIndex];
+    stateVar.sevenBag.splice(nextPieceIndex,1);
+
+
     switch(nextPiece){
         case "O":
         stateVar.nextPieceMatrix= tetrisPieces.OPieceMatrix;
@@ -283,6 +293,7 @@ export function selectNextPiece(){
 };
 
 export function generateNextPiece(){
+   
     switch(stateVar.nextPieceMatrix){
 
         case tetrisPieces.OPieceMatrix:
@@ -316,35 +327,44 @@ export function generateNextPiece(){
 };
 
 
-export function generateRandomPiece(){
-    let randomSel = Math.floor(Math.random() * 7);
+export function generateFirstPiece(){
+    
+    // Instead of generating a random piece, the seven piece system is implemented to provide a better user experience
+    if (stateVar.sevenBag.length==0){
+        stateChange.fillSevenBag();
+    }
+
+    let randomSelIndex = Math.floor(Math.random() * (stateVar.sevenBag.length));
+    let randomSel = stateVar.sevenBag[randomSelIndex];
+    stateVar.sevenBag.splice(randomSelIndex,1);
     
     switch(randomSel){
-        case 0:
+        case "O":
+        
         generateOPiece();
         break;
 
-        case 1:
+        case "I":
         generateIPiece();
         break;
 
-        case 2:
+        case "J":
         generateJPiece();
         break;
 
-        case 3:
+        case "L":
         generateLPiece();
         break;
 
-        case 4:
+        case "S":
         generateSPiece();
         break;
 
-        case 5:
+        case "Z":
         generateZPiece();
         break;
 
-        case 6:
+        case "T":
         generateTPiece();
         break;
     }

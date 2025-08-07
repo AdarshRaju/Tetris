@@ -125,10 +125,3 @@ export function getAvailableColumns(pieceMatrix){
     return availableCols;
     
 };
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> 7f9fdc696dc52d469b9acf9ccd540e30f72f18d5

@@ -116,6 +116,8 @@ export function setUpDependentEventListeners(){
     // Preserves browser form value validation for use in bootstrap
     docElems.form.addEventListener("submit", stateChange.handleUsersettings);
 
+    docElems.confirmSettingsBtn.addEventListener("click", stateChange.handleSettingsConfirm);
+
     docElems.startButton.addEventListener("click", () =>{
         if(!stateVar.gameOver){
             docElems.mainLoopMusic.pause();
@@ -126,7 +128,7 @@ export function setUpDependentEventListeners(){
         
     });
 
-    docElems.modal._element.addEventListener("hidden.bs.modal", stateChange.handleGamePause);
+    docElems.startGameModal._element.addEventListener("hidden.bs.modal", stateChange.handleGameUnPause);
 
 };
 

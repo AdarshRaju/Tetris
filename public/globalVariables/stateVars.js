@@ -7,6 +7,7 @@ export var stateVar = {
     boardWidth : 300,
     nextPieceIndicatorWidth: 50,
     noOfCols:0, noOfRows:0, boardSize:0, gameSpeed:0,
+    validSettings:false,
     pieceDownInterval:0,
     currentUserRefCellIndex:0,
     score : 0,
@@ -18,6 +19,7 @@ export var stateVar = {
     floorGuideArray : [],
     cellsArr : [],
     pieces : ["O", "I", "J", "L", "S", "Z", "T"],
+    sevenBag: [],
     nextPieceMatrix: [],
     blockedPieces : [],
 };

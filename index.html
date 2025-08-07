@@ -41,7 +41,7 @@
                 
             </div>
 
-            <!-- Modal -->
+            <!-- Main bootstrap modal for game settings-->
 
 
             <div class="modal fade" id="startGameModal" tabindex="-1" aria-labelledby="startGameModalLabel" aria-hidden="true">
@@ -113,6 +113,31 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Board height exceed warning modal -->
+
+            <div class="modal fade" id="boardHeightWarningModal" aria-hidden="true" aria-labelledby="boardHeightWarningModalLabel" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="boardHeightWarningModalLabel">Window Height Exceed Warning</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            The number of rows and number of columns combination you have chosen would generate a board height that will exceed your window height. 
+                            <br>
+                            This may require scrolling to play, which may not be preferable for some users.
+                            <br>
+                            Are you sure you want to proceed with these settings?
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" data-bs-target="#startGameModal" data-bs-toggle="modal">Back to settings</button>
+                            <button id="confirmSettingsBtn" type="button" class="btn btn-primary" >OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
 
 
 

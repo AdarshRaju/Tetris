@@ -30,6 +30,19 @@ export function rotateMatrixAntiClockwise(mat){
 };
 // #endregion general matrix rotate functions
 
+export function shuffleArray(array){
+    let indexToCheck = array.length;
+    let randomIndex;
+
+    while (indexToCheck > 0 ){
+        randomIndex = Math.floor(Math.random()*indexToCheck);
+        indexToCheck--;
+        [array[indexToCheck], array[randomIndex]] = [array[randomIndex], array[indexToCheck]];
+    }
+
+    return array;
+};
+
 // #region function for trimming a piecematrix for "false" only rows and columns at the ends
 export function trimMatrixBottom(pieceMatrix){
     let lastRealRow = pieceMatrix.length - 1;
