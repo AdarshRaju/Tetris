@@ -16,10 +16,11 @@ export function clearFullRows(fullRowsArr){
             };
             stateVar.score++;
             docElems.scoreValue.innerHTML = stateVar.score;
-            if(stateVar.score>stateVar.highscore){
-                stateVar.highscore = stateVar.score;
+            if(stateVar.score>stateVar.highScore){
+                stateVar.highScore = stateVar.score;
+                localStorage.setItem("highScore", stateVar.highScore);
             };
-            docElems.highScoreValue.innerHTML = stateVar.highscore;
+            docElems.highScoreValue.innerHTML = stateVar.highScore;
         });
     
 };

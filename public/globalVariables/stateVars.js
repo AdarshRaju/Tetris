@@ -1,5 +1,7 @@
 // This module is for storing all the state variables used in the project
 
+let highScoreLocal = localStorage.getItem("highScore");
+
 export var stateVar = {
     gameOver:true,
     paused:false,
@@ -11,7 +13,7 @@ export var stateVar = {
     pieceDownInterval:0,
     currentUserRefCellIndex:0,
     score : 0,
-    highscore: 0,
+    highScore: highScoreLocal ? highScoreLocal: 0,
     startX:0, startY:0, endX:0, endY:0,
     swapSpaceBar: false,
     currentlySelectedPieceMatrix : [],

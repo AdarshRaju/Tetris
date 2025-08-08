@@ -114,7 +114,7 @@ export async function brickHitBottomLogic(){
         stateVar.pieceDownInterval=null;
         stateVar.gameOver = true;
         await docElems.mainLoopMusic.pause();
-        if(stateVar.score >= stateVar.highscore){
+        if(stateVar.score >= stateVar.highScore){
             
             await docElems.newHighScoreSound.play();
             handleEndGame("newHighScore");
@@ -180,7 +180,7 @@ export function startGame() {
         stateVar.blockedPieces = [];
         stateVar.score = 0;
         docElems.scoreValue.innerHTML = stateVar.score;
-        docElems.highScoreValue.innerHTML = stateVar.highscore;
+        docElems.highScoreValue.innerHTML = stateVar.highScore;
         addBricks.generateFirstPiece();
         addBricks.selectNextPiece();
         addBricks.updateNextPieceIndicator();

@@ -30,7 +30,7 @@ export async function generateUnblockedPiece(){
         
         stateVar.gameOver = true;
         await docElems.mainLoopMusic.pause();
-        if(stateVar.score >= stateVar.highscore){
+        if(stateVar.score >= stateVar.highScore){
             stateChange.handleEndGame("newHighScore");
             await docElems.newHighScoreSound.play();
         } else{

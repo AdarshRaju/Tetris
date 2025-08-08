@@ -159,13 +159,13 @@ export function setUpTouchControls(){
     docElems.mainGridContainer.addEventListener("mousedown", (e) =>{
         stateVar.startX = e.clientX;
         stateVar.startY = e.clientY;
-        // console.log("stateVar.startX and stateVar.startY is: ", stateVar.startX, stateVar.startY);
+
     });
 
     docElems.mainGridContainer.addEventListener("mouseup", (e) =>{
         stateVar.endX = e.clientX;
         stateVar.endY = e.clientY;
-        // console.log("stateVar.endX and stateVar.endY is: ", stateVar.endX, stateVar.endY);
+
         handleGesture();
 
     });
@@ -194,10 +194,10 @@ export function setUpTouchControls(){
         
         if (Math.abs(deltaX) > 50 && regX) {
             if (deltaX > 0) {
-                // console.log("right swipe was activated.");
+
                 document.dispatchEvent(rightKeyEvent);
             } else {
-                // console.log("left swipe was activated.");
+
                 document.dispatchEvent(leftKeyEvent);
             }
         }
@@ -205,10 +205,10 @@ export function setUpTouchControls(){
 
         if (Math.abs(deltaY) > 50 && regY) {
             if (deltaY > 0) {
-                // console.log("swipe down was activated.");
+
                 document.dispatchEvent(downKeyEvent);
             } else {
-                // console.log("swipe up was activated.");
+
                 document.dispatchEvent(upKeyEvent);
             }
         }
