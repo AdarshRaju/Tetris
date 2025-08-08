@@ -2,6 +2,8 @@
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains the game's state variables
 import {stateVar} from "../../globalVariables/stateVars.js";
+// The module imported below contains the general functions that can be used anywhere
+import * as genFunc from "../generalFunctions.js";
 
 export function clearFullRows(fullRowsArr){
     
@@ -18,13 +20,35 @@ export function clearFullRows(fullRowsArr){
             docElems.scoreValue.innerHTML = stateVar.score;
             if(stateVar.score>stateVar.highScore){
                 stateVar.highScore = stateVar.score;
-                localStorage.setItem("highScore", stateVar.highScore);
+
+                let localHighScores = JSON.parse(localStorage.getItem("localHighScores"));
+                let prevHighScoreEntry = genFunc.checkHighScore(stateVar.noOfCols,stateVar.noOfRows,stateVar.gameSpeed);
+                // console.log("prevHighScoreEntry returned is:", prevHighScoreEntry);
+                if (prevHighScoreEntry.length > 0){
+                    // find item from local, modify it, put it back again
+                    console.log("localHighScores returned as:", localHighScores);
+                    
+                    let existingEntryIndex = localHighScores.findIndex(arrEntry => {
+                        console.log("genFunc.checkArraysEqual(arrEntry, prevHighScoreEntry[0]) returned as: ", genFunc.checkArraysEqual(arrEntry, prevHighScoreEntry[0]));
+                       return Array.isArray(arrEntry) && genFunc.checkArraysEqual(arrEntry, prevHighScoreEntry[0])
+                    });
+                    console.log("existingEntryIndex returned as:", existingEntryIndex);
+                    localHighScores[existingEntryIndex][3] = stateVar.highScore;
+                    
+                } else {
+                    localHighScores.push([stateVar.noOfCols,stateVar.noOfRows,stateVar.gameSpeed, stateVar.highScore]);
+                }
+                localStorage.setItem("localHighScores", JSON.stringify(localHighScores));
             };
             docElems.highScoreValue.innerHTML = stateVar.highScore;
         });
     
 };
 
+function getLocalHighScores(){
+    
+
+}
 
 function handleClassClearing(stateArray, removeClassName){
 

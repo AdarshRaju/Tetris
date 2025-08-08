@@ -253,3 +253,39 @@ export function preLoadSoundFile(soundVariable){
 };
 
 // #endregion logic for sound and music volume
+
+// #region function for checking if the contents of two arrays are equal
+
+export function checkArraysEqual(arr1, arr2){
+    if (arr1.length != arr2.length) return false;
+
+    for (let i=0; i<arr1.length; i++){
+        if (arr1[i] !== arr2[i]){
+            return false
+        };
+    };
+    return true;
+};
+
+// #endregion function for checking if the contents of two arrays are equal
+
+// #region logic for grabbing a high score entry stored as [noOfCols, noOfRows, gameSpeed, highScore] from local storage
+
+export function handleLocalScoreInitialize(){
+    let localScores = JSON.parse(localStorage.getItem("localHighScores"));
+    if (localScores == null){
+        localStorage.setItem("localHighScores",JSON.stringify([]))
+    }
+};
+
+export function checkHighScore(cols,rows,speed){
+    let localScores = JSON.parse(localStorage.getItem("localHighScores"));
+    let checkHighScore = localScores.filter(arrayItem =>{
+        // Items are stored in cols, rows, speed and highScore value combinations
+        return (arrayItem[0]==cols && arrayItem[1]==rows && arrayItem[2]==speed)
+    });
+    return (checkHighScore);
+        
+};
+
+// #endregion logic for grabbing a high score entry stored as [noOfCols, noOfRows, gameSpeed, highScore] from local storage

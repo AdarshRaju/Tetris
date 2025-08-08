@@ -326,6 +326,7 @@ export function handleUsersettings(e){
         let boardHeight = stateVar.boardWidth+(cellWidth*(validRowSize-validColSize));
         // checks if the board height exceeds the whole window height
         let boardHeightCheck = genFunc.checkBoardHeight(boardHeight);
+        genFunc.handleLocalScoreInitialize();
         if (boardHeightCheck){
             docElems.boardHeightWarningModal.show();
             docElems.startGameModal.hide();
@@ -338,12 +339,20 @@ export function handleUsersettings(e){
 };
 
 
+
 function setBoardDimensions(cols, rows, speed, swap){
     
     stateVar.noOfCols = cols;
     stateVar.noOfRows = rows;
     stateVar.gameSpeed= speed;
     stateVar.swapSpaceBar = swap;
+    // Also set the high score from the local storage if it exists
+    let highScoreCheck = genFunc.checkHighScore(cols,rows,speed);
+    if(highScoreCheck.length >0){
+        console.log("highScoreCheck[0][3] returned as:", highScoreCheck[0][3]);
+        stateVar.highScore = highScoreCheck[0][3];
+    };
+
 };
 
 
