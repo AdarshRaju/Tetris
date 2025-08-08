@@ -192,12 +192,8 @@ export function startGame() {
 
 export function handleGameUnPause(){
     if(!stateVar.gameOver && !docElems.boardHeightWarningModalDOM.classList.contains("show")){
-        // if(stateVar.isModalClosedBySubmit){
-        //     stateVar.isModalClosedBySubmit = false;
-        // } else {
             docElems.mainLoopMusic.play();
             unPauseGame();
-        // }
     }
 };
 
@@ -240,6 +236,7 @@ export function handleUsersettings(e){
     let checkCustomRow;
     let checkCustomSpeed;
 
+    validLocal = true;
     docElems.customColInvalidFeedback.classList.remove("invalid-feedback");
     docElems.customRowInvalidFeedback.classList.remove("invalid-feedback");
     docElems.customSpeedInvalidFeedback.classList.remove("invalid-feedback");
@@ -247,7 +244,7 @@ export function handleUsersettings(e){
     if(docElems.noOfColsSel.value == "custom"){
         checkCustomCol = parseInt(docElems.customColsSel.value);
         if(!docElems.customColsSel.value || checkCustomCol <5 || checkCustomCol >50){
-            // stateVar.validSettings = false;
+            
             validLocal = false;
 
             docElems.customColsSel.classList.add("is-invalid");
@@ -257,14 +254,14 @@ export function handleUsersettings(e){
             docElems.customColsSel.classList.add("is-valid");
             docElems.customColInvalidFeedback.classList.remove("invalid-feedback");
             docElems.customColInvalidFeedback.hidden = true;
-            // stateVar.noOfCols = checkCustomCol;
+           
             validColSize = checkCustomCol;
 
         }
 
       
     } else{
-        // stateVar.noOfCols = parseInt(docElems.noOfColsSel.value);
+        
         validColSize = parseInt(docElems.noOfColsSel.value);
      
     };
@@ -272,7 +269,7 @@ export function handleUsersettings(e){
     if (docElems.noOfRowsSel.value  == "custom"){
         checkCustomRow = parseInt(docElems.customRowsSel.value);
         if(!docElems.customRowsSel.value || checkCustomRow <10 || checkCustomRow >100){
-            // stateVar.validSettings = false;
+           
             validLocal = false;
 
             docElems.customRowsSel.classList.add("is-invalid");
@@ -282,21 +279,21 @@ export function handleUsersettings(e){
             docElems.customRowsSel.classList.add("is-valid");
             docElems.customRowInvalidFeedback.classList.remove("invalid-feedback");
             docElems.customRowInvalidFeedback.hidden = true;
-            // stateVar.noOfRows = checkCustomRow;
+           
             validRowSize = checkCustomRow;
         }
       
     } 
     
     else{
-        // stateVar.noOfRows = parseInt(docElems.noOfRowsSel.value);
+        
         validRowSize = parseInt(docElems.noOfRowsSel.value);
     };
 
     if (docElems.gameSpeedSel.value  == "custom"){
         checkCustomSpeed = parseInt(docElems.customSpeedSel.value);
         if(!docElems.customSpeedSel.value || checkCustomSpeed <25 || checkCustomSpeed >5000){
-            // stateVar.validSettings = false;
+           
             validLocal = false;
             docElems.customSpeedSel.classList.add("is-invalid");
             docElems.customSpeedInvalidFeedback.classList.add("invalid-feedback");
@@ -305,26 +302,27 @@ export function handleUsersettings(e){
             docElems.customSpeedSel.classList.add("is-valid");
             docElems.customSpeedInvalidFeedback.classList.remove("invalid-feedback");
             docElems.customSpeedInvalidFeedback.hidden = true;
-            // stateVar.gameSpeed = checkCustomSpeed;
+         
             validSpeed = checkCustomSpeed;
         }
         
     } else{
-        // stateVar.gameSpeed = parseInt(docElems.gameSpeedSel.value);
+      
         validSpeed = parseInt(docElems.gameSpeedSel.value);
     };
 
-    //  docElems.gameControlSel.value == "No" ? stateVar.swapSpaceBar = false : stateVar.swapSpaceBar = true;
+    
     docElems.gameControlSel.value == "No" ? validSwap = false : validSwap = true;
-    // if (stateVar.validSettings == false){
+   
     if (validLocal == false){
         return;
     }
     else {
+        stateVar.validSettings = true;
         // A board check can be added here to automatically change the user's selection to have board size not exceeding vh
-        // let cellWidth = stateVar.boardWidth/stateVar.noOfCols;
+       
         let cellWidth = stateVar.boardWidth/validColSize;
-        // let boardHeight = stateVar.boardWidth+(cellWidth*(stateVar.noOfRows-stateVar.noOfCols));
+       
         let boardHeight = stateVar.boardWidth+(cellWidth*(validRowSize-validColSize));
         // checks if the board height exceeds the whole window height
         let boardHeightCheck = genFunc.checkBoardHeight(boardHeight);
@@ -332,7 +330,6 @@ export function handleUsersettings(e){
             docElems.boardHeightWarningModal.show();
             docElems.startGameModal.hide();
         } else{
-            // stateVar.isModalClosedBySubmit = true;
             setBoardDimensions(validColSize, validRowSize, validSpeed, validSwap);
             docElems.startGameModal.hide();
             startGame();
@@ -342,7 +339,7 @@ export function handleUsersettings(e){
 
 
 function setBoardDimensions(cols, rows, speed, swap){
-    stateVar.validSettings = true;
+    
     stateVar.noOfCols = cols;
     stateVar.noOfRows = rows;
     stateVar.gameSpeed= speed;
@@ -351,8 +348,8 @@ function setBoardDimensions(cols, rows, speed, swap){
 
 
 export function handleSettingsConfirm(e){
-    if (stateVar.validSettings && !stateVar.gameOver){
-        // stateVar.isModalClosedBySubmit = true;
+    if (stateVar.validSettings){
+        
         setBoardDimensions(validColSize, validRowSize, validSpeed, validSwap);
         docElems.boardHeightWarningModal.hide();
         startGame();
