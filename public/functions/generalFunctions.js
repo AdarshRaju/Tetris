@@ -5,10 +5,10 @@ import * as docElems from "../globalVariables/docElems.js";
 
 // #region general matrix rotate functions
 export function rotateMatrixClockwise(mat) {
-  let tempMatrix = [];
-  for (let i = 0; i < mat[0].length; i++) {
-    let tempArr = [];
-    for (let j = mat.length - 1; j >= 0; j--) {
+  const tempMatrix = [];
+  for (let i = 0; i < mat[0].length; i += 1) {
+    const tempArr = [];
+    for (let j = mat.length - 1; j >= 0; j -= 1) {
       tempArr.push(mat[j][i]);
     }
     tempMatrix.push(tempArr);
@@ -17,11 +17,11 @@ export function rotateMatrixClockwise(mat) {
 }
 
 export function rotateMatrixAntiClockwise(mat) {
-  let tempMatrix = [];
+  const tempMatrix = [];
 
-  for (let i = mat[0].length - 1; i >= 0; i--) {
-    let tempArr = [];
-    for (let j = 0; j < mat.length; j++) {
+  for (let i = mat[0].length - 1; i >= 0; i -= 1) {
+    const tempArr = [];
+    for (let j = 0; j < mat.length; j += 1) {
       tempArr.push(mat[j][i]);
     }
     tempMatrix.push(tempArr);
@@ -31,19 +31,20 @@ export function rotateMatrixAntiClockwise(mat) {
 // #endregion general matrix rotate functions
 
 export function shuffleArray(array) {
+  const temparr = [...array];
   let indexToCheck = array.length;
   let randomIndex;
 
   while (indexToCheck > 0) {
     randomIndex = Math.floor(Math.random() * indexToCheck);
-    indexToCheck--;
-    [array[indexToCheck], array[randomIndex]] = [
-      array[randomIndex],
-      array[indexToCheck],
+    indexToCheck -= 1;
+    [temparr[indexToCheck], temparr[randomIndex]] = [
+      temparr[randomIndex],
+      temparr[indexToCheck],
     ];
   }
 
-  return array;
+  return temparr;
 }
 
 // #region function for trimming a piecematrix for "false" only rows and columns at the ends
@@ -53,7 +54,7 @@ export function trimMatrixBottom(pieceMatrix) {
 
   // For potential future features where a custom piece matrix could have multiple false only rows at the bottom
   while (!lastRealRowItems.includes(true) && lastRealRow >= 0) {
-    lastRealRow--;
+    lastRealRow -= 1;
     lastRealRowItems = pieceMatrix[lastRealRow];
   }
   return pieceMatrix.slice(0, lastRealRow + 1);
@@ -68,7 +69,7 @@ export function trimMatrixTop(pieceMatrix) {
     !firstRealRowItems.includes(true) &&
     firstRealRow < pieceMatrix.length
   ) {
-    firstRealRow++;
+    firstRealRow += 1;
     firstRealRowItems = pieceMatrix[firstRealRow];
   }
   return pieceMatrix.slice(firstRealRow);
@@ -80,11 +81,11 @@ export function trimMatrixRight(pieceMatrix) {
   // For potential future features where a custom piece matrix could have multiple false only columns at the right
 
   // going from right to left on outer loop and top to bottom on inner loop
-  for (let i = lastRealCol; i >= 0; i--) {
+  for (let i = lastRealCol; i >= 0; i -= 1) {
     let localFalseCounter = 0;
-    for (let j = 0; j < pieceMatrix.length; j++) {
+    for (let j = 0; j < pieceMatrix.length; j += 1) {
       if (!pieceMatrix[j][i]) {
-        localFalseCounter++;
+        localFalseCounter += 1;
       }
     }
     if (!(localFalseCounter === pieceMatrix.length)) {
@@ -92,7 +93,7 @@ export function trimMatrixRight(pieceMatrix) {
       break;
     }
   }
-  let rightSlicedMatrix = pieceMatrix.map((row) => {
+  const rightSlicedMatrix = pieceMatrix.map((row) => {
     return row.slice(0, lastRealCol + 1);
   });
 
@@ -104,11 +105,11 @@ export function trimMatrixLeft(pieceMatrix) {
 
   // For potential future features where a custom piece matrix could have multiple false only columns at the left
 
-  for (let i = firstRealCol; i < pieceMatrix[0].length; i++) {
+  for (let i = firstRealCol; i < pieceMatrix[0].length; i += 1) {
     let localFalseCounter = 0;
-    for (let j = 0; j < pieceMatrix.length; j++) {
+    for (let j = 0; j < pieceMatrix.length; j += 1) {
       if (!pieceMatrix[j][i]) {
-        localFalseCounter++;
+        localFalseCounter += 1;
       }
     }
     if (!(localFalseCounter === pieceMatrix.length)) {
@@ -116,7 +117,7 @@ export function trimMatrixLeft(pieceMatrix) {
       break;
     }
   }
-  let leftSlicedMatrix = pieceMatrix.map((row) => {
+  const leftSlicedMatrix = pieceMatrix.map((row) => {
     return row.slice(firstRealCol);
   });
 
@@ -125,7 +126,7 @@ export function trimMatrixLeft(pieceMatrix) {
 
 export function trimAllMatrixSides(pieceMatrix) {
   return trimMatrixBottom(
-    trimMatrixTop(trimMatrixRight(trimMatrixLeft(pieceMatrix)))
+    trimMatrixTop(trimMatrixRight(trimMatrixLeft(pieceMatrix))),
   );
 }
 
@@ -135,31 +136,33 @@ export function trimAllMatrixSides(pieceMatrix) {
 export function getDepthMap(pieceMatrix) {
   let lastRow = pieceMatrix.length - 1;
   let lastRowItems = pieceMatrix[lastRow];
-  let lastRowMap = lastRowItems.map((cell) => (cell ? 1 : 0));
+  const lastRowMap = lastRowItems.map((cell) => (cell ? 1 : 0));
 
   // For potential future features where a custom piece matrix could have multiple false only rows at the bottom
   while (!lastRowMap.includes(1) && lastRow >= 0) {
-    lastRow--;
+    lastRow -= 1;
+    // The last lastRowItems returns an array of the true and false values of the first true last row
     lastRowItems = pieceMatrix[lastRow];
-    lastRowMap = lastRowItems.map((cell) => (cell ? 1 : 0));
+    // lastRowMap = lastRowItems.map((cell) => (cell ? 1 : 0));
   }
 
-  let relativeRowHeightMap = lastRowMap.map((lastRowItem, itemIndex) => {
+  const relativeRowHeightMap = lastRowItems.map((lastRowItem, itemIndex) => {
+    let depth = 0;
     if (!lastRowItem) {
-      for (let i = lastRow - 1; i >= 0; i--) {
+      for (let i = lastRow - 1; i >= 0; i -= 1) {
         if (!pieceMatrix[i][itemIndex]) {
-          lastRowItem--;
+          depth -= 1;
         } else {
           break;
         }
       }
     }
-    return lastRowItem - 1;
+    return depth;
   });
 
   // Piece height after the height of the false only rows are trimmed out from the bottom of the pieceMatrix
-  let pieceHeight1 = lastRow + 1;
-  let depthMap = relativeRowHeightMap.map((col) => {
+  const pieceHeight1 = lastRow + 1;
+  const depthMap = relativeRowHeightMap.map((col) => {
     return col + pieceHeight1;
   });
   return depthMap;
@@ -172,31 +175,31 @@ export function toggleCustomDisplay(
   event,
   customInput,
   customLabel,
-  customFeedback
+  customFeedback,
 ) {
-  if (event.target.value == "custom") {
+  if (event.target.value === "custom") {
     customInput.removeAttribute("hidden");
     customInput.removeAttribute("disabled");
     customInput.removeAttribute("required");
     customLabel.removeAttribute("hidden");
-    customFeedback.hidden = false;
+    customFeedback.removeAttribute("hidden");
   } else {
     customInput.setAttribute("hidden", "true");
     customInput.setAttribute("disabled", "true");
     customInput.setAttribute("required", "true");
     customLabel.setAttribute("hidden", "true");
-    customFeedback.hidden = true;
+    customFeedback.setAttribute("hidden", "true");
   }
 }
 
 export function toggleInvalidFeedback(inputBox, feedbackBox) {
   let check;
-  let checkInputBox = parseInt(inputBox.value);
-  if (inputBox == docElems.customColsSel) {
+  const checkInputBox = parseInt(inputBox.value, 10);
+  if (inputBox === docElems.customColsSel) {
     check = !inputBox.value || checkInputBox < 5 || checkInputBox > 50;
-  } else if (inputBox == docElems.customRowsSel) {
+  } else if (inputBox === docElems.customRowsSel) {
     check = !inputBox.value || checkInputBox < 10 || checkInputBox > 100;
-  } else if (inputBox == docElems.customSpeedSel) {
+  } else if (inputBox === docElems.customSpeedSel) {
     check = !inputBox.value || checkInputBox < 25 || checkInputBox > 5000;
   }
 
@@ -204,12 +207,12 @@ export function toggleInvalidFeedback(inputBox, feedbackBox) {
     inputBox.classList.add("is-invalid");
     inputBox.classList.remove("is-valid");
     feedbackBox.classList.add("invalid-feedback");
-    feedbackBox.hidden = false;
+    feedbackBox.removeAttribute("hidden");
   } else {
     inputBox.classList.add("is-valid");
     inputBox.classList.remove("is-invalid");
     feedbackBox.classList.remove("invalid-feedback");
-    feedbackBox.hidden = true;
+    feedbackBox.setAttribute("hidden", "true");
   }
 }
 
@@ -256,8 +259,10 @@ export function toggleSounds(e) {
 }
 
 export function preLoadSoundFile(soundVariable) {
-  soundVariable.preload = "auto";
-  soundVariable.load();
+  // Airbnb ESLint rules does not allow direct assignment of property values to a parameter
+  const sound = soundVariable;
+  sound.preload = "auto";
+  sound.load();
 }
 
 // #endregion logic for sound and music volume
@@ -265,9 +270,9 @@ export function preLoadSoundFile(soundVariable) {
 // #region function for checking if the contents of two arrays are equal
 
 export function checkArraysEqual(arr1, arr2) {
-  if (arr1.length != arr2.length) return false;
+  if (arr1.length !== arr2.length) return false;
 
-  for (let i = 0; i < arr1.length; i++) {
+  for (let i = 0; i < arr1.length; i += 1) {
     if (arr1[i] !== arr2[i]) {
       return false;
     }
@@ -280,21 +285,21 @@ export function checkArraysEqual(arr1, arr2) {
 // #region logic for grabbing a high score entry stored as [noOfCols, noOfRows, gameSpeed, highScore] from local storage
 
 export function handleLocalScoreInitialize() {
-  let localScores = JSON.parse(localStorage.getItem("localHighScores"));
+  const localScores = JSON.parse(localStorage.getItem("localHighScores"));
   if (localScores == null) {
     localStorage.setItem("localHighScores", JSON.stringify([]));
   }
 }
 
 export function checkHighScore(cols, rows, speed) {
-  let localScores = JSON.parse(localStorage.getItem("localHighScores"));
-  let checkHighScore = localScores.filter((arrayItem) => {
+  const localScores = JSON.parse(localStorage.getItem("localHighScores"));
+  const highScoreCheck = localScores.filter((arrayItem) => {
     // Items are stored in cols, rows, speed and highScore value combinations
     return (
-      arrayItem[0] == cols && arrayItem[1] == rows && arrayItem[2] == speed
+      arrayItem[0] === cols && arrayItem[1] === rows && arrayItem[2] === speed
     );
   });
-  return checkHighScore;
+  return highScoreCheck;
 }
 
 // #endregion logic for grabbing a high score entry stored as [noOfCols, noOfRows, gameSpeed, highScore] from local storage

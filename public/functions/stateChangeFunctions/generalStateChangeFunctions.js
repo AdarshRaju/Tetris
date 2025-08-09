@@ -1,9 +1,7 @@
 // This module contains functions that alters the game's state variables
 
-// The module imported below contains the 2D Array logic of the matrix pieces
-import * as tetrisPieces from "../../globalVariables/tetrisPieces.js";
 // The module imported below contains the game's state variables
-import { stateVar } from "../../globalVariables/stateVars.js";
+import stateVar from "../../globalVariables/stateVars.js";
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains the general functions that can be used anywhere
@@ -45,34 +43,32 @@ export function resetCurrentArrays() {
 
 export function handleKeyPress(e) {
   if (!stateVar.gameOver && !stateVar.paused) {
-    if (e.target.tagName == "INPUT") return;
+    if (e.target.tagName === "INPUT") return;
 
     e.preventDefault();
-    if (e.key == "ArrowLeft") {
+    if (e.key === "ArrowLeft") {
       moveBricks.movePieceLeft();
     }
 
-    if (e.key == "ArrowRight") {
+    if (e.key === "ArrowRight") {
       moveBricks.movePieceRight();
     }
 
-    if (e.key == "ArrowDown") {
+    if (e.key === "ArrowDown") {
       moveBricks.movePieceDown();
     }
 
-    if (e.key == " ") {
-      !stateVar.swapSpaceBar
-        ? moveBricks.instaDrop()
-        : rotateBricks.rotatePieceClockwise();
+    if (e.key === " ") {
+      if (!stateVar.swapSpaceBar) moveBricks.instaDrop();
+      else rotateBricks.rotatePieceClockwise();
     }
 
-    if (e.key == "ArrowUp") {
-      stateVar.swapSpaceBar
-        ? moveBricks.instaDrop()
-        : rotateBricks.rotatePieceClockwise();
+    if (e.key === "ArrowUp") {
+      if (stateVar.swapSpaceBar) moveBricks.instaDrop();
+      else rotateBricks.rotatePieceClockwise();
     }
 
-    if (e.key == "Shift") {
+    if (e.key === "Shift") {
       rotateBricks.rotatePieceAntiClockwise();
     }
   }
@@ -81,7 +77,7 @@ export function handleKeyPress(e) {
 function handleEndGame(classListToAdd) {
   document.body.classList.add(classListToAdd);
 
-  if (classListToAdd == "newHighScore") {
+  if (classListToAdd === "newHighScore") {
     docElems.statusHeading.innerHTML =
       "Congrats! New High Score! Press start to play again";
   } else {
@@ -98,12 +94,24 @@ function nextPieceLogic() {
 }
 
 export function fillSevenBag() {
-  let copyarr = [...stateVar.pieces];
+  const copyarr = [...stateVar.pieces];
   stateVar.sevenBag = genFunc.shuffleArray(copyarr);
 }
 
+export function unPauseGame() {
+  if (!stateVar.gameOver && stateVar.paused) {
+    stateVar.paused = false;
+    if (!stateVar.pieceDownInterval) {
+      stateVar.pieceDownInterval = setInterval(
+        moveBricks.movePieceDown,
+        stateVar.gameSpeed,
+      );
+    }
+  }
+}
+
 export async function brickHitBottomLogic() {
-  let rowsOfBricked = stateEnquiry.getRowsOfBricked();
+  const rowsOfBricked = stateEnquiry.getRowsOfBricked();
 
   // Checking for gameOver condition
   if (rowsOfBricked.includes(0)) {
@@ -121,7 +129,7 @@ export async function brickHitBottomLogic() {
   }
 
   if (!stateVar.gameOver) {
-    let fullRowsArr = stateEnquiry.getFullRowsArray(rowsOfBricked);
+    const fullRowsArr = stateEnquiry.getFullRowsArray(rowsOfBricked);
     if (fullRowsArr.length > 0) {
       pauseGame();
       setTimeout(() => {
@@ -141,23 +149,7 @@ export function buttonClickValidation(movefunction) {
   if (!stateVar.gameOver && !stateVar.paused) {
     return movefunction();
   }
-}
-
-function test(a) {
-  console.log(a);
-}
-
-test();
-
-export function unPauseGame() {
-  if (!stateVar.gameOver && stateVar.paused) {
-    stateVar.paused = false;
-    !stateVar.pieceDownInterval &&
-      (stateVar.pieceDownInterval = setInterval(
-        moveBricks.movePieceDown,
-        stateVar.gameSpeed
-      ));
-  }
+  return null;
 }
 
 export function startGame() {
@@ -182,10 +174,12 @@ export function startGame() {
   addBricks.generateFirstPiece();
   addBricks.selectNextPiece();
   addBricks.updateNextPieceIndicator();
-  stateVar.pieceDownInterval && clearInterval(stateVar.pieceDownInterval);
+  if (stateVar.pieceDownInterval) {
+    clearInterval(stateVar.pieceDownInterval);
+  }
   stateVar.pieceDownInterval = setInterval(
     moveBricks.movePieceDown,
-    stateVar.gameSpeed
+    stateVar.gameSpeed,
   );
 }
 
@@ -197,6 +191,19 @@ export function handleGameUnPause() {
     docElems.mainLoopMusic.play();
     unPauseGame();
   }
+}
+
+function updateCurrentFloorGuideArray() {
+  stateVar.floorGuideArray = [];
+  const highestRow = stateEnquiry.findFloor();
+  const refIndRow = Math.floor(
+    stateVar.currentUserRefCellIndex / stateVar.noOfCols,
+  );
+  const noOfRowsToShift = highestRow - refIndRow - 1;
+
+  stateVar.floorGuideArray = stateVar.currentUserArray.map((index) => {
+    return index + noOfRowsToShift * stateVar.noOfCols;
+  });
 }
 
 export function updateCurrentUserArray() {
@@ -211,7 +218,7 @@ export function updateCurrentUserArray() {
         stateVar.currentUserArray.push(
           stateVar.currentUserRefCellIndex +
             rowAdd * stateVar.noOfCols +
-            colIndex
+            colIndex,
         );
       }
     });
@@ -219,22 +226,24 @@ export function updateCurrentUserArray() {
   updateCurrentFloorGuideArray();
 }
 
-function updateCurrentFloorGuideArray() {
-  stateVar.floorGuideArray = [];
-  let highestRow = stateEnquiry.findFloor();
-  let refIndRow = Math.floor(
-    stateVar.currentUserRefCellIndex / stateVar.noOfCols
-  );
-  let noOfRowsToShift = highestRow - refIndRow - 1;
-
-  stateVar.floorGuideArray = stateVar.currentUserArray.map((index) => {
-    return index + noOfRowsToShift * stateVar.noOfCols;
-  });
+function setBoardDimensions(cols, rows, speed, swap) {
+  stateVar.noOfCols = cols;
+  stateVar.noOfRows = rows;
+  stateVar.gameSpeed = speed;
+  stateVar.swapSpaceBar = swap;
+  // Also set the high score from the local storage if it exists
+  const highScoreCheck = genFunc.checkHighScore(cols, rows, speed);
+  const [scoreCheckValue] = highScoreCheck;
+  if (scoreCheckValue) {
+    const [, , , prevHighScore] = scoreCheckValue;
+    stateVar.highScore = prevHighScore;
+  } else {
+    stateVar.highScore = 0;
+  }
+  docElems.highScoreValue.innerHTML = stateVar.highScore;
 }
 
 export function handleUsersettings(e) {
-  "use strict";
-
   e.preventDefault();
 
   let checkCustomCol;
@@ -246,8 +255,8 @@ export function handleUsersettings(e) {
   docElems.customRowInvalidFeedback.classList.remove("invalid-feedback");
   docElems.customSpeedInvalidFeedback.classList.remove("invalid-feedback");
 
-  if (docElems.noOfColsSel.value == "custom") {
-    checkCustomCol = parseInt(docElems.customColsSel.value);
+  if (docElems.noOfColsSel.value === "custom") {
+    checkCustomCol = parseInt(docElems.customColsSel.value, 10);
     if (
       !docElems.customColsSel.value ||
       checkCustomCol < 5 ||
@@ -266,11 +275,11 @@ export function handleUsersettings(e) {
       validColSize = checkCustomCol;
     }
   } else {
-    validColSize = parseInt(docElems.noOfColsSel.value);
+    validColSize = parseInt(docElems.noOfColsSel.value, 10);
   }
 
-  if (docElems.noOfRowsSel.value == "custom") {
-    checkCustomRow = parseInt(docElems.customRowsSel.value);
+  if (docElems.noOfRowsSel.value === "custom") {
+    checkCustomRow = parseInt(docElems.customRowsSel.value, 10);
     if (
       !docElems.customRowsSel.value ||
       checkCustomRow < 10 ||
@@ -289,11 +298,11 @@ export function handleUsersettings(e) {
       validRowSize = checkCustomRow;
     }
   } else {
-    validRowSize = parseInt(docElems.noOfRowsSel.value);
+    validRowSize = parseInt(docElems.noOfRowsSel.value, 10);
   }
 
-  if (docElems.gameSpeedSel.value == "custom") {
-    checkCustomSpeed = parseInt(docElems.customSpeedSel.value);
+  if (docElems.gameSpeedSel.value === "custom") {
+    checkCustomSpeed = parseInt(docElems.customSpeedSel.value, 10);
     if (
       !docElems.customSpeedSel.value ||
       checkCustomSpeed < 25 ||
@@ -311,54 +320,39 @@ export function handleUsersettings(e) {
       validSpeed = checkCustomSpeed;
     }
   } else {
-    validSpeed = parseInt(docElems.gameSpeedSel.value);
+    validSpeed = parseInt(docElems.gameSpeedSel.value, 10);
   }
 
-  docElems.gameControlSel.value == "No"
-    ? (validSwap = false)
-    : (validSwap = true);
+  if (docElems.gameControlSel.value === "No") {
+    validSwap = false;
+  } else {
+    validSwap = true;
+  }
 
-  if (validLocal == false) {
+  if (validLocal === false) {
     return;
+  }
+  stateVar.validSettings = true;
+  // A board check can be added here to automatically change the user's selection to have board size not exceeding vh
+
+  const cellWidth = stateVar.boardWidth / validColSize;
+
+  const boardHeight =
+    stateVar.boardWidth + cellWidth * (validRowSize - validColSize);
+  // checks if the board height exceeds the whole window height
+  const boardHeightCheck = genFunc.checkBoardHeight(boardHeight);
+  genFunc.handleLocalScoreInitialize();
+  if (boardHeightCheck) {
+    docElems.boardHeightWarningModal.show();
+    docElems.startGameModal.hide();
   } else {
-    stateVar.validSettings = true;
-    // A board check can be added here to automatically change the user's selection to have board size not exceeding vh
-
-    let cellWidth = stateVar.boardWidth / validColSize;
-
-    let boardHeight =
-      stateVar.boardWidth + cellWidth * (validRowSize - validColSize);
-    // checks if the board height exceeds the whole window height
-    let boardHeightCheck = genFunc.checkBoardHeight(boardHeight);
-    genFunc.handleLocalScoreInitialize();
-    if (boardHeightCheck) {
-      docElems.boardHeightWarningModal.show();
-      docElems.startGameModal.hide();
-    } else {
-      setBoardDimensions(validColSize, validRowSize, validSpeed, validSwap);
-      docElems.startGameModal.hide();
-      startGame();
-    }
+    setBoardDimensions(validColSize, validRowSize, validSpeed, validSwap);
+    docElems.startGameModal.hide();
+    startGame();
   }
 }
 
-function setBoardDimensions(cols, rows, speed, swap) {
-  stateVar.noOfCols = cols;
-  stateVar.noOfRows = rows;
-  stateVar.gameSpeed = speed;
-  stateVar.swapSpaceBar = swap;
-  // Also set the high score from the local storage if it exists
-  const highScoreCheck = genFunc.checkHighScore(cols, rows, speed);
-  if (highScoreCheck.length > 0) {
-    console.log("highScoreCheck[0][3] returned as:", highScoreCheck[0][3]);
-    stateVar.highScore = highScoreCheck[0][3];
-  } else {
-    stateVar.highScore = 0;
-  }
-  docElems.highScoreValue.innerHTML = stateVar.highScore;
-}
-
-export function handleSettingsConfirm(e) {
+export function handleSettingsConfirm() {
   if (stateVar.validSettings) {
     setBoardDimensions(validColSize, validRowSize, validSpeed, validSwap);
     docElems.boardHeightWarningModal.hide();

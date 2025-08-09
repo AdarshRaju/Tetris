@@ -1,5 +1,5 @@
 // The module imported below contains the game's state variables
-import { stateVar } from "../../globalVariables/stateVars.js";
+import stateVar from "../../globalVariables/stateVars.js";
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains functions that perform calculations based on the state of the game
@@ -23,6 +23,57 @@ export function addFloorGuideBricks(indexno) {
   stateVar.cellsArr[indexno].classList.add("floorCheckBrick");
 }
 
+function generateTetrisPiece(pieceMatrix, checknotation) {
+  stateChange.resetCurrentArrays();
+
+  const trimmedMatrix = genFunc.trimAllMatrixSides(pieceMatrix);
+
+  // always generate the item from the top-left corner of the piece matrix grid
+
+  const availableCols = stateEnquiry.getAvailableColumns(trimmedMatrix);
+
+  if (availableCols.length > 0) {
+    stateVar.currentUserRefCellIndex =
+      availableCols[Math.floor(Math.random() * availableCols.length)];
+    stateVar.currentlySelectedPieceMatrix = trimmedMatrix;
+    stateChange.updateCurrentUserArray();
+    stateVar.currentUserArray.forEach(addFloatingBricks);
+    stateVar.floorGuideArray.forEach(addFloorGuideBricks);
+  } else {
+    stateVar.blockedPieces.push(checknotation);
+    // eslint-disable-next-line no-use-before-define
+    generateUnblockedPiece();
+  }
+}
+
+function generateOPiece() {
+  generateTetrisPiece(tetrisPieces.OPieceMatrix, "O");
+}
+
+function generateIPiece() {
+  generateTetrisPiece(tetrisPieces.IPieceMatrix, "I");
+}
+
+function generateJPiece() {
+  generateTetrisPiece(tetrisPieces.JPieceMatrix, "J");
+}
+
+function generateLPiece() {
+  generateTetrisPiece(tetrisPieces.LPieceMatrix, "L");
+}
+
+function generateSPiece() {
+  generateTetrisPiece(tetrisPieces.SPieceMatrix, "S");
+}
+
+function generateZPiece() {
+  generateTetrisPiece(tetrisPieces.ZPieceMatrix, "Z");
+}
+
+function generateTPiece() {
+  generateTetrisPiece(tetrisPieces.TPieceMatrix, "T");
+}
+
 export async function generateUnblockedPiece() {
   if (stateVar.blockedPieces.length === stateVar.pieces.length) {
     stateVar.gameOver = true;
@@ -37,7 +88,7 @@ export async function generateUnblockedPiece() {
     clearInterval(stateVar.pieceDownInterval);
     stateVar.pieceDownInterval = null;
   } else {
-    for (let piece of stateVar.pieces) {
+    stateVar.pieces.some((piece) => {
       if (!stateVar.blockedPieces.includes(piece)) {
         switch (piece) {
           case "O":
@@ -61,27 +112,27 @@ export async function generateUnblockedPiece() {
           case "T":
             generateTPiece();
             break;
+          default:
         }
-        break;
+        return true;
       }
-    }
+      return false;
+    });
   }
 }
 
 export function generateGridCells() {
-  for (let i = 0; i < stateVar.boardSize; i++) {
-    let newGridElement = document.createElement("div");
+  for (let i = 0; i < stateVar.boardSize; i += 1) {
+    const newGridElement = document.createElement("div");
     newGridElement.classList.add("gridItem");
     newGridElement.id = i;
     docElems.mainGridContainer.appendChild(newGridElement);
   }
 
-  let cellWidth = stateVar.boardWidth / stateVar.noOfCols;
-  let boardHeight =
+  const cellWidth = stateVar.boardWidth / stateVar.noOfCols;
+  const boardHeight =
     stateVar.boardWidth + cellWidth * (stateVar.noOfRows - stateVar.noOfCols);
-  let boardHeightCheck = genFunc.checkBoardHeight();
-
-  var docStyle = document.createElement("style");
+  const docStyle = document.createElement("style");
   docStyle.textContent = `
         #mainGridContainer {
             grid-template: repeat(${stateVar.noOfRows}, 1fr) / repeat(${
@@ -115,22 +166,19 @@ export function generateGridCells() {
 export function updateNextPieceIndicator() {
   // This logic is inclusive of accepting custom tetris pieces of different dimensions introduced in the future
   docElems.nextPieceContainer1.innerHTML = "";
-  let maxDimension =
+  const maxDimension =
     stateVar.nextPieceMatrix.length > stateVar.nextPieceMatrix[0].length
       ? stateVar.nextPieceMatrix.length
       : stateVar.nextPieceMatrix[0].length;
-  let pieceMatrixWidth = stateVar.nextPieceMatrix[0].length;
-  let pieceMatrixHeight = stateVar.nextPieceMatrix.length;
-  let localNoOfCols =
-    pieceMatrixWidth == maxDimension ? pieceMatrixWidth : pieceMatrixHeight;
-  let flatarray = stateVar.nextPieceMatrix.flat();
+  const pieceMatrixWidth = stateVar.nextPieceMatrix[0].length;
+  const flatarray = stateVar.nextPieceMatrix.flat();
   // The next piece indicator container will always be a square shape
-  let pieceIndicatorSize = maxDimension * maxDimension;
+  const pieceIndicatorSize = maxDimension * maxDimension;
 
   // When the pieceMatrixWidth is the maxDimension, we can just add the cells in order from the piece matrix
-  if (pieceMatrixWidth == maxDimension) {
-    for (let i = 0; i < pieceIndicatorSize; i++) {
-      let newGridElement = document.createElement("div");
+  if (pieceMatrixWidth === maxDimension) {
+    for (let i = 0; i < pieceIndicatorSize; i += 1) {
+      const newGridElement = document.createElement("div");
       if (i < flatarray.length) {
         if (flatarray[i]) {
           newGridElement.classList.add("nextBrick");
@@ -144,8 +192,8 @@ export function updateNextPieceIndicator() {
     }
   } else {
     let localCounter = 0;
-    for (let i = 0; i < pieceIndicatorSize; i++) {
-      let newGridElement = document.createElement("div");
+    for (let i = 0; i < pieceIndicatorSize; i += 1) {
+      const newGridElement = document.createElement("div");
       // In this case, the piece height will be the maxDimension
 
       if (i % maxDimension < pieceMatrixWidth) {
@@ -154,7 +202,7 @@ export function updateNextPieceIndicator() {
         } else {
           newGridElement.classList.add("nextPieceGridItem");
         }
-        localCounter++;
+        localCounter += 1;
       } else {
         newGridElement.classList.add("nextPieceGridItem");
       }
@@ -162,7 +210,7 @@ export function updateNextPieceIndicator() {
     }
   }
 
-  var docStyle = document.createElement("style");
+  const docStyle = document.createElement("style");
   docStyle.textContent = `
     
         #nextPieceContainer1 {
@@ -191,63 +239,13 @@ export function updateNextPieceIndicator() {
   document.head.appendChild(docStyle);
 }
 
-function generateTetrisPiece(pieceMatrix, checknotation) {
-  stateChange.resetCurrentArrays();
-
-  let trimmedMatrix = genFunc.trimAllMatrixSides(pieceMatrix);
-
-  // always generate the item from the top-left corner of the piece matrix grid
-
-  let availableCols = stateEnquiry.getAvailableColumns(trimmedMatrix);
-
-  if (availableCols.length > 0) {
-    stateVar.currentUserRefCellIndex =
-      availableCols[Math.floor(Math.random() * availableCols.length)];
-    stateVar.currentlySelectedPieceMatrix = trimmedMatrix;
-    stateChange.updateCurrentUserArray();
-    stateVar.currentUserArray.forEach(addFloatingBricks);
-    stateVar.floorGuideArray.forEach(addFloorGuideBricks);
-  } else {
-    stateVar.blockedPieces.push(checknotation);
-    generateUnblockedPiece();
-  }
-}
-
-function generateOPiece() {
-  generateTetrisPiece(tetrisPieces.OPieceMatrix, "O");
-}
-
-function generateIPiece() {
-  generateTetrisPiece(tetrisPieces.IPieceMatrix, "I");
-}
-
-function generateJPiece() {
-  generateTetrisPiece(tetrisPieces.JPieceMatrix, "J");
-}
-
-function generateLPiece() {
-  generateTetrisPiece(tetrisPieces.LPieceMatrix, "L");
-}
-
-function generateSPiece() {
-  generateTetrisPiece(tetrisPieces.SPieceMatrix, "S");
-}
-
-function generateZPiece() {
-  generateTetrisPiece(tetrisPieces.ZPieceMatrix, "Z");
-}
-
-function generateTPiece() {
-  generateTetrisPiece(tetrisPieces.TPieceMatrix, "T");
-}
-
 export function selectNextPiece() {
-  if (stateVar.sevenBag.length == 0) {
+  if (stateVar.sevenBag.length === 0) {
     stateChange.fillSevenBag();
   }
 
-  let nextPieceIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
-  let nextPiece = stateVar.sevenBag[nextPieceIndex];
+  const nextPieceIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
+  const nextPiece = stateVar.sevenBag[nextPieceIndex];
   stateVar.sevenBag.splice(nextPieceIndex, 1);
 
   switch (nextPiece) {
@@ -278,6 +276,7 @@ export function selectNextPiece() {
     case "T":
       stateVar.nextPieceMatrix = tetrisPieces.TPieceMatrix;
       break;
+    default:
   }
 }
 
@@ -310,17 +309,18 @@ export function generateNextPiece() {
     case tetrisPieces.TPieceMatrix:
       generateTPiece();
       break;
+    default:
   }
 }
 
 export function generateFirstPiece() {
   // Instead of generating a random piece, the seven piece system is implemented to provide a better user experience
-  if (stateVar.sevenBag.length == 0) {
+  if (stateVar.sevenBag.length === 0) {
     stateChange.fillSevenBag();
   }
 
-  let randomSelIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
-  let randomSel = stateVar.sevenBag[randomSelIndex];
+  const randomSelIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
+  const randomSel = stateVar.sevenBag[randomSelIndex];
   stateVar.sevenBag.splice(randomSelIndex, 1);
 
   switch (randomSel) {
@@ -351,5 +351,6 @@ export function generateFirstPiece() {
     case "T":
       generateTPiece();
       break;
+    default:
   }
 }

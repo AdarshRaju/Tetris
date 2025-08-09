@@ -7,7 +7,7 @@ import * as genFunc from "../functions/generalFunctions.js";
 // The module imported below contains the game's major state change functions
 import * as stateChange from "../functions/stateChangeFunctions/generalStateChangeFunctions.js";
 // The module imported below contains the game's state variables
-import { stateVar } from "../globalVariables/stateVars.js";
+import stateVar from "../globalVariables/stateVars.js";
 // The module imported below contains functions that move bricks linarly
 import * as moveBricks from "../functions/stateChangeFunctions/movePieceFunctions.js";
 // The module imported below contains functions that rotate bricks
@@ -33,7 +33,7 @@ export function setUpIndependentEventListeners() {
       e,
       docElems.customColsSel,
       docElems.labelCustomColsSel,
-      docElems.customColInvalidFeedback
+      docElems.customColInvalidFeedback,
     );
   });
 
@@ -42,7 +42,7 @@ export function setUpIndependentEventListeners() {
       e,
       docElems.customRowsSel,
       docElems.labelCustomRowsSel,
-      docElems.customRowInvalidFeedback
+      docElems.customRowInvalidFeedback,
     );
   });
 
@@ -51,7 +51,7 @@ export function setUpIndependentEventListeners() {
       e,
       docElems.customSpeedSel,
       docElems.labelCustomSpeedSel,
-      docElems.customSpeedInvalidFeedback
+      docElems.customSpeedInvalidFeedback,
     );
   });
 
@@ -59,7 +59,7 @@ export function setUpIndependentEventListeners() {
     if (!docElems.customColsSel.disabled) {
       genFunc.toggleInvalidFeedback(
         docElems.customColsSel,
-        docElems.customColInvalidFeedback
+        docElems.customColInvalidFeedback,
       );
     }
   });
@@ -68,7 +68,7 @@ export function setUpIndependentEventListeners() {
     if (!docElems.customRowsSel.disabled) {
       genFunc.toggleInvalidFeedback(
         docElems.customRowsSel,
-        docElems.customRowInvalidFeedback
+        docElems.customRowInvalidFeedback,
       );
     }
   });
@@ -77,7 +77,7 @@ export function setUpIndependentEventListeners() {
     if (!docElems.customSpeedSel.disabled) {
       genFunc.toggleInvalidFeedback(
         docElems.customSpeedSel,
-        docElems.customSpeedInvalidFeedback
+        docElems.customSpeedInvalidFeedback,
       );
     }
   });
@@ -123,7 +123,7 @@ export function setUpDependentEventListeners() {
 
   docElems.confirmSettingsBtn.addEventListener(
     "click",
-    stateChange.handleSettingsConfirm
+    stateChange.handleSettingsConfirm,
   );
 
   docElems.startButton.addEventListener("click", () => {
@@ -135,9 +135,9 @@ export function setUpDependentEventListeners() {
     }
   });
 
-  docElems.startGameModal._element.addEventListener(
+  docElems.startGameModalDOM.addEventListener(
     "hidden.bs.modal",
-    stateChange.handleGameUnPause
+    stateChange.handleGameUnPause,
   );
 }
 
@@ -147,27 +147,57 @@ export function setUpTouchControls() {
   docElems.mainGridContainer.addEventListener(
     "touchmove",
     (e) => e.preventDefault(),
-    { passive: false }
+    { passive: false },
   );
 
-  var leftKeyEvent = new KeyboardEvent("keydown", {
+  const leftKeyEvent = new KeyboardEvent("keydown", {
     key: "ArrowLeft",
   });
 
-  var rightKeyEvent = new KeyboardEvent("keydown", {
+  const rightKeyEvent = new KeyboardEvent("keydown", {
     key: "ArrowRight",
   });
 
-  var upKeyEvent = new KeyboardEvent("keydown", {
+  const upKeyEvent = new KeyboardEvent("keydown", {
     key: "ArrowUp",
   });
 
-  var downKeyEvent = new KeyboardEvent("keydown", {
+  const downKeyEvent = new KeyboardEvent("keydown", {
     key: "ArrowDown",
   });
 
+  function handleGesture() {
+    const deltaX = stateVar.endX - stateVar.startX;
+    const deltaY = stateVar.endY - stateVar.startY;
+
+    let regX = false;
+    let regY = false;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      regX = true;
+    } else {
+      regY = true;
+    }
+
+    if (Math.abs(deltaX) > 50 && regX) {
+      if (deltaX > 0) {
+        document.dispatchEvent(rightKeyEvent);
+      } else {
+        document.dispatchEvent(leftKeyEvent);
+      }
+    }
+
+    if (Math.abs(deltaY) > 50 && regY) {
+      if (deltaY > 0) {
+        document.dispatchEvent(downKeyEvent);
+      } else {
+        document.dispatchEvent(upKeyEvent);
+      }
+    }
+  }
+
   docElems.mainGridContainer.addEventListener("dragstart", (e) =>
-    e.preventDefault()
+    e.preventDefault(),
   );
 
   docElems.mainGridContainer.addEventListener("mousedown", (e) => {
@@ -193,32 +223,6 @@ export function setUpTouchControls() {
 
     handleGesture();
   });
-
-  function handleGesture() {
-    const deltaX = stateVar.endX - stateVar.startX;
-    const deltaY = stateVar.endY - stateVar.startY;
-
-    let regX = false;
-    let regY = false;
-
-    Math.abs(deltaX) > Math.abs(deltaY) ? (regX = true) : (regY = true);
-
-    if (Math.abs(deltaX) > 50 && regX) {
-      if (deltaX > 0) {
-        document.dispatchEvent(rightKeyEvent);
-      } else {
-        document.dispatchEvent(leftKeyEvent);
-      }
-    }
-
-    if (Math.abs(deltaY) > 50 && regY) {
-      if (deltaY > 0) {
-        document.dispatchEvent(downKeyEvent);
-      } else {
-        document.dispatchEvent(upKeyEvent);
-      }
-    }
-  }
 }
 
 // #endregion logic for touchscreens

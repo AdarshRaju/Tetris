@@ -1,5 +1,5 @@
 // The module imported below contains the game's state variables
-import { stateVar } from "../../globalVariables/stateVars.js";
+import stateVar from "../../globalVariables/stateVars.js";
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains functions that perform calculations based on the state of the game
@@ -15,24 +15,25 @@ export function movePieceRight() {
   stateChange.updateCurrentUserArray();
 
   // The right most column in all the elements from currentUserArray is used to check for right wall
-  let colMap = stateVar.currentUserArray.map((index) => {
+  const colMap = stateVar.currentUserArray.map((index) => {
     return index % stateVar.noOfCols;
   });
-  let rightmostCol = Math.max(...colMap);
+  const rightmostCol = Math.max(...colMap);
 
-  let flooredPiecesCheck = stateVar.currentUserArray.filter((index) => {
+  const flooredPiecesCheck = stateVar.currentUserArray.filter((index) => {
     if (stateVar.cellsArr[index + 1]) {
       return stateVar.cellsArr[index + 1].classList.contains("flooredBrick");
     }
+    return false;
   });
 
   if (
-    !(rightmostCol == stateVar.noOfCols - 1) &&
+    !(rightmostCol === stateVar.noOfCols - 1) &&
     !(flooredPiecesCheck.length > 0)
   ) {
     clearBricks.clearFloatingBricks();
     clearBricks.clearFloorGuideBricks();
-    stateVar.currentUserRefCellIndex++;
+    stateVar.currentUserRefCellIndex += 1;
     stateChange.updateCurrentUserArray();
     stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
     stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
@@ -44,22 +45,23 @@ export function movePieceRight() {
 export function movePieceLeft() {
   stateChange.updateCurrentUserArray();
   // The left most column in all the elements from currentUserArray is used to check for left wall
-  let colMap = stateVar.currentUserArray.map((index) => {
+  const colMap = stateVar.currentUserArray.map((index) => {
     return index % stateVar.noOfCols;
   });
-  let leftmostCol = Math.min(...colMap);
+  const leftmostCol = Math.min(...colMap);
 
-  let flooredPiecesCheck = stateVar.currentUserArray.filter((index) => {
+  const flooredPiecesCheck = stateVar.currentUserArray.filter((index) => {
     if (stateVar.cellsArr[index - 1]) {
       return stateVar.cellsArr[index - 1].classList.contains("flooredBrick");
     }
+    return false;
   });
 
-  if (!(leftmostCol == 0) && !(flooredPiecesCheck.length > 0)) {
+  if (!(leftmostCol === 0) && !(flooredPiecesCheck.length > 0)) {
     clearBricks.clearFloatingBricks();
     clearBricks.clearFloorGuideBricks();
 
-    stateVar.currentUserRefCellIndex--;
+    stateVar.currentUserRefCellIndex -= 1;
 
     stateChange.updateCurrentUserArray();
 
@@ -71,9 +73,11 @@ export function movePieceLeft() {
 }
 
 export function instaDrop() {
-  let floorRow = stateEnquiry.findFloor();
-  let refRow = Math.floor(stateVar.currentUserRefCellIndex / stateVar.noOfCols);
-  let noOfRowsToShift = floorRow - refRow - 1;
+  const floorRow = stateEnquiry.findFloor();
+  const refRow = Math.floor(
+    stateVar.currentUserRefCellIndex / stateVar.noOfCols,
+  );
+  const noOfRowsToShift = floorRow - refRow - 1;
   clearBricks.clearFloatingBricks();
   clearBricks.clearFloorGuideBricks();
   stateVar.currentUserRefCellIndex += noOfRowsToShift * stateVar.noOfCols;
@@ -104,19 +108,19 @@ export function movePieceDown() {
 export function shiftBricks(fullRowsArr) {
   if (fullRowsArr.length > 0) {
     // Sorting array numerically in ascending order (top of grid to bottom)
-    fullRowsArr.sort(function (a, b) {
+    fullRowsArr.sort((a, b) => {
       return a - b;
     });
-    let brickedCells = [...document.getElementsByClassName("flooredBrick")];
-    let newIndicesToAdd = [];
+    const brickedCells = [...document.getElementsByClassName("flooredBrick")];
+    const newIndicesToAdd = [];
     brickedCells.forEach((cell) => {
-      let cellIndex = parseInt(cell.id);
-      let cellRow = Math.floor(cellIndex / stateVar.noOfCols);
+      const cellIndex = parseInt(cell.id, 10);
+      const cellRow = Math.floor(cellIndex / stateVar.noOfCols);
 
-      let shiftBy = fullRowsArr.filter((fullRow) => fullRow > cellRow).length;
+      const shiftBy = fullRowsArr.filter((fullRow) => fullRow > cellRow).length;
       if (shiftBy > 0) {
         cell.classList.remove("flooredBrick");
-        let newIndex = cellIndex + shiftBy * stateVar.noOfCols;
+        const newIndex = cellIndex + shiftBy * stateVar.noOfCols;
         newIndicesToAdd.push(newIndex);
       }
     });

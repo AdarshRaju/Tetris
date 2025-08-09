@@ -2,16 +2,16 @@
 // The functions are generally arranged from least dependent to most dependent
 
 // The module imported below contain the game's state variables
-import { stateVar } from "../globalVariables/stateVars.js";
+import stateVar from "../globalVariables/stateVars.js";
 // The module imported below contains the general functions that can be used anywhere
 import * as genFunc from "./generalFunctions.js";
 
 export function checkBricksInColForDepth(colNo, depth) {
-  let bricksInCol = stateVar.cellsArr.filter((cell) => {
+  const bricksInCol = stateVar.cellsArr.filter((cell) => {
     return (
-      parseInt(cell.id) < stateVar.noOfCols * depth &&
+      parseInt(cell.id, 10) < stateVar.noOfCols * depth &&
       cell.classList.contains("flooredBrick") &&
-      parseInt(cell.id) % stateVar.noOfCols == colNo
+      parseInt(cell.id, 10) % stateVar.noOfCols === colNo
     );
   });
 
@@ -19,48 +19,53 @@ export function checkBricksInColForDepth(colNo, depth) {
 }
 
 export function checkFloor() {
-  let floorHitCells = stateVar.currentUserArray.filter((cell) => {
+  const floorHitCells = stateVar.currentUserArray.filter((cell) => {
     return (
       cell + stateVar.noOfCols >= stateVar.boardSize ||
       stateVar.cellsArr[cell + stateVar.noOfCols].classList.contains(
-        "flooredBrick"
+        "flooredBrick",
       )
     );
   });
-  return floorHitCells.length > 0 ? true : false;
+  if (floorHitCells.length > 0) {
+    return true;
+  }
+  return false;
 }
 
 export function findFloor() {
-  let relevantCellsIndex = [];
+  const relevantCellsIndex = [];
 
   // If there is a 'gap' in between two indices vertically, it is relevant
   stateVar.currentUserArray.forEach((index) => {
     if (
-      !stateVar.currentUserArray.includes(parseInt(index) + stateVar.noOfCols)
+      !stateVar.currentUserArray.includes(
+        parseInt(index, 10) + stateVar.noOfCols,
+      )
     ) {
       relevantCellsIndex.push(index);
     }
   });
 
-  let refIndRow = Math.floor(
-    stateVar.currentUserRefCellIndex / stateVar.noOfCols
+  const refIndRow = Math.floor(
+    stateVar.currentUserRefCellIndex / stateVar.noOfCols,
   );
 
-  let floorMap = relevantCellsIndex.map((releIndex) => {
+  const floorMap = relevantCellsIndex.map((releIndex) => {
     let highestFloorRow;
-    let releIndexRow = Math.floor(releIndex / stateVar.noOfCols);
-    let extraDepth = releIndexRow - refIndRow;
-    let brickCheck = stateVar.cellsArr.filter((cell) => {
+    const releIndexRow = Math.floor(releIndex / stateVar.noOfCols);
+    const extraDepth = releIndexRow - refIndRow;
+    const brickCheck = stateVar.cellsArr.filter((cell) => {
       return (
-        parseInt(cell.id) % stateVar.noOfCols ==
+        parseInt(cell.id, 10) % stateVar.noOfCols ===
           releIndex % stateVar.noOfCols &&
-        parseInt(cell.id) > releIndex &&
+        parseInt(cell.id, 10) > releIndex &&
         cell.classList.contains("flooredBrick")
       );
     });
     if (brickCheck.length > 0) {
-      let brickRowMap = brickCheck.map((brickInWay) => {
-        return Math.floor(parseInt(brickInWay.id) / stateVar.noOfCols);
+      const brickRowMap = brickCheck.map((brickInWay) => {
+        return Math.floor(parseInt(brickInWay.id, 10) / stateVar.noOfCols);
       });
       highestFloorRow = Math.min(...brickRowMap);
     } else {
@@ -73,26 +78,26 @@ export function findFloor() {
 }
 
 export function getRowsOfBricked() {
-  let rowsOfBricked = [];
-  let brickedCells = [...document.getElementsByClassName("flooredBrick")];
+  const rowsOfBricked = [];
+  const brickedCells = [...document.getElementsByClassName("flooredBrick")];
   brickedCells.forEach((cell) => {
     // rowsOfBricked collects the row numbers of all the bricked cells
-    rowsOfBricked.push(Math.floor(parseInt(cell.id) / stateVar.noOfCols));
+    rowsOfBricked.push(Math.floor(parseInt(cell.id, 10) / stateVar.noOfCols));
   });
   return rowsOfBricked;
 }
 
 export function getFullRowsArray(rowsOfBricked) {
   // uniqueRowsArr stores the unique rows with atleast one bricked cell
-  let uniqueRowsArr = [...new Set(rowsOfBricked)];
+  const uniqueRowsArr = [...new Set(rowsOfBricked)];
   // fullRowsArr stores the unique rows with all cells bricked in it
-  let fullRowsArr = [];
+  const fullRowsArr = [];
 
   uniqueRowsArr.forEach((uniqueRowNumber) => {
-    let countArr = rowsOfBricked.filter((row) => {
-      return row == uniqueRowNumber;
+    const countArr = rowsOfBricked.filter((row) => {
+      return row === uniqueRowNumber;
     });
-    if (countArr.length == stateVar.noOfCols) {
+    if (countArr.length === stateVar.noOfCols) {
       fullRowsArr.push(uniqueRowNumber);
     }
   });
@@ -101,32 +106,35 @@ export function getFullRowsArray(rowsOfBricked) {
 }
 
 export function getAvailableColumns(pieceMatrix) {
-  let pieceWidth = pieceMatrix[0].length;
-  let depthMap = genFunc.getDepthMap(pieceMatrix);
-  let pieceHeight1 = Math.max(...depthMap);
-  let availableCols = [];
+  const pieceWidth = pieceMatrix[0].length;
+  const depthMap = genFunc.getDepthMap(pieceMatrix);
+  const pieceHeight1 = Math.max(...depthMap);
+  const availableCols = [];
 
   // preliminary depth check for optimization
 
-  let bricksInTheWayHeight1 = stateVar.cellsArr.filter((cell) => {
+  const bricksInTheWayHeight1 = stateVar.cellsArr.filter((cell) => {
     return (
-      parseInt(cell.id) < stateVar.noOfCols * pieceHeight1 &&
+      parseInt(cell.id, 10) < stateVar.noOfCols * pieceHeight1 &&
       cell.classList.contains("flooredBrick")
     );
   });
 
-  if (bricksInTheWayHeight1.length == 0) {
-    for (let i = 0; i < stateVar.noOfCols - pieceWidth + 1; i++) {
+  if (bricksInTheWayHeight1.length === 0) {
+    for (let i = 0; i < stateVar.noOfCols - pieceWidth + 1; i += 1) {
       availableCols.push(i);
     }
   } else {
-    for (let i = 0; i < stateVar.noOfCols - pieceWidth + 1; i++) {
-      let pieceFitCheck = depthMap.map((pieceColDepth, pieceColIndex) => {
-        let brickInCol = checkBricksInColForDepth(
+    for (let i = 0; i < stateVar.noOfCols - pieceWidth + 1; i += 1) {
+      const pieceFitCheck = depthMap.map((pieceColDepth, pieceColIndex) => {
+        const brickInCol = checkBricksInColForDepth(
           i + pieceColIndex,
-          pieceColDepth
+          pieceColDepth,
         );
-        return brickInCol.length > 0 ? true : false;
+        if (brickInCol.length > 0) {
+          return true;
+        }
+        return false;
       });
       if (!pieceFitCheck.includes(true)) {
         availableCols.push(i);

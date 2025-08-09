@@ -1,7 +1,7 @@
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains the game's state variables
-import { stateVar } from "../../globalVariables/stateVars.js";
+import stateVar from "../../globalVariables/stateVars.js";
 // The module imported below contains the general functions that can be used anywhere
 import * as genFunc from "../generalFunctions.js";
 
@@ -9,39 +9,34 @@ export function clearFullRows(fullRowsArr) {
   docElems.rowCleared.currentTime = 0;
   docElems.rowCleared.play();
   fullRowsArr.forEach((fullRow) => {
-    let startingInd = parseInt(fullRow) * stateVar.noOfCols;
-    let finishingInd = startingInd + (stateVar.noOfCols - 1);
+    const startingInd = parseInt(fullRow, 10) * stateVar.noOfCols;
+    const finishingInd = startingInd + (stateVar.noOfCols - 1);
 
-    for (let i = startingInd; i <= finishingInd; i++) {
+    for (let i = startingInd; i <= finishingInd; i += 1) {
       stateVar.cellsArr[i].classList.remove("flooredBrick");
     }
-    stateVar.score++;
+    stateVar.score += 1;
     docElems.scoreValue.innerHTML = stateVar.score;
     if (stateVar.score > stateVar.highScore) {
       stateVar.highScore = stateVar.score;
 
-      let localHighScores = JSON.parse(localStorage.getItem("localHighScores"));
-      let prevHighScoreEntry = genFunc.checkHighScore(
+      const localScore = localStorage.getItem("localHighScores");
+      const localHighScores = JSON.parse(localScore);
+      const prevHighScoreEntry = genFunc.checkHighScore(
         stateVar.noOfCols,
         stateVar.noOfRows,
-        stateVar.gameSpeed
+        stateVar.gameSpeed,
       );
-      // console.log("prevHighScoreEntry returned is:", prevHighScoreEntry);
+
       if (prevHighScoreEntry.length > 0) {
         // find item from local, modify it, put it back again
-        console.log("localHighScores returned as:", localHighScores);
 
-        let existingEntryIndex = localHighScores.findIndex((arrEntry) => {
-          console.log(
-            "genFunc.checkArraysEqual(arrEntry, prevHighScoreEntry[0]) returned as: ",
-            genFunc.checkArraysEqual(arrEntry, prevHighScoreEntry[0])
-          );
+        const existingEntryIndex = localHighScores.findIndex((arrEntry) => {
           return (
             Array.isArray(arrEntry) &&
             genFunc.checkArraysEqual(arrEntry, prevHighScoreEntry[0])
           );
         });
-        console.log("existingEntryIndex returned as:", existingEntryIndex);
         localHighScores[existingEntryIndex][3] = stateVar.highScore;
       } else {
         // create a new high score entry in the local storage
@@ -57,8 +52,6 @@ export function clearFullRows(fullRowsArr) {
     docElems.highScoreValue.innerHTML = stateVar.highScore;
   });
 }
-
-function getLocalHighScores() {}
 
 function handleClassClearing(stateArray, removeClassName) {
   let nonexistentindex = false;

@@ -1,6 +1,6 @@
 // This module is for storing all the state variables used in the project
 
-export var stateVar = {
+export default {
   gameOver: true,
   paused: false,
   isModalClosedBySubmit: false,

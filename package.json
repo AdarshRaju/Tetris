@@ -8,5 +8,12 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0"
+  },
+  
+  "prettier": {
+    "trailingComma": "all",
+    "endOfLine": "lf"
   }
+
+
 }

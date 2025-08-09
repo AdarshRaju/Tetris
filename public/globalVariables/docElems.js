@@ -1,58 +1,66 @@
 // This module is for storing the HTML DOM elements in variables
 
-export var mainGridContainer = document.getElementById("mainGridContainer");
-export var startButton = document.getElementById("startButton");
-export var statusHeading = document.getElementById("statusHeading");
-export var scoreValue = document.getElementById("scoreValue");
-export var highScoreValue = document.getElementById("highScoreValue");
-export var rotateAntiClockwiseBtn = document.getElementById(
-  "rotateAntiClockwiseBtn"
+/* global bootstrap */
+export const mainGridContainer = document.getElementById("mainGridContainer");
+export const startButton = document.getElementById("startButton");
+export const statusHeading = document.getElementById("statusHeading");
+export const scoreValue = document.getElementById("scoreValue");
+export const highScoreValue = document.getElementById("highScoreValue");
+export const rotateAntiClockwiseBtn = document.getElementById(
+  "rotateAntiClockwiseBtn",
 );
-export var moveLeftBtn = document.getElementById("moveLeftBtn");
-export var rotateClockwiseBtn = document.getElementById("rotateClockwiseBtn");
-export var moveRightBtn = document.getElementById("moveRightBtn");
-export var moveDownBtn1 = document.getElementById("moveDownBtn1");
-export var moveDownBtn2 = document.getElementById("moveDownBtn2");
-export var instaDownBtn1 = document.getElementById("instaDownBtn1");
-export var instaDownBtn2 = document.getElementById("instaDownBtn2");
-export var noOfColsSel = document.getElementById("noOfColsSel");
-export var noOfRowsSel = document.getElementById("noOfRowsSel");
-export var gameSpeedSel = document.getElementById("gameSpeedSel");
-export var gameControlSel = document.getElementById("gameControlSel");
-export var customColsSel = document.getElementById("customColsSel");
-export var customRowsSel = document.getElementById("customRowsSel");
-export var customSpeedSel = document.getElementById("customSpeedSel");
-export var labelCustomColsSel = document.getElementById("labelCustomColsSel");
-export var labelCustomRowsSel = document.getElementById("labelCustomRowsSel");
-export var labelCustomSpeedSel = document.getElementById("labelCustomSpeedSel");
-export var form = document.getElementById("form");
-export var startGameModal = new bootstrap.Modal("#startGameModal");
-export var boardHeightWarningModal = new bootstrap.Modal(
-  "#boardHeightWarningModal"
+export const moveLeftBtn = document.getElementById("moveLeftBtn");
+export const rotateClockwiseBtn = document.getElementById("rotateClockwiseBtn");
+export const moveRightBtn = document.getElementById("moveRightBtn");
+export const moveDownBtn1 = document.getElementById("moveDownBtn1");
+export const moveDownBtn2 = document.getElementById("moveDownBtn2");
+export const instaDownBtn1 = document.getElementById("instaDownBtn1");
+export const instaDownBtn2 = document.getElementById("instaDownBtn2");
+export const noOfColsSel = document.getElementById("noOfColsSel");
+export const noOfRowsSel = document.getElementById("noOfRowsSel");
+export const gameSpeedSel = document.getElementById("gameSpeedSel");
+export const gameControlSel = document.getElementById("gameControlSel");
+export const customColsSel = document.getElementById("customColsSel");
+export const customRowsSel = document.getElementById("customRowsSel");
+export const customSpeedSel = document.getElementById("customSpeedSel");
+export const labelCustomColsSel = document.getElementById("labelCustomColsSel");
+export const labelCustomRowsSel = document.getElementById("labelCustomRowsSel");
+export const labelCustomSpeedSel = document.getElementById(
+  "labelCustomSpeedSel",
 );
-export var boardHeightWarningModalDOM = document.getElementById(
-  "boardHeightWarningModal"
+export const form = document.getElementById("form");
+export const startGameModal = new bootstrap.Modal("#startGameModal");
+export const startGameModalDOM = document.getElementById("startGameModal");
+export const boardHeightWarningModal = new bootstrap.Modal(
+  "#boardHeightWarningModal",
 );
-export var customColInvalidFeedback = document.getElementById(
-  "customColInvalidFeedback"
+export const boardHeightWarningModalDOM = document.getElementById(
+  "boardHeightWarningModal",
 );
-export var customRowInvalidFeedback = document.getElementById(
-  "customRowInvalidFeedback"
+export const customColInvalidFeedback = document.getElementById(
+  "customColInvalidFeedback",
 );
-export var customSpeedInvalidFeedback = document.getElementById(
-  "customSpeedInvalidFeedback"
+export const customRowInvalidFeedback = document.getElementById(
+  "customRowInvalidFeedback",
 );
-export var confirmSettingsBtn = document.getElementById("confirmSettingsBtn");
-export var nextPieceContainer1 = document.getElementById("nextPieceContainer1");
-export var nextPieceContainer2 = document.getElementById("nextPieceContainer2");
-export var musicTriggerBtn = document.getElementById("musicTriggerBtn");
-export var soundTriggerBtn = document.getElementById("soundTriggerBtn");
-export var gameOverSound = new Audio("./public/audio/gameOver.mp3");
-export var newHighScoreSound = new Audio("./public/audio/newHighScore.mp3");
-export var floorDropSound = new Audio("./public/audio/hardDrop.mp3");
-export var mainLoopMusic = new Audio("./public/audio/mainLoopMusic.mp3");
-export var pauseSound = new Audio("./public/audio/pauseSound.mp3");
-export var pieceRotate = new Audio("./public/audio/pieceRotate.mp3");
-export var rowCleared = new Audio("./public/audio/rowCleared.mp3");
+export const customSpeedInvalidFeedback = document.getElementById(
+  "customSpeedInvalidFeedback",
+);
+export const confirmSettingsBtn = document.getElementById("confirmSettingsBtn");
+export const nextPieceContainer1 = document.getElementById(
+  "nextPieceContainer1",
+);
+export const nextPieceContainer2 = document.getElementById(
+  "nextPieceContainer2",
+);
+export const musicTriggerBtn = document.getElementById("musicTriggerBtn");
+export const soundTriggerBtn = document.getElementById("soundTriggerBtn");
+export const gameOverSound = new Audio("./public/audio/gameOver.mp3");
+export const newHighScoreSound = new Audio("./public/audio/newHighScore.mp3");
+export const floorDropSound = new Audio("./public/audio/hardDrop.mp3");
+export const mainLoopMusic = new Audio("./public/audio/mainLoopMusic.mp3");
+export const pauseSound = new Audio("./public/audio/pauseSound.mp3");
+export const pieceRotate = new Audio("./public/audio/pieceRotate.mp3");
+export const rowCleared = new Audio("./public/audio/rowCleared.mp3");
 
 mainLoopMusic.loop = true;
