@@ -7,212 +7,218 @@ import * as genFunc from "../functions/generalFunctions.js";
 // The module imported below contains the game's major state change functions
 import * as stateChange from "../functions/stateChangeFunctions/generalStateChangeFunctions.js";
 // The module imported below contains the game's state variables
-import {stateVar} from "../globalVariables/stateVars.js";
+import { stateVar } from "../globalVariables/stateVars.js";
 // The module imported below contains functions that move bricks linarly
 import * as moveBricks from "../functions/stateChangeFunctions/movePieceFunctions.js";
 // The module imported below contains functions that rotate bricks
 import * as rotateBricks from "../functions/stateChangeFunctions/rotateFunctions.js";
 
-export function setUpIndependentEventListeners(){
+export function setUpIndependentEventListeners() {
+  window.addEventListener("load", () => {
+    genFunc.preLoadSoundFile(docElems.newHighScoreSound);
+    genFunc.preLoadSoundFile(docElems.gameOverSound);
+    genFunc.preLoadSoundFile(docElems.floorDropSound);
+    genFunc.preLoadSoundFile(docElems.mainLoopMusic);
+    genFunc.preLoadSoundFile(docElems.pauseSound);
+    genFunc.preLoadSoundFile(docElems.pieceRotate);
+    genFunc.preLoadSoundFile(docElems.rowCleared);
+  });
 
-    window.addEventListener("load", ()=>{
-        genFunc.preLoadSoundFile(docElems.newHighScoreSound);
-        genFunc.preLoadSoundFile(docElems.gameOverSound);
-        genFunc.preLoadSoundFile(docElems.floorDropSound);
-        genFunc.preLoadSoundFile(docElems.mainLoopMusic);
-        genFunc.preLoadSoundFile(docElems.pauseSound);
-        genFunc.preLoadSoundFile(docElems.pieceRotate);
-        genFunc.preLoadSoundFile(docElems.rowCleared);
-    });
+  docElems.musicTriggerBtn.addEventListener("click", genFunc.toggleMusic);
 
-    docElems.musicTriggerBtn.addEventListener("click", genFunc.toggleMusic);
+  docElems.soundTriggerBtn.addEventListener("click", genFunc.toggleSounds);
 
-    docElems.soundTriggerBtn.addEventListener("click", genFunc.toggleSounds);
+  docElems.noOfColsSel.addEventListener("change", (e) => {
+    genFunc.toggleCustomDisplay(
+      e,
+      docElems.customColsSel,
+      docElems.labelCustomColsSel,
+      docElems.customColInvalidFeedback
+    );
+  });
 
-    docElems.noOfColsSel.addEventListener("change", (e) =>{
-        
-        genFunc.toggleCustomDisplay(e, docElems.customColsSel, docElems.labelCustomColsSel, docElems.customColInvalidFeedback);
+  docElems.noOfRowsSel.addEventListener("change", (e) => {
+    genFunc.toggleCustomDisplay(
+      e,
+      docElems.customRowsSel,
+      docElems.labelCustomRowsSel,
+      docElems.customRowInvalidFeedback
+    );
+  });
 
-    });
+  docElems.gameSpeedSel.addEventListener("change", (e) => {
+    genFunc.toggleCustomDisplay(
+      e,
+      docElems.customSpeedSel,
+      docElems.labelCustomSpeedSel,
+      docElems.customSpeedInvalidFeedback
+    );
+  });
 
-    docElems.noOfRowsSel.addEventListener("change", (e) =>{
-        
-        genFunc.toggleCustomDisplay(e, docElems.customRowsSel, docElems.labelCustomRowsSel, docElems.customRowInvalidFeedback);
-    });
+  docElems.customColsSel.addEventListener("change", () => {
+    if (!docElems.customColsSel.disabled) {
+      genFunc.toggleInvalidFeedback(
+        docElems.customColsSel,
+        docElems.customColInvalidFeedback
+      );
+    }
+  });
 
-    docElems.gameSpeedSel.addEventListener("change", (e) =>{
-    
-        genFunc.toggleCustomDisplay(e, docElems.customSpeedSel, docElems.labelCustomSpeedSel, docElems.customSpeedInvalidFeedback);
-    });
+  docElems.customRowsSel.addEventListener("change", () => {
+    if (!docElems.customRowsSel.disabled) {
+      genFunc.toggleInvalidFeedback(
+        docElems.customRowsSel,
+        docElems.customRowInvalidFeedback
+      );
+    }
+  });
 
-    docElems.customColsSel.addEventListener("change", ()=>{
-        if (!docElems.customColsSel.disabled){
+  docElems.customSpeedSel.addEventListener("change", () => {
+    if (!docElems.customSpeedSel.disabled) {
+      genFunc.toggleInvalidFeedback(
+        docElems.customSpeedSel,
+        docElems.customSpeedInvalidFeedback
+      );
+    }
+  });
+}
 
-            genFunc.toggleInvalidFeedback(docElems.customColsSel, docElems.customColInvalidFeedback);
-        }
-    });
+export function setUpDependentEventListeners() {
+  document.addEventListener("keydown", stateChange.handleKeyPress);
 
-    docElems.customRowsSel.addEventListener("change", ()=>{
-        if (!docElems.customRowsSel.disabled){
-    
-            genFunc.toggleInvalidFeedback(docElems.customRowsSel, docElems.customRowInvalidFeedback);
-        }
-    });
+  docElems.moveLeftBtn.addEventListener("click", () => {
+    stateChange.buttonClickValidation(moveBricks.movePieceLeft);
+  });
 
-    docElems.customSpeedSel.addEventListener("change", ()=>{
-        if (!docElems.customSpeedSel.disabled){
+  docElems.moveRightBtn.addEventListener("click", () => {
+    stateChange.buttonClickValidation(moveBricks.movePieceRight);
+  });
 
-            genFunc.toggleInvalidFeedback(docElems.customSpeedSel, docElems.customSpeedInvalidFeedback);
-        }
-    });
+  docElems.moveDownBtn1.addEventListener("mousedown", () => {
+    stateChange.buttonClickValidation(moveBricks.movePieceDown);
+  });
 
-};
+  docElems.moveDownBtn2.addEventListener("mousedown", () => {
+    stateChange.buttonClickValidation(moveBricks.movePieceDown);
+  });
 
-export function setUpDependentEventListeners(){
+  docElems.rotateClockwiseBtn.addEventListener("click", () => {
+    stateChange.buttonClickValidation(rotateBricks.rotatePieceClockwise);
+  });
 
-    document.addEventListener("keydown", stateChange.handleKeyPress);
+  docElems.rotateAntiClockwiseBtn.addEventListener("click", () => {
+    stateChange.buttonClickValidation(rotateBricks.rotatePieceAntiClockwise);
+  });
 
-    docElems.moveLeftBtn.addEventListener("click", () => {
+  docElems.instaDownBtn1.addEventListener("click", () => {
+    stateChange.buttonClickValidation(moveBricks.instaDrop);
+  });
 
-        stateChange.buttonClickValidation(moveBricks.movePieceLeft);
-    });
+  docElems.instaDownBtn2.addEventListener("click", () => {
+    stateChange.buttonClickValidation(moveBricks.instaDrop);
+  });
 
-    docElems.moveRightBtn.addEventListener("click", () => {
+  // Preserves browser form value validation for use in bootstrap
+  docElems.form.addEventListener("submit", stateChange.handleUsersettings);
 
-        stateChange.buttonClickValidation(moveBricks.movePieceRight);
-    });
+  docElems.confirmSettingsBtn.addEventListener(
+    "click",
+    stateChange.handleSettingsConfirm
+  );
 
-    docElems.moveDownBtn1.addEventListener("mousedown", () => {
+  docElems.startButton.addEventListener("click", () => {
+    if (!stateVar.gameOver) {
+      docElems.mainLoopMusic.pause();
+      docElems.pauseSound.currentTime = 0;
+      docElems.pauseSound.play();
+      stateChange.pauseGame();
+    }
+  });
 
-        stateChange.buttonClickValidation(moveBricks.movePieceDown);
-    });
-
-    docElems.moveDownBtn2.addEventListener("mousedown", () => {
-
-        stateChange.buttonClickValidation(moveBricks.movePieceDown);
-    });
-
-    docElems.rotateClockwiseBtn.addEventListener("click", () => {
-
-        stateChange.buttonClickValidation(rotateBricks.rotatePieceClockwise);
-    });
-
-    docElems.rotateAntiClockwiseBtn.addEventListener("click", () => {
-
-        stateChange.buttonClickValidation(rotateBricks.rotatePieceAntiClockwise);
-    });
-
-    docElems.instaDownBtn1.addEventListener("click", () => {
-
-        stateChange.buttonClickValidation(moveBricks.instaDrop);
-    });
-
-    docElems.instaDownBtn2.addEventListener("click", () => {
-
-        stateChange.buttonClickValidation(moveBricks.instaDrop);
-    });
-
-
-    // Preserves browser form value validation for use in bootstrap
-    docElems.form.addEventListener("submit", stateChange.handleUsersettings);
-
-    docElems.confirmSettingsBtn.addEventListener("click", stateChange.handleSettingsConfirm);
-
-    docElems.startButton.addEventListener("click", () =>{
-        if(!stateVar.gameOver){
-            docElems.mainLoopMusic.pause();
-            docElems.pauseSound.currentTime=0;
-            docElems.pauseSound.play();
-            stateChange.pauseGame();
-        };
-        
-    });
-
-    docElems.startGameModal._element.addEventListener("hidden.bs.modal", stateChange.handleGameUnPause);
-
-};
+  docElems.startGameModal._element.addEventListener(
+    "hidden.bs.modal",
+    stateChange.handleGameUnPause
+  );
+}
 
 // #region logic for touchscreens
 
-export function setUpTouchControls(){
-    docElems.mainGridContainer.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+export function setUpTouchControls() {
+  docElems.mainGridContainer.addEventListener(
+    "touchmove",
+    (e) => e.preventDefault(),
+    { passive: false }
+  );
 
-    var leftKeyEvent = new KeyboardEvent("keydown", {
-        key: "ArrowLeft"
-    });
+  var leftKeyEvent = new KeyboardEvent("keydown", {
+    key: "ArrowLeft",
+  });
 
-    var rightKeyEvent = new KeyboardEvent("keydown", {
-        key: "ArrowRight"
-    });
+  var rightKeyEvent = new KeyboardEvent("keydown", {
+    key: "ArrowRight",
+  });
 
-    var upKeyEvent = new KeyboardEvent("keydown", {
-        key: "ArrowUp"
-    });
+  var upKeyEvent = new KeyboardEvent("keydown", {
+    key: "ArrowUp",
+  });
 
-    var downKeyEvent = new KeyboardEvent("keydown", {
-        key: "ArrowDown"
-    });
+  var downKeyEvent = new KeyboardEvent("keydown", {
+    key: "ArrowDown",
+  });
 
+  docElems.mainGridContainer.addEventListener("dragstart", (e) =>
+    e.preventDefault()
+  );
 
-    docElems.mainGridContainer.addEventListener("dragstart", e => e.preventDefault());
+  docElems.mainGridContainer.addEventListener("mousedown", (e) => {
+    stateVar.startX = e.clientX;
+    stateVar.startY = e.clientY;
+  });
 
-    docElems.mainGridContainer.addEventListener("mousedown", (e) =>{
-        stateVar.startX = e.clientX;
-        stateVar.startY = e.clientY;
+  docElems.mainGridContainer.addEventListener("mouseup", (e) => {
+    stateVar.endX = e.clientX;
+    stateVar.endY = e.clientY;
 
-    });
+    handleGesture();
+  });
 
-    docElems.mainGridContainer.addEventListener("mouseup", (e) =>{
-        stateVar.endX = e.clientX;
-        stateVar.endY = e.clientY;
+  docElems.mainGridContainer.addEventListener("touchstart", (e) => {
+    stateVar.startX = e.touches[0].clientX;
+    stateVar.startY = e.touches[0].clientY;
+  });
 
-        handleGesture();
+  docElems.mainGridContainer.addEventListener("touchend", (e) => {
+    stateVar.endX = e.changedTouches[0].clientX;
+    stateVar.endY = e.changedTouches[0].clientY;
 
-    });
+    handleGesture();
+  });
 
-    docElems.mainGridContainer.addEventListener("touchstart", (e) =>{
-        stateVar.startX = e.touches[0].clientX;
-        stateVar.startY = e.touches[0].clientY;
-    });
+  function handleGesture() {
+    const deltaX = stateVar.endX - stateVar.startX;
+    const deltaY = stateVar.endY - stateVar.startY;
 
-    docElems.mainGridContainer.addEventListener("touchend", (e) =>{
+    let regX = false;
+    let regY = false;
 
-        stateVar.endX = e.changedTouches[0].clientX;
-        stateVar.endY = e.changedTouches[0].clientY;
+    Math.abs(deltaX) > Math.abs(deltaY) ? (regX = true) : (regY = true);
 
-        handleGesture();
-    });
+    if (Math.abs(deltaX) > 50 && regX) {
+      if (deltaX > 0) {
+        document.dispatchEvent(rightKeyEvent);
+      } else {
+        document.dispatchEvent(leftKeyEvent);
+      }
+    }
 
-    function handleGesture() {
-        const deltaX = stateVar.endX - stateVar.startX;
-        const deltaY = stateVar.endY - stateVar.startY;
-        
-        let regX = false;
-        let regY = false;
-        
-        (Math.abs(deltaX) > Math.abs(deltaY) ) ? regX = true : regY = true;
-        
-        if (Math.abs(deltaX) > 50 && regX) {
-            if (deltaX > 0) {
-
-                document.dispatchEvent(rightKeyEvent);
-            } else {
-
-                document.dispatchEvent(leftKeyEvent);
-            }
-        }
-        
-
-        if (Math.abs(deltaY) > 50 && regY) {
-            if (deltaY > 0) {
-
-                document.dispatchEvent(downKeyEvent);
-            } else {
-
-                document.dispatchEvent(upKeyEvent);
-            }
-        }
-    };
-};
+    if (Math.abs(deltaY) > 50 && regY) {
+      if (deltaY > 0) {
+        document.dispatchEvent(downKeyEvent);
+      } else {
+        document.dispatchEvent(upKeyEvent);
+      }
+    }
+  }
+}
 
 // #endregion logic for touchscreens

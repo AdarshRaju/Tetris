@@ -5,7 +5,9 @@ export var startButton = document.getElementById("startButton");
 export var statusHeading = document.getElementById("statusHeading");
 export var scoreValue = document.getElementById("scoreValue");
 export var highScoreValue = document.getElementById("highScoreValue");
-export var rotateAntiClockwiseBtn = document.getElementById("rotateAntiClockwiseBtn");
+export var rotateAntiClockwiseBtn = document.getElementById(
+  "rotateAntiClockwiseBtn"
+);
 export var moveLeftBtn = document.getElementById("moveLeftBtn");
 export var rotateClockwiseBtn = document.getElementById("rotateClockwiseBtn");
 export var moveRightBtn = document.getElementById("moveRightBtn");
@@ -24,12 +26,22 @@ export var labelCustomColsSel = document.getElementById("labelCustomColsSel");
 export var labelCustomRowsSel = document.getElementById("labelCustomRowsSel");
 export var labelCustomSpeedSel = document.getElementById("labelCustomSpeedSel");
 export var form = document.getElementById("form");
-export var startGameModal = new bootstrap.Modal('#startGameModal');
-export var boardHeightWarningModal = new bootstrap.Modal('#boardHeightWarningModal');
-export var boardHeightWarningModalDOM = document.getElementById('boardHeightWarningModal');
-export var customColInvalidFeedback = document.getElementById("customColInvalidFeedback");
-export var customRowInvalidFeedback = document.getElementById("customRowInvalidFeedback");
-export var customSpeedInvalidFeedback = document.getElementById("customSpeedInvalidFeedback");
+export var startGameModal = new bootstrap.Modal("#startGameModal");
+export var boardHeightWarningModal = new bootstrap.Modal(
+  "#boardHeightWarningModal"
+);
+export var boardHeightWarningModalDOM = document.getElementById(
+  "boardHeightWarningModal"
+);
+export var customColInvalidFeedback = document.getElementById(
+  "customColInvalidFeedback"
+);
+export var customRowInvalidFeedback = document.getElementById(
+  "customRowInvalidFeedback"
+);
+export var customSpeedInvalidFeedback = document.getElementById(
+  "customSpeedInvalidFeedback"
+);
 export var confirmSettingsBtn = document.getElementById("confirmSettingsBtn");
 export var nextPieceContainer1 = document.getElementById("nextPieceContainer1");
 export var nextPieceContainer2 = document.getElementById("nextPieceContainer2");
