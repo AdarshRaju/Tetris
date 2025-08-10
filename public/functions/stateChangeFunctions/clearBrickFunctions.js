@@ -76,3 +76,28 @@ export function clearFloatingBricks() {
 export function clearFloorGuideBricks() {
   handleClassClearing(stateVar.floorGuideArray, "floorCheckBrick");
 }
+
+export function shiftBricks(fullRowsArr) {
+  if (fullRowsArr.length > 0) {
+    // Sorting array numerically in ascending order (top of grid to bottom)
+    fullRowsArr.sort((a, b) => {
+      return a - b;
+    });
+    const brickedCells = [...document.getElementsByClassName("flooredBrick")];
+    const newIndicesToAdd = [];
+    brickedCells.forEach((cell) => {
+      const cellIndex = parseInt(cell.id, 10);
+      const cellRow = Math.floor(cellIndex / stateVar.noOfCols);
+
+      const shiftBy = fullRowsArr.filter((fullRow) => fullRow > cellRow).length;
+      if (shiftBy > 0) {
+        cell.classList.remove("flooredBrick");
+        const newIndex = cellIndex + shiftBy * stateVar.noOfCols;
+        newIndicesToAdd.push(newIndex);
+      }
+    });
+    newIndicesToAdd.forEach((index) => {
+      stateVar.cellsArr[index].classList.add("flooredBrick");
+    });
+  }
+}

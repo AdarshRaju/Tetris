@@ -8,10 +8,6 @@ import * as genFunc from "../functions/generalFunctions.js";
 import * as stateChange from "../functions/stateChangeFunctions/generalStateChangeFunctions.js";
 // The module imported below contains the game's state variables
 import stateVar from "../globalVariables/stateVars.js";
-// The module imported below contains functions that move bricks linarly
-import * as moveBricks from "../functions/stateChangeFunctions/movePieceFunctions.js";
-// The module imported below contains functions that rotate bricks
-import * as rotateBricks from "../functions/stateChangeFunctions/rotateFunctions.js";
 
 export function setUpIndependentEventListeners() {
   window.addEventListener("load", () => {
@@ -87,35 +83,35 @@ export function setUpDependentEventListeners() {
   document.addEventListener("keydown", stateChange.handleKeyPress);
 
   docElems.moveLeftBtn.addEventListener("click", () => {
-    stateChange.buttonClickValidation(moveBricks.movePieceLeft);
+    stateChange.buttonClickValidation(stateChange.movePieceLeft);
   });
 
   docElems.moveRightBtn.addEventListener("click", () => {
-    stateChange.buttonClickValidation(moveBricks.movePieceRight);
+    stateChange.buttonClickValidation(stateChange.movePieceRight);
   });
 
   docElems.moveDownBtn1.addEventListener("mousedown", () => {
-    stateChange.buttonClickValidation(moveBricks.movePieceDown);
+    stateChange.buttonClickValidation(stateChange.movePieceDown);
   });
 
   docElems.moveDownBtn2.addEventListener("mousedown", () => {
-    stateChange.buttonClickValidation(moveBricks.movePieceDown);
+    stateChange.buttonClickValidation(stateChange.movePieceDown);
   });
 
   docElems.rotateClockwiseBtn.addEventListener("click", () => {
-    stateChange.buttonClickValidation(rotateBricks.rotatePieceClockwise);
+    stateChange.buttonClickValidation(stateChange.rotatePieceClockwise);
   });
 
   docElems.rotateAntiClockwiseBtn.addEventListener("click", () => {
-    stateChange.buttonClickValidation(rotateBricks.rotatePieceAntiClockwise);
+    stateChange.buttonClickValidation(stateChange.rotatePieceAntiClockwise);
   });
 
   docElems.instaDownBtn1.addEventListener("click", () => {
-    stateChange.buttonClickValidation(moveBricks.instaDrop);
+    stateChange.buttonClickValidation(stateChange.instaDrop);
   });
 
   docElems.instaDownBtn2.addEventListener("click", () => {
-    stateChange.buttonClickValidation(moveBricks.instaDrop);
+    stateChange.buttonClickValidation(stateChange.instaDrop);
   });
 
   // Preserves browser form value validation for use in bootstrap
