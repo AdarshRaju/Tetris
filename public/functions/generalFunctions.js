@@ -48,11 +48,12 @@ export function shuffleArray(array) {
 }
 
 // #region function for trimming a piecematrix for "false" only rows and columns at the ends
+
+// For potential future features where a custom piece matrix could have multiple false only rows at the bottom
 export function trimMatrixBottom(pieceMatrix) {
   let lastRealRow = pieceMatrix.length - 1;
   let lastRealRowItems = pieceMatrix[lastRealRow];
 
-  // For potential future features where a custom piece matrix could have multiple false only rows at the bottom
   while (!lastRealRowItems.includes(true) && lastRealRow >= 0) {
     lastRealRow -= 1;
     lastRealRowItems = pieceMatrix[lastRealRow];
@@ -60,11 +61,11 @@ export function trimMatrixBottom(pieceMatrix) {
   return pieceMatrix.slice(0, lastRealRow + 1);
 }
 
+// For potential future features where a custom piece matrix could have multiple false only rows at the top
 export function trimMatrixTop(pieceMatrix) {
   let firstRealRow = 0;
   let firstRealRowItems = pieceMatrix[firstRealRow];
 
-  // For potential future features where a custom piece matrix could have multiple false only rows at the top
   while (
     !firstRealRowItems.includes(true) &&
     firstRealRow < pieceMatrix.length
@@ -75,10 +76,9 @@ export function trimMatrixTop(pieceMatrix) {
   return pieceMatrix.slice(firstRealRow);
 }
 
+// For potential future features where a custom piece matrix could have multiple false only columns at the right
 export function trimMatrixRight(pieceMatrix) {
   let lastRealCol = pieceMatrix[0].length - 1;
-
-  // For potential future features where a custom piece matrix could have multiple false only columns at the right
 
   // going from right to left on outer loop and top to bottom on inner loop
   for (let i = lastRealCol; i >= 0; i -= 1) {
@@ -100,10 +100,9 @@ export function trimMatrixRight(pieceMatrix) {
   return rightSlicedMatrix;
 }
 
+// For potential future features where a custom piece matrix could have multiple false only columns at the left
 export function trimMatrixLeft(pieceMatrix) {
   let firstRealCol = 0;
-
-  // For potential future features where a custom piece matrix could have multiple false only columns at the left
 
   for (let i = firstRealCol; i < pieceMatrix[0].length; i += 1) {
     let localFalseCounter = 0;

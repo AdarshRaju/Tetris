@@ -3,7 +3,7 @@ import {
   setUpIndependentEventListeners,
   setUpDependentEventListeners,
   setUpTouchControls,
-} from "./EventListeners/directEventLists.js";
+} from "./eventListeners/directEventLists.js";
 
 setUpTouchControls();
 setUpIndependentEventListeners();

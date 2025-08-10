@@ -9,6 +9,7 @@ import * as stateChange from "../functions/stateChangeFunctions/generalStateChan
 // The module imported below contains the game's state variables
 import stateVar from "../globalVariables/stateVars.js";
 
+// These are event listeners that are independent of gamestate
 export function setUpIndependentEventListeners() {
   window.addEventListener("load", () => {
     genFunc.preLoadSoundFile(docElems.newHighScoreSound);
@@ -79,6 +80,7 @@ export function setUpIndependentEventListeners() {
   });
 }
 
+// These are event listeners that are dependent on gamestate
 export function setUpDependentEventListeners() {
   document.addEventListener("keydown", stateChange.handleKeyPress);
 
