@@ -1,7 +1,5 @@
 // This module contains functions that alters the game's state variables
 
-// The module imported below contains the various tetris pieces used in the game
-import * as tetrisPieces from "../../globalVariables/tetrisPieces.js";
 // The module imported below contains the game's state variables
 import stateVar from "../../globalVariables/stateVars.js";
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
@@ -14,6 +12,10 @@ import * as stateEnquiry from "../stateEnquiry.js";
 import * as addBricks from "./addBrickFunctions.js";
 // The module imported below contains functions that clears bricks
 import * as clearBricks from "./clearBrickFunctions.js";
+// The module imported below contains functions that move bricks linearly
+import * as moveBricks from "./moveBricks.js";
+// The module imported below contains functions that rotate bricks
+import * as rotateBricks from "./rotateBricks.js";
 
 // The valid values from the user are temporarily stored in case the user triggers a board height warning and goes back to the old game
 let validColSize;
@@ -121,88 +123,28 @@ export function selectNextPiece() {
   const nextPieceIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
   const nextPiece = stateVar.sevenBag[nextPieceIndex];
   stateVar.sevenBag.splice(nextPieceIndex, 1);
-
-  switch (nextPiece) {
-    case "O":
-      stateVar.nextPieceMatrix = tetrisPieces.OPieceMatrix;
-      break;
-
-    case "I":
-      stateVar.nextPieceMatrix = tetrisPieces.IPieceMatrix;
-      break;
-
-    case "J":
-      stateVar.nextPieceMatrix = tetrisPieces.JPieceMatrix;
-      break;
-
-    case "L":
-      stateVar.nextPieceMatrix = tetrisPieces.LPieceMatrix;
-      break;
-
-    case "S":
-      stateVar.nextPieceMatrix = tetrisPieces.SPieceMatrix;
-      break;
-
-    case "Z":
-      stateVar.nextPieceMatrix = tetrisPieces.ZPieceMatrix;
-      break;
-
-    case "T":
-      stateVar.nextPieceMatrix = tetrisPieces.TPieceMatrix;
-      break;
-    default:
-  }
+  addBricks.nextMatrixSet(nextPiece);
 }
 
 function generateTetrisPiece(pieceMatrix, checknotation) {
-  resetCurrentArrays();
-
-  const trimmedMatrix = genFunc.trimAllMatrixSides(pieceMatrix);
-
-  // always generate the item from the top-left corner of the piece matrix grid
-
-  const availableCols = stateEnquiry.getAvailableColumns(trimmedMatrix);
-
-  if (availableCols.length > 0) {
-    stateVar.currentUserRefCellIndex =
-      availableCols[Math.floor(Math.random() * availableCols.length)];
-    stateVar.currentlySelectedPieceMatrix = trimmedMatrix;
-    updateCurrentUserArray();
-    stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
-    stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
-  } else {
-    stateVar.blockedPieces.push(checknotation);
+  addBricks.generateTetrisPieceFunction(
+    pieceMatrix,
+    checknotation,
+    resetCurrentArrays,
+    genFunc.trimAllMatrixSides,
+    stateEnquiry.getAvailableColumns,
+    updateCurrentUserArray,
     // eslint-disable-next-line no-use-before-define
-    generateUnblockedPiece();
-  }
+    generateUnblockedPiece,
+  );
 }
 
-function generateOPiece() {
-  generateTetrisPiece(tetrisPieces.OPieceMatrix, "O");
-}
-
-function generateIPiece() {
-  generateTetrisPiece(tetrisPieces.IPieceMatrix, "I");
-}
-
-function generateJPiece() {
-  generateTetrisPiece(tetrisPieces.JPieceMatrix, "J");
-}
-
-function generateLPiece() {
-  generateTetrisPiece(tetrisPieces.LPieceMatrix, "L");
-}
-
-function generateSPiece() {
-  generateTetrisPiece(tetrisPieces.SPieceMatrix, "S");
-}
-
-function generateZPiece() {
-  generateTetrisPiece(tetrisPieces.ZPieceMatrix, "Z");
-}
-
-function generateTPiece() {
-  generateTetrisPiece(tetrisPieces.TPieceMatrix, "T");
+function generateParticularPiece(pieceMatrix, checknotation) {
+  addBricks.particularPieceGenerateFunction(
+    generateTetrisPiece,
+    pieceMatrix,
+    checknotation,
+  );
 }
 
 export function generateFirstPiece() {
@@ -214,70 +156,11 @@ export function generateFirstPiece() {
   const randomSelIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
   const randomSel = stateVar.sevenBag[randomSelIndex];
   stateVar.sevenBag.splice(randomSelIndex, 1);
-
-  switch (randomSel) {
-    case "O":
-      generateOPiece();
-      break;
-
-    case "I":
-      generateIPiece();
-      break;
-
-    case "J":
-      generateJPiece();
-      break;
-
-    case "L":
-      generateLPiece();
-      break;
-
-    case "S":
-      generateSPiece();
-      break;
-
-    case "Z":
-      generateZPiece();
-      break;
-
-    case "T":
-      generateTPiece();
-      break;
-    default:
-  }
+  generateParticularPiece(undefined, randomSel);
 }
 
 export function generateNextPiece() {
-  switch (stateVar.nextPieceMatrix) {
-    case tetrisPieces.OPieceMatrix:
-      generateOPiece();
-      break;
-
-    case tetrisPieces.IPieceMatrix:
-      generateIPiece();
-      break;
-
-    case tetrisPieces.JPieceMatrix:
-      generateJPiece();
-      break;
-
-    case tetrisPieces.LPieceMatrix:
-      generateLPiece();
-      break;
-
-    case tetrisPieces.SPieceMatrix:
-      generateSPiece();
-      break;
-
-    case tetrisPieces.ZPieceMatrix:
-      generateZPiece();
-      break;
-
-    case tetrisPieces.TPieceMatrix:
-      generateTPiece();
-      break;
-    default:
-  }
+  generateParticularPiece(stateVar.nextPieceMatrix, undefined);
 }
 
 export async function generateUnblockedPiece() {
@@ -296,30 +179,8 @@ export async function generateUnblockedPiece() {
   } else {
     stateVar.pieces.some((piece) => {
       if (!stateVar.blockedPieces.includes(piece)) {
-        switch (piece) {
-          case "O":
-            generateOPiece();
-            break;
-          case "I":
-            generateIPiece();
-            break;
-          case "J":
-            generateJPiece();
-            break;
-          case "L":
-            generateLPiece();
-            break;
-          case "S":
-            generateSPiece();
-            break;
-          case "Z":
-            generateZPiece();
-            break;
-          case "T":
-            generateTPiece();
-            break;
-          default:
-        }
+        generateParticularPiece(undefined, piece);
+
         return true;
       }
       return false;
@@ -328,99 +189,49 @@ export async function generateUnblockedPiece() {
 }
 
 export function movePieceRight() {
-  updateCurrentUserArray();
-
-  // The right most column in all the elements from currentUserArray is used to check for right wall
-  const colMap = stateVar.currentUserArray.map((index) => {
-    return index % stateVar.noOfCols;
-  });
-  const rightmostCol = Math.max(...colMap);
-
-  const flooredPiecesCheck = stateVar.currentUserArray.filter((index) => {
-    if (stateVar.cellsArr[index + 1]) {
-      return stateVar.cellsArr[index + 1].classList.contains("flooredBrick");
-    }
-    return false;
-  });
-
-  if (
-    !(rightmostCol === stateVar.noOfCols - 1) &&
-    !(flooredPiecesCheck.length > 0)
-  ) {
-    clearBricks.clearFloatingBricks();
-    clearBricks.clearFloorGuideBricks();
-    stateVar.currentUserRefCellIndex += 1;
-    updateCurrentUserArray();
-    stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
-    stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
-  } else {
-    // console.log("The piece has hit a right wall");
-  }
+  moveBricks.movePieceRightFunction(
+    updateCurrentUserArray,
+    clearBricks.clearFloatingBricks,
+    clearBricks.clearFloorGuideBricks,
+    addBricks.addFloatingBricks,
+    addBricks.addFloorGuideBricks,
+  );
 }
 
 export function movePieceLeft() {
-  updateCurrentUserArray();
-  // The left most column in all the elements from currentUserArray is used to check for left wall
-  const colMap = stateVar.currentUserArray.map((index) => {
-    return index % stateVar.noOfCols;
-  });
-  const leftmostCol = Math.min(...colMap);
-
-  const flooredPiecesCheck = stateVar.currentUserArray.filter((index) => {
-    if (stateVar.cellsArr[index - 1]) {
-      return stateVar.cellsArr[index - 1].classList.contains("flooredBrick");
-    }
-    return false;
-  });
-
-  if (!(leftmostCol === 0) && !(flooredPiecesCheck.length > 0)) {
-    clearBricks.clearFloatingBricks();
-    clearBricks.clearFloorGuideBricks();
-
-    stateVar.currentUserRefCellIndex -= 1;
-
-    updateCurrentUserArray();
-
-    stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
-    stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
-  } else {
-    // console.log("The piece has hit a left wall");
-  }
+  moveBricks.movePieceLeftFunction(
+    updateCurrentUserArray,
+    clearBricks.clearFloatingBricks,
+    clearBricks.clearFloorGuideBricks,
+    addBricks.addFloatingBricks,
+    addBricks.addFloorGuideBricks,
+  );
 }
 
 export function instaDrop() {
-  const floorRow = stateEnquiry.findFloor();
-  const refRow = Math.floor(
-    stateVar.currentUserRefCellIndex / stateVar.noOfCols,
+  moveBricks.instaDropFunction(
+    updateCurrentUserArray,
+    stateEnquiry.findFloor,
+    clearBricks.clearFloatingBricks,
+    clearBricks.clearFloorGuideBricks,
+    addBricks.addFlooredBricks,
   );
-  const noOfRowsToShift = floorRow - refRow - 1;
-  clearBricks.clearFloatingBricks();
-  clearBricks.clearFloorGuideBricks();
-  stateVar.currentUserRefCellIndex += noOfRowsToShift * stateVar.noOfCols;
-  updateCurrentUserArray();
-  stateVar.currentUserArray.forEach(addBricks.addFlooredBricks);
-  docElems.floorDropSound.currentTime = 0;
-  docElems.floorDropSound.play();
   // eslint-disable-next-line no-use-before-define
   brickHitBottomLogic();
 }
 
 export function movePieceDown() {
-  clearBricks.clearFloatingBricks();
-  clearBricks.clearFloorGuideBricks();
-  updateCurrentUserArray();
-  if (!stateEnquiry.checkFloor()) {
-    stateVar.currentUserRefCellIndex += stateVar.noOfCols;
-    updateCurrentUserArray();
-    stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
-    stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
-  } else {
-    stateVar.currentUserArray.forEach(addBricks.addFlooredBricks);
-    docElems.floorDropSound.currentTime = 0;
-    docElems.floorDropSound.play();
+  moveBricks.movePieceDownFunction(
+    updateCurrentUserArray,
+    clearBricks.clearFloatingBricks,
+    clearBricks.clearFloorGuideBricks,
+    stateEnquiry.checkFloor,
+    addBricks.addFloatingBricks,
+    addBricks.addFloorGuideBricks,
+    addBricks.addFlooredBricks,
     // eslint-disable-next-line no-use-before-define
-    brickHitBottomLogic();
-  }
+    brickHitBottomLogic,
+  );
 }
 
 export function unPauseGame() {
@@ -591,181 +402,23 @@ export function handleSettingsConfirm() {
 }
 
 export function rotatePieceClockwise() {
-  // sound effect
-  docElems.pieceRotate.currentTime = 0;
-  docElems.pieceRotate.play();
-
-  clearBricks.clearFloatingBricks();
-  clearBricks.clearFloorGuideBricks();
-  updateCurrentUserArray();
-  const prevUserArr = stateVar.currentUserArray;
-
-  const currentMatrixLength = stateVar.currentlySelectedPieceMatrix[0].length;
-  const currentMatrixHeight = stateVar.currentlySelectedPieceMatrix.length;
-  const dimensionDifference = Math.abs(
-    currentMatrixLength - currentMatrixHeight,
+  rotateBricks.rotatePieceClockwiseFunction(
+    updateCurrentUserArray,
+    clearBricks.clearFloatingBricks,
+    clearBricks.clearFloorGuideBricks,
+    addBricks.addFloatingBricks,
+    addBricks.addFloorGuideBricks,
   );
-
-  const colMap = stateVar.currentUserArray.map((index) => {
-    return index % stateVar.noOfCols;
-  });
-
-  const rowMap = stateVar.currentUserArray.map((index) => {
-    return Math.floor(index / stateVar.noOfCols);
-  });
-
-  const rightmostCol = Math.max(...colMap);
-
-  const bottommostRow = Math.max(...rowMap);
-
-  const rightOverflowCheck = rightmostCol + dimensionDifference;
-  const bottomOverflowCheck = bottommostRow + dimensionDifference;
-
-  // Right walls check
-
-  let leftCascading = false;
-
-  if (
-    rightOverflowCheck > stateVar.noOfCols - 1 &&
-    currentMatrixHeight > currentMatrixLength
-  ) {
-    stateVar.currentUserRefCellIndex -=
-      rightOverflowCheck - (stateVar.noOfCols - 1);
-    leftCascading = true;
-  }
-
-  // Bottom walls check
-  let upperCascading = false;
-
-  if (
-    bottomOverflowCheck > stateVar.noOfRows - 1 &&
-    currentMatrixHeight < currentMatrixLength
-  ) {
-    stateVar.currentUserRefCellIndex -=
-      (bottomOverflowCheck - (stateVar.noOfRows - 1)) * stateVar.noOfCols;
-    upperCascading = true;
-  }
-
-  const checkWallInRotationMat = genFunc.rotateMatrixClockwise(
-    stateVar.currentlySelectedPieceMatrix,
-  );
-  stateVar.currentlySelectedPieceMatrix = checkWallInRotationMat;
-
-  updateCurrentUserArray();
-  const bricksInTheWay = stateVar.currentUserArray.filter((index) => {
-    return stateVar.cellsArr[index].classList.contains("flooredBrick");
-  });
-
-  if (bricksInTheWay.length > 0) {
-    // Revert rotation if there are bricks in the way of the final location
-    stateVar.currentUserArray = prevUserArr;
-    const revertRotationMat = genFunc.rotateMatrixAntiClockwise(
-      stateVar.currentlySelectedPieceMatrix,
-    );
-    stateVar.currentlySelectedPieceMatrix = revertRotationMat;
-    if (leftCascading === true) {
-      stateVar.currentUserRefCellIndex +=
-        rightOverflowCheck - (stateVar.noOfCols - 1);
-      leftCascading = false;
-    }
-
-    if (upperCascading === true) {
-      stateVar.currentUserRefCellIndex +=
-        (bottomOverflowCheck - (stateVar.noOfRows - 1)) * stateVar.noOfCols;
-      upperCascading = false;
-    }
-  }
-
-  stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
-  stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
 }
 
 export function rotatePieceAntiClockwise() {
-  docElems.pieceRotate.currentTime = 0;
-  docElems.pieceRotate.play();
-  clearBricks.clearFloatingBricks();
-  clearBricks.clearFloorGuideBricks();
-  updateCurrentUserArray();
-  const prevUserArr = stateVar.currentUserArray;
-
-  const currentMatrixLength = stateVar.currentlySelectedPieceMatrix[0].length;
-  const currentMatrixHeight = stateVar.currentlySelectedPieceMatrix.length;
-  const dimensionDifference = Math.abs(
-    currentMatrixLength - currentMatrixHeight,
+  rotateBricks.rotatePieceAntiClockwiseFunction(
+    updateCurrentUserArray,
+    clearBricks.clearFloatingBricks,
+    clearBricks.clearFloorGuideBricks,
+    addBricks.addFloatingBricks,
+    addBricks.addFloorGuideBricks,
   );
-
-  const colMap = stateVar.currentUserArray.map((index) => {
-    return index % stateVar.noOfCols;
-  });
-
-  const rowMap = stateVar.currentUserArray.map((index) => {
-    return Math.floor(index / stateVar.noOfCols);
-  });
-
-  const rightmostCol = Math.max(...colMap);
-
-  const bottommostRow = Math.max(...rowMap);
-
-  const rightOverflowCheck = rightmostCol + dimensionDifference;
-  const bottomOverflowCheck = bottommostRow + dimensionDifference;
-
-  // Right walls check
-
-  let leftCascading = false;
-
-  if (
-    rightOverflowCheck > stateVar.noOfCols - 1 &&
-    currentMatrixHeight > currentMatrixLength
-  ) {
-    stateVar.currentUserRefCellIndex -=
-      rightOverflowCheck - (stateVar.noOfCols - 1);
-    leftCascading = true;
-  }
-
-  // Bottom walls check
-  let upperCascading = false;
-
-  if (
-    bottomOverflowCheck > stateVar.noOfRows - 1 &&
-    currentMatrixHeight < currentMatrixLength
-  ) {
-    stateVar.currentUserRefCellIndex -=
-      (bottomOverflowCheck - (stateVar.noOfRows - 1)) * stateVar.noOfCols;
-    upperCascading = true;
-  }
-
-  const checkWallInRotationMat = genFunc.rotateMatrixAntiClockwise(
-    stateVar.currentlySelectedPieceMatrix,
-  );
-  stateVar.currentlySelectedPieceMatrix = checkWallInRotationMat;
-
-  updateCurrentUserArray();
-  const bricksInTheWay = stateVar.currentUserArray.filter((index) => {
-    return stateVar.cellsArr[index].classList.contains("flooredBrick");
-  });
-
-  if (bricksInTheWay.length > 0) {
-    // Revert rotation if there are bricks in the way of the final location
-    stateVar.currentUserArray = prevUserArr;
-    const revertRotationMat = genFunc.rotateMatrixClockwise(
-      stateVar.currentlySelectedPieceMatrix,
-    );
-    stateVar.currentlySelectedPieceMatrix = revertRotationMat;
-    if (leftCascading === true) {
-      stateVar.currentUserRefCellIndex +=
-        rightOverflowCheck - (stateVar.noOfCols - 1);
-      leftCascading = false;
-    }
-
-    if (upperCascading === true) {
-      stateVar.currentUserRefCellIndex +=
-        (bottomOverflowCheck - (stateVar.noOfRows - 1)) * stateVar.noOfCols;
-      upperCascading = false;
-    }
-  }
-
-  stateVar.currentUserArray.forEach(addBricks.addFloatingBricks);
-  stateVar.floorGuideArray.forEach(addBricks.addFloorGuideBricks);
 }
 
 export function handleKeyPress(e) {
