@@ -4,6 +4,8 @@ import stateVar from "../../globalVariables/stateVars.js";
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains the various tetris pieces used in the game
 import * as tetrisPieces from "../../globalVariables/tetrisPieces.js";
+// The module imported below contains the general functions that can be used anywhere
+import * as genFunc from "../generalFunctions.js";
 
 export function addFloatingBricks(indexno) {
   stateVar.cellsArr[indexno].classList.add("floatingBrick");
@@ -25,9 +27,9 @@ export function generateGridCells() {
     docElems.mainGridContainer.appendChild(newGridElement);
   }
 
-  const cellWidth = stateVar.boardWidth / stateVar.noOfCols;
+  const cellWidth = stateVar.BOARD_WIDTH / stateVar.noOfCols;
   const boardHeight =
-    stateVar.boardWidth + cellWidth * (stateVar.noOfRows - stateVar.noOfCols);
+    stateVar.BOARD_WIDTH + cellWidth * (stateVar.noOfRows - stateVar.noOfCols);
   const docStyle = document.createElement("style");
   docStyle.textContent = `
         #mainGridContainer {
@@ -40,13 +42,13 @@ export function generateGridCells() {
         }
         @media (max-width: 600px) {
             #mainGridContainer{
-                width: ${stateVar.boardWidth / 2}px;
+                width: ${stateVar.BOARD_WIDTH / 2}px;
                 height: ${boardHeight / 2}px;
             }
         }
         @media (min-width: 601px) {
             #mainGridContainer{
-               width: ${stateVar.boardWidth}px;
+               width: ${stateVar.BOARD_WIDTH}px;
                 height: ${boardHeight}px;
             }
 
@@ -273,5 +275,38 @@ export function particularPieceGenerateFunction(
     generateTetrisPiece(assignedMatrix, checknotation);
   } else if (pieceMatrix) {
     generateTetrisPiece(pieceMatrix, assignedNotation);
+  }
+}
+
+export function fillSevenBag() {
+  const copyarr = [...stateVar.pieces];
+  stateVar.sevenBag = genFunc.shuffleArray(copyarr);
+}
+
+export async function generateUnblockedPieceFunction(
+  handleEndGame,
+  generateParticularPiece,
+) {
+  if (stateVar.blockedPieces.length === stateVar.pieces.length) {
+    stateVar.gameOver = true;
+    await docElems.mainLoopMusic.pause();
+    if (stateVar.score >= stateVar.highScore) {
+      handleEndGame("newHighScore");
+      await docElems.newHighScoreSound.play();
+    } else {
+      handleEndGame("gameOver");
+      await docElems.gameOverSound.play();
+    }
+    clearInterval(stateVar.pieceDownInterval);
+    stateVar.pieceDownInterval = null;
+  } else {
+    stateVar.pieces.some((piece) => {
+      if (!stateVar.blockedPieces.includes(piece)) {
+        generateParticularPiece(undefined, piece);
+
+        return true;
+      }
+      return false;
+    });
   }
 }

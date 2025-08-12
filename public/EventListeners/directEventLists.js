@@ -5,7 +5,7 @@ import * as docElems from "../globalVariables/docElems.js";
 // The module imported below contains the general functions that can be used anywhere
 import * as genFunc from "../functions/generalFunctions.js";
 // The module imported below contains the game's major state change functions
-import * as stateChange from "../functions/stateChangeFunctions/generalStateChangeFunctions.js";
+import * as stateChange from "../functions/stateChangeFunctions/generalGameFunctions.js";
 // The module imported below contains the game's state variables
 import stateVar from "../globalVariables/stateVars.js";
 
