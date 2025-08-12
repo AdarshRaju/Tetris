@@ -1,30 +1,11 @@
-// This module contains functions that alters the game's state variables
-
 // The module imported below contains the game's state variables
 import stateVar from "../../globalVariables/stateVars.js";
 // The module imported below contains the HTML DOM elements grabbed from the main index.html file
 import * as docElems from "../../globalVariables/docElems.js";
 // The module imported below contains the general functions that can be used anywhere
 import * as genFunc from "../generalFunctions.js";
-// The module imported below contains functions that perform calculations based on the state of the game
-import * as stateEnquiry from "../stateEnquiry.js";
-// The module imported below contains functions that add bricks
-import * as addBricks from "./addBrickFunctions.js";
-// The module imported below contains functions that clears bricks
-import * as clearBricks from "./clearBrickFunctions.js";
-// The module imported below contains functions that move bricks linearly
-import * as moveBricks from "./moveBricks.js";
-// The module imported below contains functions that rotate bricks
-import * as rotateBricks from "./rotateBricks.js";
 
-// The valid values from the user are temporarily stored in case the user triggers a board height warning and goes back to the old game
-let validColSize;
-let validRowSize;
-let validSpeed;
-let validSwap;
-let validLocal;
-
-export function pauseGame() {
+export function pauseGameFunction() {
   if (!stateVar.paused && !stateVar.gameOver) {
     stateVar.paused = true;
     clearInterval(stateVar.pieceDownInterval);
@@ -32,16 +13,19 @@ export function pauseGame() {
   }
 }
 
-export function resetCurrentArrays() {
-  clearBricks.clearFloatingBricks();
-  clearBricks.clearFloorGuideBricks();
+export function resetCurrentArraysFunction(
+  clearFloatingBricks,
+  clearFloorGuideBricks,
+) {
+  clearFloatingBricks();
+  clearFloorGuideBricks();
   stateVar.currentUserRefCellIndex = 0;
   stateVar.currentUserArray = [];
   stateVar.floorGuideArray = [];
   stateVar.currentlySelectedPieceMatrix = [];
 }
 
-function handleEndGame(classListToAdd) {
+export function handleEndGameFunction(classListToAdd) {
   document.body.classList.add(classListToAdd);
 
   if (classListToAdd === "newHighScore") {
@@ -53,21 +37,16 @@ function handleEndGame(classListToAdd) {
   setTimeout(() => document.body.classList.remove(classListToAdd), 200);
 }
 
-export function fillSevenBag() {
-  const copyarr = [...stateVar.pieces];
-  stateVar.sevenBag = genFunc.shuffleArray(copyarr);
-}
-
-export function buttonClickValidation(movefunction) {
+export function buttonClickValidationFunction(movefunction) {
   if (!stateVar.gameOver && !stateVar.paused) {
     return movefunction();
   }
   return null;
 }
 
-function updateCurrentFloorGuideArray() {
+function updateCurrentFloorGuideArray(findFloor) {
   stateVar.floorGuideArray = [];
-  const highestRow = stateEnquiry.findFloor();
+  const highestRow = findFloor();
   const refIndRow = Math.floor(
     stateVar.currentUserRefCellIndex / stateVar.noOfCols,
   );
@@ -78,7 +57,7 @@ function updateCurrentFloorGuideArray() {
   });
 }
 
-export function updateCurrentUserArray() {
+export function updateCurrentUserArrayFunction(findFloor) {
   stateVar.currentUserArray = [];
 
   //  The stateVar.currentUserRefCellIndex is the starting index of the topmost cell in the matrix
@@ -95,10 +74,10 @@ export function updateCurrentUserArray() {
       }
     });
   });
-  updateCurrentFloorGuideArray();
+  updateCurrentFloorGuideArray(findFloor);
 }
 
-function setBoardDimensions(cols, rows, speed, swap) {
+export function setBoardDimensionsFunction(cols, rows, speed, swap) {
   stateVar.noOfCols = cols;
   stateVar.noOfRows = rows;
   stateVar.gameSpeed = speed;
@@ -115,7 +94,7 @@ function setBoardDimensions(cols, rows, speed, swap) {
   docElems.highScoreValue.innerHTML = stateVar.highScore;
 }
 
-export function selectNextPiece() {
+export function selectNextPieceFunction(fillSevenBag, nextMatrixSet) {
   if (stateVar.sevenBag.length === 0) {
     fillSevenBag();
   }
@@ -123,31 +102,13 @@ export function selectNextPiece() {
   const nextPieceIndex = Math.floor(Math.random() * stateVar.sevenBag.length);
   const nextPiece = stateVar.sevenBag[nextPieceIndex];
   stateVar.sevenBag.splice(nextPieceIndex, 1);
-  addBricks.nextMatrixSet(nextPiece);
+  nextMatrixSet(nextPiece);
 }
 
-function generateTetrisPiece(pieceMatrix, checknotation) {
-  addBricks.generateTetrisPieceFunction(
-    pieceMatrix,
-    checknotation,
-    resetCurrentArrays,
-    genFunc.trimAllMatrixSides,
-    stateEnquiry.getAvailableColumns,
-    updateCurrentUserArray,
-    // eslint-disable-next-line no-use-before-define
-    generateUnblockedPiece,
-  );
-}
-
-function generateParticularPiece(pieceMatrix, checknotation) {
-  addBricks.particularPieceGenerateFunction(
-    generateTetrisPiece,
-    pieceMatrix,
-    checknotation,
-  );
-}
-
-export function generateFirstPiece() {
+export function generateFirstPieceFunction(
+  fillSevenBag,
+  generateParticularPiece,
+) {
   // Instead of generating a random piece, the seven piece system is implemented to provide a better user experience
   if (stateVar.sevenBag.length === 0) {
     fillSevenBag();
@@ -159,82 +120,7 @@ export function generateFirstPiece() {
   generateParticularPiece(undefined, randomSel);
 }
 
-export function generateNextPiece() {
-  generateParticularPiece(stateVar.nextPieceMatrix, undefined);
-}
-
-export async function generateUnblockedPiece() {
-  if (stateVar.blockedPieces.length === stateVar.pieces.length) {
-    stateVar.gameOver = true;
-    await docElems.mainLoopMusic.pause();
-    if (stateVar.score >= stateVar.highScore) {
-      handleEndGame("newHighScore");
-      await docElems.newHighScoreSound.play();
-    } else {
-      handleEndGame("gameOver");
-      await docElems.gameOverSound.play();
-    }
-    clearInterval(stateVar.pieceDownInterval);
-    stateVar.pieceDownInterval = null;
-  } else {
-    stateVar.pieces.some((piece) => {
-      if (!stateVar.blockedPieces.includes(piece)) {
-        generateParticularPiece(undefined, piece);
-
-        return true;
-      }
-      return false;
-    });
-  }
-}
-
-export function movePieceRight() {
-  moveBricks.movePieceRightFunction(
-    updateCurrentUserArray,
-    clearBricks.clearFloatingBricks,
-    clearBricks.clearFloorGuideBricks,
-    addBricks.addFloatingBricks,
-    addBricks.addFloorGuideBricks,
-  );
-}
-
-export function movePieceLeft() {
-  moveBricks.movePieceLeftFunction(
-    updateCurrentUserArray,
-    clearBricks.clearFloatingBricks,
-    clearBricks.clearFloorGuideBricks,
-    addBricks.addFloatingBricks,
-    addBricks.addFloorGuideBricks,
-  );
-}
-
-export function instaDrop() {
-  moveBricks.instaDropFunction(
-    updateCurrentUserArray,
-    stateEnquiry.findFloor,
-    clearBricks.clearFloatingBricks,
-    clearBricks.clearFloorGuideBricks,
-    addBricks.addFlooredBricks,
-  );
-  // eslint-disable-next-line no-use-before-define
-  brickHitBottomLogic();
-}
-
-export function movePieceDown() {
-  moveBricks.movePieceDownFunction(
-    updateCurrentUserArray,
-    clearBricks.clearFloatingBricks,
-    clearBricks.clearFloorGuideBricks,
-    stateEnquiry.checkFloor,
-    addBricks.addFloatingBricks,
-    addBricks.addFloorGuideBricks,
-    addBricks.addFlooredBricks,
-    // eslint-disable-next-line no-use-before-define
-    brickHitBottomLogic,
-  );
-}
-
-export function unPauseGame() {
+export function unPauseGameFunction(movePieceDown) {
   if (!stateVar.gameOver && stateVar.paused) {
     stateVar.paused = false;
     if (!stateVar.pieceDownInterval) {
@@ -246,7 +132,7 @@ export function unPauseGame() {
   }
 }
 
-export function handleGameUnPause() {
+export function handleGameUnPauseFunction(unPauseGame) {
   if (
     !stateVar.gameOver &&
     !docElems.boardHeightWarningModalDOM.classList.contains("show")
@@ -256,7 +142,14 @@ export function handleGameUnPause() {
   }
 }
 
-export function startGame() {
+export function startGameFunction(
+  generateGridCells,
+  resetCurrentArrays,
+  generateFirstPiece,
+  selectNextPiece,
+  updateNextPieceIndicator,
+  movePieceDown,
+) {
   stateVar.gameOver = false;
   stateVar.paused = false;
   docElems.mainLoopMusic.currentTime = 0;
@@ -265,7 +158,7 @@ export function startGame() {
   docElems.nextPieceContainer1.innerHTML = "";
   docElems.statusHeading.innerHTML = `Use <i class="bi bi-arrow-left-square"></i> <i class="bi bi-arrow-up-square"></i> <i class="bi bi-arrow-down-square"></i> <i class="bi bi-arrow-right-square"></i> <i class="bi bi-shift"></i> and Space / drag to play`;
   stateVar.boardSize = stateVar.noOfRows * stateVar.noOfCols;
-  addBricks.generateGridCells();
+  generateGridCells();
   resetCurrentArrays();
   window.scrollTo({
     top: document.body.scrollHeight,
@@ -277,14 +170,21 @@ export function startGame() {
   docElems.highScoreValue.innerHTML = stateVar.highScore;
   generateFirstPiece();
   selectNextPiece();
-  addBricks.updateNextPieceIndicator();
+  updateNextPieceIndicator();
   if (stateVar.pieceDownInterval) {
     clearInterval(stateVar.pieceDownInterval);
   }
   stateVar.pieceDownInterval = setInterval(movePieceDown, stateVar.gameSpeed);
 }
 
-export function handleUsersettings(e) {
+// The valid values from the user are temporarily stored in case the user triggers a board height warning and goes back to the old game
+let validColSize;
+let validRowSize;
+let validSpeed;
+let validSwap;
+let validLocal;
+
+export function handleUsersettingsFunction(e, setBoardDimensions, startGame) {
   e.preventDefault();
 
   let checkCustomCol;
@@ -376,10 +276,10 @@ export function handleUsersettings(e) {
   stateVar.validSettings = true;
   // A board check can be added here to automatically change the user's selection to have board size not exceeding vh
 
-  const cellWidth = stateVar.boardWidth / validColSize;
+  const cellWidth = stateVar.BOARD_WIDTH / validColSize;
 
   const boardHeight =
-    stateVar.boardWidth + cellWidth * (validRowSize - validColSize);
+    stateVar.BOARD_WIDTH + cellWidth * (validRowSize - validColSize);
   // checks if the board height exceeds the whole window height
   const boardHeightCheck = genFunc.checkBoardHeight(boardHeight);
   genFunc.handleLocalScoreInitialize();
@@ -393,7 +293,7 @@ export function handleUsersettings(e) {
   }
 }
 
-export function handleSettingsConfirm() {
+export function handleSettingsConfirmFunction(setBoardDimensions, startGame) {
   if (stateVar.validSettings) {
     setBoardDimensions(validColSize, validRowSize, validSpeed, validSwap);
     docElems.boardHeightWarningModal.hide();
@@ -401,27 +301,59 @@ export function handleSettingsConfirm() {
   }
 }
 
-export function rotatePieceClockwise() {
-  rotateBricks.rotatePieceClockwiseFunction(
-    updateCurrentUserArray,
-    clearBricks.clearFloatingBricks,
-    clearBricks.clearFloorGuideBricks,
-    addBricks.addFloatingBricks,
-    addBricks.addFloorGuideBricks,
-  );
+export async function brickHitBottomLogicFunction(
+  getRowsOfBricked,
+  handleEndGame,
+  getFullRowsArray,
+  pauseGame,
+  clearFullRows,
+  shiftBricks,
+  nextPieceLogic,
+  unPauseGame,
+) {
+  const rowsOfBricked = getRowsOfBricked();
+
+  // Checking for gameOver condition
+  if (rowsOfBricked.includes(0)) {
+    clearInterval(stateVar.pieceDownInterval);
+    stateVar.pieceDownInterval = null;
+    stateVar.gameOver = true;
+    await docElems.mainLoopMusic.pause();
+    if (stateVar.score >= stateVar.highScore) {
+      await docElems.newHighScoreSound.play();
+      handleEndGame("newHighScore");
+    } else {
+      await docElems.gameOverSound.play();
+      handleEndGame("gameOver");
+    }
+  }
+
+  if (!stateVar.gameOver) {
+    const fullRowsArr = getFullRowsArray(rowsOfBricked);
+    if (fullRowsArr.length > 0) {
+      pauseGame();
+      setTimeout(() => {
+        clearFullRows(fullRowsArr);
+        // The floored bricks would still be floating in place b/w the rows which are just cleared needs to shift down
+        shiftBricks(fullRowsArr);
+        nextPieceLogic();
+        unPauseGame();
+      }, 200);
+    } else {
+      nextPieceLogic();
+    }
+  }
 }
 
-export function rotatePieceAntiClockwise() {
-  rotateBricks.rotatePieceAntiClockwiseFunction(
-    updateCurrentUserArray,
-    clearBricks.clearFloatingBricks,
-    clearBricks.clearFloorGuideBricks,
-    addBricks.addFloatingBricks,
-    addBricks.addFloorGuideBricks,
-  );
-}
-
-export function handleKeyPress(e) {
+export function handleKeyPressFunction(
+  e,
+  movePieceLeft,
+  movePieceRight,
+  movePieceDown,
+  instaDrop,
+  rotatePieceClockwise,
+  rotatePieceAntiClockwise,
+) {
   if (!stateVar.gameOver && !stateVar.paused) {
     if (e.target.tagName === "INPUT") return;
 
@@ -450,48 +382,6 @@ export function handleKeyPress(e) {
 
     if (e.key === "Shift") {
       rotatePieceAntiClockwise();
-    }
-  }
-}
-
-function nextPieceLogic() {
-  resetCurrentArrays();
-  generateNextPiece();
-  selectNextPiece();
-  addBricks.updateNextPieceIndicator();
-}
-
-export async function brickHitBottomLogic() {
-  const rowsOfBricked = stateEnquiry.getRowsOfBricked();
-
-  // Checking for gameOver condition
-  if (rowsOfBricked.includes(0)) {
-    clearInterval(stateVar.pieceDownInterval);
-    stateVar.pieceDownInterval = null;
-    stateVar.gameOver = true;
-    await docElems.mainLoopMusic.pause();
-    if (stateVar.score >= stateVar.highScore) {
-      await docElems.newHighScoreSound.play();
-      handleEndGame("newHighScore");
-    } else {
-      await docElems.gameOverSound.play();
-      handleEndGame("gameOver");
-    }
-  }
-
-  if (!stateVar.gameOver) {
-    const fullRowsArr = stateEnquiry.getFullRowsArray(rowsOfBricked);
-    if (fullRowsArr.length > 0) {
-      pauseGame();
-      setTimeout(() => {
-        clearBricks.clearFullRows(fullRowsArr);
-        // The floored bricks would still be floating in place b/w the rows which are just cleared needs to shift down
-        clearBricks.shiftBricks(fullRowsArr);
-        nextPieceLogic();
-        unPauseGame();
-      }, 200);
-    } else {
-      nextPieceLogic();
     }
   }
 }

@@ -6,7 +6,7 @@ export default {
   // The game is paused when the start game is clicked again (and the settings modal is displayed again)
   paused: false,
   // The board width that would be assigned in pixels
-  boardWidth: 300,
+  BOARD_WIDTH: 300,
   // The width in pixel of the next piece indicator
   nextPieceIndicatorWidth: 50,
   // The noOfCols is updated based on the value input from the user and is used to generate the game board
