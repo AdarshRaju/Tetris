@@ -55,12 +55,12 @@ export const nextPieceContainer2 = document.getElementById(
 );
 export const musicTriggerBtn = document.getElementById("musicTriggerBtn");
 export const soundTriggerBtn = document.getElementById("soundTriggerBtn");
-export const gameOverSound = new Audio("./public/audio/gameOver.mp3");
-export const newHighScoreSound = new Audio("./public/audio/newHighScore.mp3");
-export const floorDropSound = new Audio("./public/audio/hardDrop.mp3");
-export const mainLoopMusic = new Audio("./public/audio/mainLoopMusic.mp3");
-export const pauseSound = new Audio("./public/audio/pauseSound.mp3");
-export const pieceRotate = new Audio("./public/audio/pieceRotate.mp3");
-export const rowCleared = new Audio("./public/audio/rowCleared.mp3");
+export const gameOverSound = new Audio("./audio/gameOver.mp3");
+export const newHighScoreSound = new Audio("./audio/newHighScore.mp3");
+export const floorDropSound = new Audio("./audio/hardDrop.mp3");
+export const mainLoopMusic = new Audio("./audio/mainLoopMusic.mp3");
+export const pauseSound = new Audio("./audio/pauseSound.mp3");
+export const pieceRotate = new Audio("./audio/pieceRotate.mp3");
+export const rowCleared = new Audio("./audio/rowCleared.mp3");
 
 mainLoopMusic.loop = true;
