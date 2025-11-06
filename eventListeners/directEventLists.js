@@ -10,6 +10,7 @@ import * as stateChange from "../functions/stateChangeFunctions/generalGameFunct
 import stateVar from "../globalVariables/stateVars.js";
 
 // These are event listeners that are independent of gamestate
+
 export function setUpIndependentEventListeners() {
   window.addEventListener("load", () => {
     genFunc.preLoadSoundFile(docElems.newHighScoreSound);
