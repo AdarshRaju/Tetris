@@ -81,7 +81,7 @@ export function setUpIndependentEventListeners() {
   });
 }
 
-// These are event listeners that are dependent on gamestate
+// These are event listeners that are dependent on gamestate such as whether the game has started, game is paused, or gameover was triggered
 export function setUpDependentEventListeners() {
   document.addEventListener("keydown", stateChange.handleKeyPress);
 

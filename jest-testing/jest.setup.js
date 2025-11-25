@@ -19,3 +19,38 @@ global.bootstrap = {
     hide: jest.fn(),
   })),
 };
+
+Object.defineProperty(window.HTMLMediaElement.prototype, "load", {
+  configurable: true,
+  value: jest.fn().mockImplementation(() => {
+    return { preload: "auto" };
+  }),
+});
+
+Object.defineProperty(window.HTMLMediaElement.prototype, "play", {
+  configurable: true,
+  value: jest.fn().mockImplementation(() => {
+    // preload: "auto",
+  }),
+});
+
+// Object.defineProperty(window.HTMLAudioElementImpl, "play", {
+//   configurable: true,
+//   value: jest.fn().mockImplementation(() => {
+//     // preload: "auto",
+//   }),
+// });
+
+Object.defineProperty(window.HTMLAudioElement, "play", {
+  configurable: true,
+  value: jest.fn().mockImplementation(() => {
+    // preload: "auto",
+  }),
+});
+
+Object.defineProperty(window, "scrollTo", {
+  configurable: true,
+  value: jest.fn().mockImplementation(() => {
+    // preload: "auto",
+  }),
+});

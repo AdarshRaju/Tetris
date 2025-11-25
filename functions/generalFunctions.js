@@ -131,7 +131,7 @@ export function trimAllMatrixSides(pieceMatrix) {
 
 // #endregion function for trimming a piecematrix for "false" only rows and columns at the ends
 
-// #region function for getting the heights of columns of a tetris piece matrix till the first "false" only rows
+// #region function for getting the heights of columns of a tetris piece matrix array till the first "false" only rows
 export function getDepthMap(pieceMatrix) {
   let lastRow = pieceMatrix.length - 1;
   let lastRowItems = pieceMatrix[lastRow];
