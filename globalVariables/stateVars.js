@@ -21,10 +21,11 @@ export default {
   validSettings: false,
   // The speed in ms of the piece falling down
   pieceDownInterval: 0,
-  // This variable will be used to track the grid cells of a tetris piece relative to the main game board grid
+  // This variable will be used to track the top left-most grid cell of a tetris piece relative to the main game board grid
   currentUserRefCellIndex: 0,
+  // The score is the number of lines cleared in a game
   score: 0,
-  // The high scores are stored in local storage and later re-used, for different combinations of rows, cols and speed
+  // The high scores are stored in local storage and later re-used, for different combinations of rows, cols and speed values entered by the user
   highScore: 0,
   // The below four variables are used to track the movements for touch screens (and mouse drags)
   startX: 0,

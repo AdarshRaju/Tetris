@@ -29,28 +29,15 @@ Object.defineProperty(window.HTMLMediaElement.prototype, "load", {
 
 Object.defineProperty(window.HTMLMediaElement.prototype, "play", {
   configurable: true,
-  value: jest.fn().mockImplementation(() => {
-    // preload: "auto",
-  }),
+  value: jest.fn(),
 });
 
-// Object.defineProperty(window.HTMLAudioElementImpl, "play", {
-//   configurable: true,
-//   value: jest.fn().mockImplementation(() => {
-//     // preload: "auto",
-//   }),
-// });
-
-Object.defineProperty(window.HTMLAudioElement, "play", {
+Object.defineProperty(window.HTMLMediaElement.prototype, "pause", {
   configurable: true,
-  value: jest.fn().mockImplementation(() => {
-    // preload: "auto",
-  }),
+  value: jest.fn(),
 });
 
 Object.defineProperty(window, "scrollTo", {
   configurable: true,
-  value: jest.fn().mockImplementation(() => {
-    // preload: "auto",
-  }),
+  value: jest.fn(),
 });

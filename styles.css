@@ -1,204 +1,228 @@
-
-
-body{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    background-color:rgba(226, 203, 180, 0.751);
-    background-image: url("./images/90-s-tetris-game-0438qkf6y8joxkfa.jpg");
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    transition: background-image 2s ease-in-out;
-    
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: rgba(226, 203, 180, 0.751);
+  background-image: url("./images/90-s-tetris-game-0438qkf6y8joxkfa.jpg");
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  transition: background-image 2s ease-in-out;
 }
 
-header{
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    margin: 15px 0;
-    font-family: "Orbitron";
-    
+header {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin: 15px 0;
+  font-family: "Orbitron";
 }
 
 h1 {
-    font-family: "Bitcount";
+  font-family: "Bitcount";
 }
 
 main {
-    display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: space-around;
 }
 
-footer{
-    font-family: "Lexend+Giga";
-    font-size: small;
+footer {
+  font-family: "Lexend+Giga";
+  font-size: small;
 }
 
 button {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
-.modal{
-    font-family: "Roboto";
-    background-color: rgba(0, 255, 255, 0.064);
+.modal {
+  font-family: "Roboto";
+  background-color: rgba(0, 255, 255, 0.064);
 }
 
-.modal-content{
-    background-color: rgb(159, 159, 189);
+.modal-content {
+  background-color: rgb(159, 159, 189);
 }
 
-#mainGridContainer, #nextPieceContainer1, #nextPieceContainer2{
-    display: grid;
-    box-sizing: content-box;
+#mainGridContainer,
+#nextPieceContainer1,
+#nextPieceContainer2 {
+  display: grid;
+  box-sizing: content-box;
 }
 
-#startButton{
-    width: 20%;
-    justify-self: center;
-    align-self: center;
+#startButton {
+  width: 20%;
+  justify-self: center;
+  align-self: center;
 }
 
-#buttonContainerLeft, #buttonContainerRight{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+#buttonContainerLeft,
+#buttonContainerRight {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.gridItem, .nextPieceGridItem{
-    border: black solid 1px;
-    box-sizing: content-box;
-     background-image: linear-gradient(to bottom right, white, rgb(164, 159, 159));
-    border: transparent solid 1px;
-    border-image: linear-gradient(to bottom right, red, black);
-    border-image-slice: 1;
+.gridItem,
+.nextPieceGridItem {
+  border: black solid 1px;
+  box-sizing: content-box;
+  background-image: linear-gradient(to bottom right, white, rgb(164, 159, 159));
+  border: transparent solid 1px;
+  border-image: linear-gradient(to bottom right, red, black);
+  border-image-slice: 1;
 }
+
+/* floorCheckBrick class is used to indicate where the bricks controlled by the user will land */
 
 .floorCheckBrick {
-    background-image: linear-gradient(to bottom left, rgba(132, 41, 27, 0.664), rgba(34, 31, 31, 0.385));
+  background-image: linear-gradient(
+    to bottom left,
+    rgba(132, 41, 27, 0.664),
+    rgba(34, 31, 31, 0.385)
+  );
 }
 
-.floatingBrick, .nextBrick {
-    background-color: blue;
-    background-image: linear-gradient(to top left, red, green);
-    border: transparent solid 1px;
-    border-image: linear-gradient(to left, red, black);
-    border-image-slice: 1;
+/* floatingBrick class is used for the bricks from the tetris pieces directly controlled by the user */
+.floatingBrick,
+.nextBrick {
+  background-color: blue;
+  background-image: linear-gradient(to top left, red, green);
+  border: transparent solid 1px;
+  border-image: linear-gradient(to left, red, black);
+  border-image-slice: 1;
 }
 
+/* flooredBrick class are used to indicated the set bricks in a board */
 .flooredBrick {
-    background-color: grey;
-    background-image: linear-gradient(to top left, black, rgb(94, 87, 87));
+  background-color: grey;
+  background-image: linear-gradient(to top left, black, rgb(94, 87, 87));
 }
 
-.rotateIcon{
-
-    margin-left: 0.3rem;
+.rotateIcon {
+  margin-left: 0.3rem;
 }
 
-#rotateLeftIcon{
-    margin-left: 0.0;
+#rotateLeftIcon {
+  margin-left: 0;
 }
 
-#rotateClockwiseBtn, #rotateAntiClockwiseBtn{
-    width: 50px;
-    height: 50px;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    font-size: larger;
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 5px;
-    background-color: rgb(71, 8, 8);
+#rotateClockwiseBtn,
+#rotateAntiClockwiseBtn {
+  width: 50px;
+  height: 50px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  font-size: larger;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 5px;
+  background-color: rgb(71, 8, 8);
 }
 
-#rotateClockwiseBtn:hover, #rotateAntiClockwiseBtn:hover{
-    background-color: rgb(140, 38, 38);
+#rotateClockwiseBtn:hover,
+#rotateAntiClockwiseBtn:hover {
+  background-color: rgb(140, 38, 38);
 }
 
-#moveRightBtn{
-    height: 0;
-    width: 0;
-    border-top: 25px solid transparent;
-    border-bottom: 25px solid transparent;
-    border-left: 40px solid rgb(115, 38, 38);
-    border-right: 0;
-    background-color: transparent;
-    padding: 0;
+#moveRightBtn {
+  height: 0;
+  width: 0;
+  border-top: 25px solid transparent;
+  border-bottom: 25px solid transparent;
+  border-left: 40px solid rgb(115, 38, 38);
+  border-right: 0;
+  background-color: transparent;
+  padding: 0;
 }
 
 #moveRightBtn:hover {
-
-    border-left: 40px solid rgb(176, 81, 81);
-
+  border-left: 40px solid rgb(176, 81, 81);
 }
 
-#moveLeftBtn{
-    height: 0;
-    width: 0;
-    border-top: 25px solid transparent;
-    border-bottom: 25px solid transparent;
-    border-right: 40px solid rgb(115, 38, 38);
-    border-left: 0;
-    background-color: transparent;
-    padding: 0;
+#moveLeftBtn {
+  height: 0;
+  width: 0;
+  border-top: 25px solid transparent;
+  border-bottom: 25px solid transparent;
+  border-right: 40px solid rgb(115, 38, 38);
+  border-left: 0;
+  background-color: transparent;
+  padding: 0;
 }
 
 #moveLeftBtn:hover {
-
-    border-right: 40px solid rgb(176, 81, 81);
-
+  border-right: 40px solid rgb(176, 81, 81);
 }
 
-#moveDownBtn1, #moveDownBtn2 {
-    height: 0;
-    width: 0;
-    border-top: 40px solid rgb(84, 75, 75);
-    border-bottom: 0;
-    border-right: 25px solid transparent;
-    border-left: 25px solid transparent;
-    background-color: transparent;
-    padding: 0;
-    margin-top: 2rem;
+#moveDownBtn1,
+#moveDownBtn2 {
+  height: 0;
+  width: 0;
+  border-top: 40px solid rgb(84, 75, 75);
+  border-bottom: 0;
+  border-right: 25px solid transparent;
+  border-left: 25px solid transparent;
+  background-color: transparent;
+  padding: 0;
+  margin-top: 2rem;
 }
 
-#moveDownBtn1:hover, #moveDownBtn2:hover {
-
-    border-top: 40px solid rgb(109, 99, 99);
-  
+#moveDownBtn1:hover,
+#moveDownBtn2:hover {
+  border-top: 40px solid rgb(109, 99, 99);
 }
 
-#customColsSel, #customRowsSel, #customSpeedSel, #labelCustomColsSel, #labelCustomRowsSel, #labelCustomSpseedSel{
-    margin-bottom: 15px;
+#customColsSel,
+#customRowsSel,
+#customSpeedSel,
+#labelCustomColsSel,
+#labelCustomRowsSel,
+#labelCustomSpseedSel {
+  margin-bottom: 15px;
 }
 
-#noOfColsSel, #noOfRowsSel, #gameSpeedSel, #gameControlSel{
-    margin-bottom: 15px;
+#noOfColsSel,
+#noOfRowsSel,
+#gameSpeedSel,
+#gameControlSel {
+  margin-bottom: 15px;
 }
 
-.gameOver{
-    background-image: linear-gradient(to bottom left, rgb(113, 18, 18), rgb(153, 44, 44));
+.gameOver {
+  background-image: linear-gradient(
+    to bottom left,
+    rgb(113, 18, 18),
+    rgb(153, 44, 44)
+  );
 }
 
-.newHighScore{
-    background-image: linear-gradient(to bottom left, rgb(14, 67, 36), rgb(26, 77, 31));
+.newHighScore {
+  background-image: linear-gradient(
+    to bottom left,
+    rgb(14, 67, 36),
+    rgb(26, 77, 31)
+  );
 }
 
-#volumeContainer{
-    /* margin-top: 15px; */
-    display: flex;
-    /* flex-direction: column; */
-    justify-content: center;
+#volumeContainer {
+  /* margin-top: 15px; */
+  display: flex;
+  /* flex-direction: column; */
+  justify-content: center;
 }
 
-#musicTriggerBtn, #soundTriggerBtn{
-    font-size: 20px;
-    transition: all 0.1s ease-in;
+#musicTriggerBtn,
+#soundTriggerBtn {
+  font-size: 20px;
+  transition: all 0.1s ease-in;
 }
 
-#musicTriggerBtn:hover, #soundTriggerBtn:hover{
-    cursor: pointer;
-    font-size: 40px;
+#musicTriggerBtn:hover,
+#soundTriggerBtn:hover {
+  cursor: pointer;
+  font-size: 40px;
 }

@@ -2,8 +2,11 @@ import * as docElems from "../../../globalVariables/docElems.js";
 
 import stateVar from "../../../globalVariables/stateVars.js";
 
-const { setUpIndependentEventListeners, setUpDependentEventListeners } =
-  await import("../../../eventListeners/directEventLists.js");
+const {
+  setUpIndependentEventListeners,
+  setUpDependentEventListeners,
+  setUpTouchControls,
+} = await import("../../../eventListeners/directEventLists.js");
 
 describe("testing independent event listeners", () => {
   setUpIndependentEventListeners();
@@ -118,11 +121,15 @@ describe("testing independent event listeners", () => {
 
 describe("testing game state dependent event listeners", () => {
   setUpDependentEventListeners();
+  setUpTouchControls();
   const gridItems = document.getElementsByClassName("gridItem");
-  test("before clicking on form submit, no gridItems are generated", () => {
+  function testPreStartConditions() {
     expect(gridItems.length).toBe(0);
     expect(stateVar.gameOver).toBe(true);
     expect(stateVar.paused).toBe(false);
+  }
+  test("before clicking on form submit, no gridItems are generated", () => {
+    testPreStartConditions();
   });
   describe("Clicking on 'submit' on game settings form by the user doesn't start the game if the values are invalid", () => {
     const change = new Event("change");
@@ -134,9 +141,7 @@ describe("testing game state dependent event listeners", () => {
       docElems.customColsSel.dispatchEvent(change);
       docElems.form.dispatchEvent(new Event("submit"));
       console.log("The noOfCols value is: ", docElems.noOfColsSel.value);
-      expect(gridItems.length).toBe(0);
-      expect(stateVar.gameOver).toBe(true);
-      expect(stateVar.paused).toBe(false);
+      testPreStartConditions();
     });
   });
   describe("Clicking on 'submit' on game settings form by the user starts the game if the values are valid", () => {
@@ -150,6 +155,7 @@ describe("testing game state dependent event listeners", () => {
       expect(stateVar.gameOver).toBe(false);
       expect(stateVar.paused).toBe(false);
     });
+
     let brickCheck = false;
     function checkFloatingBrickInTopRow() {
       brickCheck = false;
@@ -161,8 +167,22 @@ describe("testing game state dependent event listeners", () => {
       }
     }
 
+    function findFloatingBricksIndices() {
+      let indexRef = [];
+      [...gridItems].forEach((gridItem, index) => {
+        if (gridItem.classList.contains("floatingBrick")) {
+          indexRef.push(index);
+        }
+      });
+      return indexRef;
+    }
+
     test("Atleast one of the DOM cells in the top most row of the board will have a 'floatingBrick' class in it", () => {
       checkFloatingBrickInTopRow();
+      console.log(
+        "index of bricks initially generated are: ",
+        findFloatingBricksIndices(),
+      );
       expect(brickCheck).toBe(true);
     });
 
@@ -179,5 +199,366 @@ describe("testing game state dependent event listeners", () => {
         }, stateVar.gameSpeed + 100);
       });
     }, 10000);
+
+    describe("Testing linear movement logic", () => {
+      function simulateRightKeyPress() {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowRight" }),
+        );
+      }
+
+      function simulateLeftKeyPress() {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowLeft" }),
+        );
+      }
+
+      function simulateDownKeyPress() {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowDown" }),
+        );
+      }
+      function simulateRightMoveIconClick() {
+        docElems.moveRightBtn.dispatchEvent(new Event("click"));
+      }
+      function simulateLeftMoveIconClick() {
+        docElems.moveLeftBtn.dispatchEvent(new Event("click"));
+      }
+      function simulateDownMove1IconClick() {
+        docElems.moveDownBtn1.dispatchEvent(new Event("mousedown"));
+      }
+      function simulateDownMove2IconClick() {
+        docElems.moveDownBtn2.dispatchEvent(new Event("mousedown"));
+      }
+      test("Using the right key on the keyboard moves the piece right by one cell", () => {
+        let currentIndices = findFloatingBricksIndices();
+        console.log(
+          "index of bricks just before running right move logic are: ",
+          currentIndices,
+        );
+        let blockOnRight = false;
+
+        function checkRightMoveLogic() {
+          if (blockOnRight === false) {
+            currentIndices.forEach((currentIndex, indexNo) => {
+              expect(currentIndex + 1).toBe(newIndices[indexNo]);
+            });
+          } else {
+            console.log("right move blocked");
+            expect(newIndices).toEqual(currentIndices);
+          }
+        }
+
+        function checkBlockOnRight() {
+          currentIndices.forEach((blockIndex) => {
+            if (
+              gridItems[parseInt(blockIndex) + 1].classList.contains(
+                "flooredBrick",
+              ) ||
+              (parseInt(blockIndex) + 1) % stateVar.noOfCols === 0
+            ) {
+              blockOnRight = true;
+              return;
+            } else {
+              blockOnRight = false;
+            }
+          });
+        }
+        // Check if flooredBrick class in cell next to piece cell is preventing rightwards movement
+        gridItems[
+          parseInt(currentIndices[currentIndices.length - 1]) + 1
+        ].classList.add("flooredBrick");
+
+        simulateRightKeyPress();
+
+        simulateRightMoveIconClick();
+        let newIndices = findFloatingBricksIndices();
+        console.log(
+          "updated indices after arrow right with flooredBrick class blocking piece present are: ",
+          newIndices,
+        );
+        checkBlockOnRight();
+        checkRightMoveLogic();
+
+        // Check if lack of flooredBrick class in cell next to piece cell is allowing rightwards movement
+
+        gridItems[
+          parseInt(currentIndices[currentIndices.length - 1]) + 1
+        ].classList.remove("flooredBrick");
+        simulateRightKeyPress();
+
+        newIndices = findFloatingBricksIndices();
+        console.log(
+          "updated indices after arrow right with flooredBrick class blocking piece absent are: ",
+          newIndices,
+        );
+        checkBlockOnRight();
+        checkRightMoveLogic();
+      });
+
+      test("Using the left key on the keyboard moves the piece left by one cell", () => {
+        let currentIndices = findFloatingBricksIndices();
+        let blockOnLeft = false;
+
+        function checkLeftMoveLogic() {
+          if (blockOnLeft === false) {
+            currentIndices.forEach((currentIndex, indexNo) => {
+              expect(currentIndex - 1).toBe(newIndices[indexNo]);
+            });
+          } else {
+            console.log("left move blocked");
+            expect(newIndices).toEqual(currentIndices);
+          }
+        }
+
+        function checkBlockOnLeft() {
+          currentIndices.forEach((blockIndex) => {
+            if (
+              gridItems[parseInt(blockIndex) - 1].classList.contains(
+                "flooredBrick",
+              ) ||
+              parseInt(blockIndex) % stateVar.noOfCols === 0
+            ) {
+              blockOnLeft = true;
+              return;
+            } else {
+              blockOnLeft = false;
+            }
+          });
+        }
+        // Check if flooredBrick class in cell next to piece cell is preventing leftwards movement
+        gridItems[
+          parseInt(currentIndices[currentIndices.length - 1]) - 1
+        ].classList.add("flooredBrick");
+
+        simulateLeftKeyPress();
+
+        simulateLeftMoveIconClick();
+        let newIndices = findFloatingBricksIndices();
+        console.log(
+          "updated indices after arrow left with flooredBrick class blocking piece present are: ",
+          newIndices,
+        );
+        checkBlockOnLeft();
+        checkLeftMoveLogic();
+
+        // Check if lack of flooredBrick class in cell next to piece cell is allowing leftwards movement
+
+        gridItems[
+          parseInt(currentIndices[currentIndices.length - 1]) - 1
+        ].classList.remove("flooredBrick");
+        simulateLeftKeyPress();
+
+        newIndices = findFloatingBricksIndices();
+        console.log(
+          "updated indices after arrow left with flooredBrick class blocking piece absent are: ",
+          newIndices,
+        );
+        checkBlockOnLeft();
+        checkLeftMoveLogic();
+      });
+
+      test("Using the down key on the keyboard moves the piece down by one cell", () => {
+        let currentIndices = findFloatingBricksIndices();
+        console.log(
+          "currentIndices at starting of down block is: ",
+          currentIndices,
+        );
+        let blockOnDown = false;
+
+        function checkDownMoveLogic() {
+          if (blockOnDown === false) {
+            currentIndices.forEach((currentIndex, indexNo) => {
+              expect(currentIndex + parseInt(stateVar.noOfCols)).toBe(
+                newIndices[indexNo],
+              );
+            });
+          } else {
+            console.log("down move blocked");
+            expect(newIndices).toEqual(currentIndices);
+          }
+        }
+
+        function checkBlockOnDown() {
+          currentIndices.forEach((blockIndex) => {
+            if (
+              gridItems[
+                parseInt(blockIndex) + parseInt(stateVar.noOfCols)
+              ].classList.contains("flooredBrick") ||
+              parseInt(blockIndex) + parseInt(stateVar.noOfCols) >=
+                parseInt(stateVar.boardSize)
+            ) {
+              blockOnDown = true;
+              return;
+            } else {
+              blockOnDown = false;
+            }
+          });
+        }
+
+        // Check if lack of flooredBrick class in cell next to piece cell is allowing downwards movement
+
+        simulateDownKeyPress();
+        let newIndices = findFloatingBricksIndices();
+        checkBlockOnDown();
+        checkDownMoveLogic();
+
+        simulateDownMove1IconClick();
+        currentIndices = newIndices;
+        newIndices = findFloatingBricksIndices();
+        checkBlockOnDown();
+        checkDownMoveLogic();
+
+        simulateDownMove2IconClick();
+        currentIndices = newIndices;
+        newIndices = findFloatingBricksIndices();
+        checkBlockOnDown();
+        checkDownMoveLogic();
+        console.log(
+          "updated indices after arrow down with flooredBrick class blocking piece absent are: ",
+          newIndices,
+        );
+
+        // Check if presence of flooredBrick class in cell below next to tetris cell piece is allowing downwards movement
+
+        currentIndices = newIndices;
+        checkFloatingBrickInTopRow();
+        expect(brickCheck).toBe(false);
+        expect;
+        gridItems[
+          parseInt(currentIndices[currentIndices.length - 1]) +
+            parseInt(stateVar.noOfCols)
+        ].classList.add("flooredBrick");
+        simulateDownKeyPress();
+
+        newIndices = findFloatingBricksIndices();
+        console.log(
+          "currentIndices just before regeneration is: ",
+          currentIndices,
+        );
+        console.log("newly generated piece matrix is: ", newIndices);
+        // New floating bricks are generated after the current floating piece hits a floored cell
+        checkFloatingBrickInTopRow();
+        expect(brickCheck).toBe(true);
+      });
+    });
+
+    test("Pressing the 'start' button pauses the game", () => {
+      expect(stateVar.paused).toBe(false);
+      docElems.startButton.dispatchEvent(new Event("click"));
+      expect(stateVar.paused).toBe(true);
+      docElems.startGameModalDOM.dispatchEvent(new Event("hidden.bs.modal"));
+      expect(stateVar.paused).toBe(false);
+    });
+
+    test("dragging mouse beyond threshold values triggers linear movements", () => {
+      // let currentIndices = findFloatingBricksIndices();
+      const spy = jest.spyOn(document, "dispatchEvent");
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mouseup", { clientX: 60, clientY: 0 }),
+      );
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "keydown", key: "ArrowRight" }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mousedown", { clientX: 60, clientY: 0 }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mouseup", { clientX: 0, clientY: 0 }),
+      );
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "keydown", key: "ArrowLeft" }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mousedown", { clientX: 0, clientY: 0 }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mouseup", { clientX: 0, clientY: 60 }),
+      );
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "keydown", key: "ArrowDown" }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mousedown", { clientX: 0, clientY: 60 }),
+      );
+
+      docElems.mainGridContainer.dispatchEvent(
+        new MouseEvent("mouseup", { clientX: 0, clientY: 0 }),
+      );
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "keydown", key: "ArrowUp" }),
+      );
+
+      spy.mockRestore();
+    });
+
+    // test("dragging touch screen beyond threshold values triggers linear movements", () => {
+    //   // let currentIndices = findFloatingBricksIndices();
+    //   const spy = jest.spyOn(document, "dispatchEvent");
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchstart", {touches[0]: { clientX: 0, clientY: 0 }}),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchend", { touches[0]:{clientX: 60, clientY: 0 }}),
+    //   );
+
+    //   expect(spy).toHaveBeenCalledWith(
+    //     expect.objectContaining({ type: "keydown", key: "ArrowRight" }),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchstart", { touches[0]:{clientX: 60, clientY: 0 }}),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchend", { touches[0]:{clientX: 0, clientY: 0 }}),
+    //   );
+
+    //   expect(spy).toHaveBeenCalledWith(
+    //     expect.objectContaining({ type: "keydown", key: "ArrowLeft" }),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchstart", { touches[0]:{clientX: 0, clientY: 0 }}),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchend", { touches[0]:{clientX: 0, clientY: 60 }}),
+    //   );
+
+    //   expect(spy).toHaveBeenCalledWith(
+    //     expect.objectContaining({ type: "keydown", key: "ArrowDown" }),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchstart", { touches[0]:{clientX: 0, clientY: 60 }}),
+    //   );
+
+    //   docElems.mainGridContainer.dispatchEvent(
+    //     new TouchEvent("touchend", { touches[0]:{clientX: 0, clientY: 0 }}),
+    //   );
+
+    //   expect(spy).toHaveBeenCalledWith(
+    //     expect.objectContaining({ type: "keydown", key: "ArrowUp" }),
+    //   );
+
+    //   spy.mockRestore();
+    // });
   });
 });
